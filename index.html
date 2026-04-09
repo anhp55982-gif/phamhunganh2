@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Học tập & Thi cử - Lớp Toán Thầy Hùng Anh</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+    window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+    };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         /* ================= UI/UX NÂNG CẤP ================= */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
