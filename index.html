@@ -602,6 +602,7 @@
                 qList.forEach((q, i) => {
                     html += `<div style="margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid #e2e8f0; font-size: 16px;">`;
                     html += `<b style="color: var(--primary);">Câu ${i+1}:</b> ${q.q}<br><br>`;
+                    
                     if(q.type === 'mcq') {
                         q.a.forEach((ans, j) => html += `<div style="padding:10px 15px; margin:5px 0; background:#f8fafc; border-radius:8px; border: 1px solid #e2e8f0; ${q.correct === j ? 'border-color: #10b981; background: #dcfce7; font-weight: bold; color: #166534;' : ''}">${ans}</div>`);
                     } else if(q.type === 'tf') {
@@ -611,6 +612,15 @@
                     } else {
                         html += `<div style="background: #f8fafc; padding: 15px; border-radius: 8px;">Đáp án chuẩn: <b style="color:#ef4444; font-size: 18px;">${q.correct}</b></div>`;
                     }
+
+                    // --- BỔ SUNG LỆNH HIỂN THỊ HƯỚNG DẪN GIẢI Ở ĐÂY ---
+                    if (q.explanation && q.explanation.trim() !== "") {
+                        html += `<div style="margin-top:15px; background: #f0fdf4; border-left: 5px solid #22c55e; padding: 15px; border-radius: 0 8px 8px 0; font-size: 15px; color: #166534;">
+                            <b>📖 Hướng dẫn giải:</b><br><br>${q.explanation}
+                        </div>`;
+                    }
+                    // ------------------------------------------------
+
                     html += `</div>`;
                 });
                 document.getElementById("previewArea").innerHTML = html;
