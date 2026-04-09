@@ -174,13 +174,19 @@
                 <p style="color: #3b82f6; margin-top: 5px; font-weight: 600;">Chúc em làm bài thi thật tốt nhé! 🍀</p>
             </div>
             
-            <div style="text-align: left; margin-bottom: 25px;">
-                <label style="font-weight: bold; color: #475569; font-size: 15px; margin-bottom: 8px; display: block;">📚 Vui lòng chọn Đề thi / Luyện tập:</label>
-                <select id="studentExamPicker" style="border-color: #93c5fd; font-weight: 600; color: #1e3a8a;"></select>
+            <div style="text-align: left; margin-bottom: 15px; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 1px solid #bae6fd;">
+                <label style="font-weight: bold; color: #0284c7; font-size: 15px; margin-bottom: 5px; display: block;">🔵 ĐỀ KIỂM TRA</label>
+                <select id="studentExamPicker_exam" style="border-color: #7dd3fc; font-weight: 600; color: #0369a1;"></select>
+                <button class="btn btn-blue" onclick="startStudentMode('exam')" style="padding: 14px; margin-top: 10px;">VÀO PHÒNG THI</button>
             </div>
-            <button class="btn btn-blue" onclick="startStudentMode('exam')" style="padding: 18px;">🔴 VÀO PHÒNG THI CHÍNH THỨC</button>
-            <button class="btn btn-green" onclick="startStudentMode('practice')">🟢 TỰ LUYỆN TẬP CUỐI GIỜ</button>
-            <button class="btn btn-gray" onclick="viewStudentHistory()">🕒 XEM LỊCH SỬ BÀI LÀM</button>
+            
+            <div style="text-align: left; margin-bottom: 25px; background: #dcfce7; padding: 15px; border-radius: 12px; border: 1px solid #86efac;">
+                <label style="font-weight: bold; color: #15803d; font-size: 15px; margin-bottom: 5px; display: block;">🟢 BÀI TẬP TỰ LUYỆN</label>
+                <select id="studentExamPicker_practice" style="border-color: #86efac; font-weight: 600; color: #166534;"></select>
+                <button class="btn btn-green" onclick="startStudentMode('practice')" style="padding: 14px; margin-top: 10px;">TỰ LUYỆN TẬP</button>
+            </div>
+
+            <button class="btn btn-gray" onclick="viewStudentHistory()" style="margin-top: 10px;">🕒 XEM LỊCH SỬ BÀI LÀM</button>
             <button class="btn btn-red" onclick="location.reload()" style="margin-top: 15px;">🚪 ĐĂNG XUẤT</button>
         </div>
 
@@ -235,9 +241,13 @@
                 <option value="">-- [ ✨ Tạo đề mới tinh ] --</option>
             </select>
             
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
                 <input type="text" id="examNameInput" placeholder="Tên đề thi (VD: Đề Giữa Kì 2)">
                 <input type="number" id="examTimeInput" placeholder="Thời gian (Phút)" value="45">
+                <select id="examTypeInput" style="margin:0; padding:16px;">
+                    <option value="exam">🔵 ĐỀ KIỂM TRA</option>
+                    <option value="practice">🟢 BÀI TẬP TỰ LUYỆN</option>
+                </select>
             </div>
             
             <div style="background: #f1f5f9; padding: 20px; border-radius: 16px; border: 1px solid #cbd5e1; margin-bottom: 20px;">
@@ -399,15 +409,28 @@
         });
 
         function updateExamPickers() {
-            let html = "";
+            let htmlExam = "";
+            let htmlPractice = "";
             let editHtml = "<option value=''>-- [ ✨ Tạo đề mới tinh ] --</option>";
+            let htmlAll = "";
+            
             Object.keys(dbExams).forEach(name => {
-                html += `<option value="${name}">${name} (${dbExams[name].time} phút)</option>`;
-                editHtml += `<option value="${name}">${name}</option>`;
+                const ex = dbExams[name];
+                const exType = ex.type || 'exam'; // Các đề cũ mặc định là đề thi
+                
+                let opt = `<option value="${name}">${name} (${ex.time} phút)</option>`;
+                if (exType === 'exam') htmlExam += opt;
+                if (exType === 'practice') htmlPractice += opt;
+                
+                htmlAll += opt;
+                editHtml += `<option value="${name}">${name} - [${exType === 'exam' ? 'Thi' : 'Tự luyện'}]</option>`;
             });
-            document.getElementById("studentExamPicker").innerHTML = html;
-            document.getElementById("monitorExamPicker").innerHTML = html;
-            document.getElementById("solutionExamPicker").innerHTML = html;
+            
+            document.getElementById("studentExamPicker_exam").innerHTML = htmlExam || "<option value=''>-- Chưa có đề thi --</option>";
+            document.getElementById("studentExamPicker_practice").innerHTML = htmlPractice || "<option value=''>-- Chưa có bài tập --</option>";
+            
+            document.getElementById("monitorExamPicker").innerHTML = htmlAll;
+            document.getElementById("solutionExamPicker").innerHTML = htmlAll;
             document.getElementById("editExamPicker").innerHTML = editHtml;
         }
 
@@ -453,12 +476,14 @@
             if(!name) {
                 document.getElementById("examNameInput").value = "";
                 document.getElementById("examTimeInput").value = 45;
-                window.builderQuestions = JSON.parse(templateJSON);
+                document.getElementById("examTypeInput").value = "exam"; // Thêm dòng này
+                window.builderQuestions = JSON.parse(templateJSON); 
             } else {
                 const ex = dbExams[name];
                 document.getElementById("examNameInput").value = name;
                 document.getElementById("examTimeInput").value = ex.time;
-                window.builderQuestions = JSON.parse(JSON.stringify(ex.questions)); // Deep copy
+                document.getElementById("examTypeInput").value = ex.type || "exam"; // Thêm dòng này
+                window.builderQuestions = JSON.parse(JSON.stringify(ex.questions)); 
             }
             renderBuilder();
         };
@@ -632,12 +657,14 @@
         window.saveExamToFirebase = () => {
             const name = document.getElementById("examNameInput").value.trim();
             const time = parseInt(document.getElementById("examTimeInput").value);
-            syncBuilderData(); // Lấy dữ liệu từ giao diện
+            const type = document.getElementById("examTypeInput").value; // Thêm dòng này
+            syncBuilderData(); 
             
             if(!name || !time) return alert("Vui lòng nhập tên đề và thời gian!");
             if(window.builderQuestions.length === 0) return alert("Đề thi chưa có câu hỏi nào!");
             
-            set(ref(db, `exams/${name}`), { time: time, questions: window.builderQuestions })
+            // Thêm type: type vào dòng set()
+            set(ref(db, `exams/${name}`), { time: time, type: type, questions: window.builderQuestions })
             .then(() => { alert("Lưu đề thi lên hệ thống thành công!"); showScreen('screen-teacher-dash'); })
             .catch(err => alert("Lỗi: " + err.message));
         };
@@ -769,9 +796,13 @@
         });
 
         window.startStudentMode = (mode) => {
-            const name = document.getElementById("studentExamPicker").value;
-            if(!name || !dbExams[name]) return alert("Vui lòng chọn đề thi!");
+            // Xác định xem lấy tên đề ở hộp Đỏ (Thi) hay hộp Xanh (Tự luyện)
+            const pickerId = mode === 'exam' ? "studentExamPicker_exam" : "studentExamPicker_practice";
+            const name = document.getElementById(pickerId).value;
             
+            if(!name || !dbExams[name]) return alert("Vui lòng chọn đề thi/bài tập!");
+            
+            // Nếu là thi chính thức thì hỏi mật khẩu
             if(mode === 'exam') {
                 const d = new Date();
                 const code = String(d.getDate()).padStart(2, '0') + String(d.getMonth() + 1).padStart(2, '0');
@@ -780,12 +811,31 @@
                 }
             }
             
+            // Lấy dữ liệu đề, đặt lại các biến thời gian, điểm số
             questions = dbExams[name].questions; 
-            currentMode = mode; currentIdx = 0; userAnswers = {}; cheatCount = 0; 
+            currentMode = mode; 
+            currentIdx = 0; 
+            userAnswers = {}; 
+            cheatCount = 0; 
             timeLeft = dbExams[name].time * 60;
             
-            if(mode === 'exam') update(ref(db, `students/${currentUser.fullName}`), { examName: name, totalQ: questions.length, status: "Đang làm", score: 0, cheats: 0, timeLeft: timeLeft });
-            showScreen('screen-quiz'); renderQ(); renderGrid(); startTimer();
+            // Nếu là thi chính thức thì ghi chú lên bảng theo dõi của Giáo viên
+            if(mode === 'exam') {
+                update(ref(db, `students/${currentUser.fullName}`), { 
+                    examName: name, 
+                    totalQ: questions.length, 
+                    status: "Đang làm", 
+                    score: 0, 
+                    cheats: 0, 
+                    timeLeft: timeLeft 
+                });
+            }
+            
+            // Mở màn hình làm bài, vẽ câu hỏi và chạy đồng hồ
+            showScreen('screen-quiz'); 
+            renderQ(); 
+            renderGrid(); 
+            startTimer();
         };
 
         function startTimer() {
@@ -816,7 +866,11 @@
 
         function renderQ() {
             const q = questions[currentIdx];
-            document.getElementById("quiz-title").innerText = document.getElementById("studentExamPicker").value;
+            
+            // Sửa lại chỗ này: Tự động nhìn vào hộp Đỏ hoặc Xanh để lấy đúng tên đề
+            const pickerId = currentMode === 'exam' ? "studentExamPicker_exam" : "studentExamPicker_practice";
+            document.getElementById("quiz-title").innerText = document.getElementById(pickerId).value;
+            
             document.getElementById("question-text").innerHTML = `<b style="color: var(--primary);">Câu ${currentIdx + 1}/${questions.length}:</b> <br><br>` + q.q;
             let html = ""; const savedAns = userAnswers[currentIdx];
             if(q.type === "mcq") {
@@ -896,7 +950,7 @@
                 
                 if(currentMode === 'exam') {
                     update(ref(db, `students/${currentUser.fullName}`), { status: "Xong", score: fS, timeLeft: 0, detailAnswers: historyArr });
-                    push(ref(db, `history_all/${currentUser.username}`), { date: new Date().toLocaleString(), score: fS, details: historyArr, examName: document.getElementById("studentExamPicker").value });
+                    push(ref(db, `history_all/${currentUser.username}`), { date: new Date().toLocaleString(), score: fS, details: historyArr, examName: document.getElementById("studentExamPicker_exam").value });
                 }
                 currentMode = "";
             }
