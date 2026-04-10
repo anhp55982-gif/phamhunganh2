@@ -548,10 +548,19 @@
                     <label style="font-weight:bold; color:#475569; font-size:14px;">Nội dung câu hỏi (Có thể gõ công thức Toán LaTeX):</label>
                     <textarea class="inp-q" rows="3" style="margin-bottom: 10px; margin-top:5px; font-family: monospace;" placeholder="Ví dụ: Cho hàm số f(x)...">${q.q}</textarea>
                     
-                    <div style="margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                        <label style="font-size:13px; color:#64748b; font-weight:bold; display:block; margin-bottom: 5px;">🖼 Chèn hình ảnh (Tuỳ chọn):</label>
-                        <input type="file" accept="image/*" onchange="handleImageUpload(this, ${i})" style="padding: 5px; font-size: 13px; width: auto; margin: 0; background: white; cursor: pointer;">
-                        ${q.image ? `<div style="margin-top: 10px; position: relative; display: inline-block;"><img src="${q.image}" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"><button class="btn-red" onclick="removeImage(${i})" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 24px; padding: 0; border-radius: 50%; font-size: 12px; margin: 0; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">X</button></div>` : ''}
+                    <div style="margin-bottom: 20px; background: #f8fafc; padding: 25px 20px; border-radius: 12px; border: 2px dashed #cbd5e1; text-align: center; transition: all 0.3s ease;"
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDrop(event, ${i})">
+                        <label style="font-size:15px; color:#64748b; font-weight:bold; display:block; cursor: pointer; margin: 0;">
+                            📥 Kéo thả hình ảnh vào khung này<br>
+                            <span style="font-size: 13px; font-weight: normal; color: #94a3b8;">Hoặc <b style="color: #0284c7; text-decoration: underline;">Nhấn vào đây</b> để chọn file từ máy (JPG, PNG dưới 2MB)</span>
+                            <input type="file" accept="image/*" onchange="handleImageUpload(this, ${i})" style="display: none;">
+                        </label>
+                        ${q.image ? `<div style="margin-top: 15px; position: relative; display: inline-block;">
+                            <img src="${q.image}" style="max-height: 160px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <button class="btn-red" onclick="removeImage(${i})" style="position: absolute; top: -12px; right: -12px; width: 28px; height: 28px; padding: 0; border-radius: 50%; font-size: 14px; margin: 0; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">X</button>
+                        </div>` : ''}
                     </div>
                 `;
 
@@ -1041,17 +1050,43 @@
             if(window.MathJax) MathJax.typesetPromise();
         };
         // ================= XỬ LÝ ẢNH =================
-        window.handleImageUpload = (input, idx) => {
-            const file = input.files[0];
+        window.processImageFile = (file, idx) => {
             if(!file) return;
             if(file.size > 2 * 1024 * 1024) return alert("Dung lượng ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
             const reader = new FileReader();
             reader.onload = (e) => {
-                syncBuilderData(); // Lưu lại chữ đang gõ
+                syncBuilderData();
                 window.builderQuestions[idx].image = e.target.result;
                 renderBuilder();
             };
             reader.readAsDataURL(file);
+        };
+
+        window.handleImageUpload = (input, idx) => {
+            window.processImageFile(input.files[0], idx);
+            input.value = ""; // Reset input để có thể chọn lại cùng 1 ảnh
+        };
+
+        // Các hiệu ứng khi kéo thả chuột
+        window.handleDragOver = (e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#3b82f6'; // Đổi viền xanh blue khi kéo ảnh vào
+            e.currentTarget.style.backgroundColor = '#eff6ff'; // Đổi nền xanh nhạt
+        };
+
+        window.handleDragLeave = (e) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#cbd5e1'; // Trả lại viền xám khi kéo ra ngoài
+            e.currentTarget.style.backgroundColor = '#f8fafc';
+        };
+
+        window.handleDrop = (e, idx) => {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = '#cbd5e1';
+            e.currentTarget.style.backgroundColor = '#f8fafc';
+            if(e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                window.processImageFile(e.dataTransfer.files[0], idx); // Nhận file vừa thả vào
+            }
         };
 
         window.removeImage = (idx) => {
