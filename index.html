@@ -492,12 +492,16 @@
         window.syncBuilderData = () => {
             const container = document.getElementById("visual-builder-area");
             const blocks = container.querySelectorAll('.q-block');
+            
+            // Giữ lại danh sách ảnh cũ trước khi làm mới
+            const oldImages = window.builderQuestions.map(q => q.image || ""); 
             window.builderQuestions = [];
             
-            blocks.forEach((blk) => {
+            blocks.forEach((blk, idx) => {
                 const type = blk.dataset.type;
                 const qText = blk.querySelector('.inp-q').value;
                 const expl = blk.querySelector('.inp-expl').value;
+                const img = oldImages[idx] || ""; // Gắn lại ảnh không cho nó rớt
 
                 if(type === 'mcq') {
                     const a = [
@@ -508,8 +512,8 @@
                     ];
                     let correct = 0;
                     const radios = blk.querySelectorAll('.inp-rad');
-                    radios.forEach((r, idx) => { if(r.checked) correct = idx; });
-                    window.builderQuestions.push({type: 'mcq', q: qText, a: a, correct: correct, explanation: expl});
+                    radios.forEach((r, rIdx) => { if(r.checked) correct = rIdx; });
+                    window.builderQuestions.push({type: 'mcq', q: qText, a: a, correct: correct, explanation: expl, image: img});
                 } 
                 else if(type === 'tf') {
                     const statements = [
@@ -518,11 +522,11 @@
                         {text: blk.querySelector('.inp-st-2').value, isTrue: blk.querySelector('.inp-tf-2').value === 'true'},
                         {text: blk.querySelector('.inp-st-3').value, isTrue: blk.querySelector('.inp-tf-3').value === 'true'}
                     ];
-                    window.builderQuestions.push({type: 'tf', q: qText, statements: statements, explanation: expl});
+                    window.builderQuestions.push({type: 'tf', q: qText, statements: statements, explanation: expl, image: img});
                 } 
                 else if(type === 'short') {
                     const correct = blk.querySelector('.inp-ans').value;
-                    window.builderQuestions.push({type: 'short', q: qText, correct: correct, explanation: expl});
+                    window.builderQuestions.push({type: 'short', q: qText, correct: correct, explanation: expl, image: img});
                 }
             });
         };
@@ -531,14 +535,10 @@
         window.renderBuilder = () => {
             const area = document.getElementById("visual-builder-area");
             let html = "";
-            
-            if(window.builderQuestions.length === 0) {
-                html = "<div style='padding: 30px; text-align:center; color:gray;'>Đề thi đang trống. Hãy thêm câu hỏi bên dưới.</div>";
-            }
+            if(window.builderQuestions.length === 0) html = "<div style='padding: 30px; text-align:center; color:gray;'>Đề thi đang trống. Hãy thêm câu hỏi bên dưới.</div>";
             
             window.builderQuestions.forEach((q, i) => {
                 const labelType = q.type === 'mcq' ? '📝 Câu Trắc Nghiệm' : (q.type === 'tf' ? '⚖️ Câu Đúng/Sai' : '✍️ Câu Trả Lời Ngắn');
-                
                 html += `<div class="q-block" data-type="${q.type}" style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
                         <b style="color: #0369a1; font-size: 18px;">Câu ${i+1} <span style="font-size:14px; color:#64748b; font-weight:normal;">- ${labelType}</span></b>
@@ -546,36 +546,37 @@
                     </div>
                     
                     <label style="font-weight:bold; color:#475569; font-size:14px;">Nội dung câu hỏi (Có thể gõ công thức Toán LaTeX):</label>
-                    <textarea class="inp-q" rows="3" style="margin-bottom: 20px; margin-top:5px; font-family: monospace;" placeholder="Ví dụ: Cho hàm số \\( f(x) = x^2 \\)...">${q.q}</textarea>
+                    <textarea class="inp-q" rows="3" style="margin-bottom: 10px; margin-top:5px; font-family: monospace;" placeholder="Ví dụ: Cho hàm số f(x)...">${q.q}</textarea>
+                    
+                    <div style="margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        <label style="font-size:13px; color:#64748b; font-weight:bold; display:block; margin-bottom: 5px;">🖼 Chèn hình ảnh (Tuỳ chọn):</label>
+                        <input type="file" accept="image/*" onchange="handleImageUpload(this, ${i})" style="padding: 5px; font-size: 13px; width: auto; margin: 0; background: white; cursor: pointer;">
+                        ${q.image ? `<div style="margin-top: 10px; position: relative; display: inline-block;"><img src="${q.image}" style="max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1;"><button class="btn-red" onclick="removeImage(${i})" style="position: absolute; top: -10px; right: -10px; width: 24px; height: 24px; padding: 0; border-radius: 50%; font-size: 12px; margin: 0; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer;">X</button></div>` : ''}
+                    </div>
                 `;
 
                 if(q.type === 'mcq') {
-                    html += `<label style="font-weight:bold; color:#475569; font-size:14px; margin-bottom:10px; display:block;">Các lựa chọn (Tích tròn vào ô đáp án đúng):</label>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">`;
+                    html += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">`;
                     for(let j=0; j<4; j++) {
-                        const optLabels = ['A', 'B', 'C', 'D'];
                         const isCorrect = (q.correct === j);
                         html += `<div style="display:flex; align-items:center; gap: 12px; background: ${isCorrect ? '#f0fdf4' : '#f8fafc'}; padding: 12px; border-radius: 8px; border: 1px solid ${isCorrect ? '#4ade80' : '#cbd5e1'};">
                             <input type="radio" name="mcq-${i}" class="inp-rad" style="width:22px; height:22px; cursor:pointer;" ${isCorrect ? 'checked' : ''} onchange="syncBuilderData(); renderBuilder();">
                             <div style="flex:1;">
-                                <label style="font-size:13px; color:#64748b; font-weight:bold;">Đáp án ${optLabels[j]}</label>
-                                <input type="text" class="inp-opt-${j}" value="${q.a[j] || ''}" style="margin:0; padding:10px; font-family:monospace;" placeholder="Nhập nội dung đáp án ${optLabels[j]}...">
+                                <label style="font-size:13px; color:#64748b; font-weight:bold;">Đáp án ${['A','B','C','D'][j]}</label>
+                                <input type="text" class="inp-opt-${j}" value="${q.a[j] || ''}" style="margin:0; padding:10px; font-family:monospace;" placeholder="Nội dung...">
                             </div>
                         </div>`;
                     }
                     html += `</div>`;
-                } 
-                else if(q.type === 'tf') {
+                } else if(q.type === 'tf') {
                     let stArray = q.statements || [{},{},{},{}];
                     while(stArray.length < 4) stArray.push({text:"", isTrue:true});
-                    
-                    html += `<label style="font-weight:bold; color:#475569; font-size:14px; margin-bottom:10px; display:block;">Bốn mệnh đề cần xét Tính Đúng/Sai:</label>
-                    <div style="margin-bottom: 20px;">`;
+                    html += `<div style="margin-bottom: 20px;">`;
                     for(let j=0; j<4; j++) {
                         let st = stArray[j];
                         html += `<div style="display:flex; align-items:center; gap: 15px; margin-bottom: 12px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
                             <span style="font-weight:bold; color:#0f172a; width: 40px; text-align:center;">Ý ${['a','b','c','d'][j]})</span>
-                            <input type="text" class="inp-st-${j}" value="${st.text || ''}" style="margin:0; padding:12px; flex:1; font-family:monospace;" placeholder="Nhập nội dung mệnh đề...">
+                            <input type="text" class="inp-st-${j}" value="${st.text || ''}" style="margin:0; padding:12px; flex:1; font-family:monospace;" placeholder="Nội dung mệnh đề...">
                             <select class="inp-tf-${j}" style="margin:0; padding:12px; width: 140px; font-weight:bold; cursor:pointer; color: ${st.isTrue ? '#16a34a' : '#dc2626'}; border-color: ${st.isTrue ? '#4ade80' : '#fca5a5'}; background: ${st.isTrue ? '#f0fdf4' : '#fef2f2'};" onchange="this.style.color = this.value === 'true' ? '#16a34a' : '#dc2626'; this.style.borderColor = this.value === 'true' ? '#4ade80' : '#fca5a5'; this.style.background = this.value === 'true' ? '#f0fdf4' : '#fef2f2';">
                                 <option value="true" ${st.isTrue ? 'selected' : ''}>✔ ĐÚNG</option>
                                 <option value="false" ${!st.isTrue ? 'selected' : ''}>✘ SAI</option>
@@ -583,16 +584,15 @@
                         </div>`;
                     }
                     html += `</div>`;
-                } 
-                else if(q.type === 'short') {
+                } else if(q.type === 'short') {
                     html += `<div style="margin-bottom: 20px; background: #fef2f2; padding: 20px; border-radius: 8px; border: 1px dashed #fca5a5;">
                         <label style="font-weight:bold; color:#ef4444; font-size:14px;">Đáp án chính xác (Điền kết quả cuối cùng):</label>
-                        <input type="text" class="inp-ans" value="${q.correct || ''}" style="margin-top:8px; margin-bottom:0; padding:12px; font-weight:bold; color:#dc2626; border-color:#fca5a5; font-size:18px;" placeholder="Ví dụ: 125, x=2, ...">
+                        <input type="text" class="inp-ans" value="${q.correct || ''}" style="margin-top:8px; margin-bottom:0; padding:12px; font-weight:bold; color:#dc2626; border-color:#fca5a5; font-size:18px;">
                     </div>`;
                 }
 
-                html += `<label style="color:#059669; font-weight:bold; font-size:14px;">📖 Hướng dẫn giải chi tiết (Hiển thị cho HS xem sau khi nộp):</label>
-                    <textarea class="inp-expl" rows="2" style="margin-top:5px; margin-bottom:0; border-color: #6ee7b7; background:#f0fdf4; font-family:monospace;" placeholder="Giải thích vì sao chọn đáp án này...">${q.explanation || ''}</textarea>
+                html += `<label style="color:#059669; font-weight:bold; font-size:14px;">📖 Hướng dẫn giải chi tiết:</label>
+                    <textarea class="inp-expl" rows="2" style="margin-top:5px; margin-bottom:0; border-color: #6ee7b7; background:#f0fdf4; font-family:monospace;">${q.explanation || ''}</textarea>
                 </div>`;
             });
             area.innerHTML = html;
@@ -600,12 +600,11 @@
 
         window.addVisualQ = (type) => {
             syncBuilderData();
-            if(type === 'mcq') window.builderQuestions.push({type: 'mcq', q: "", a: ["", "", "", ""], correct: 0, explanation: ""});
-            if(type === 'tf') window.builderQuestions.push({type: 'tf', q: "", statements: [{text:"", isTrue:true},{text:"", isTrue:true},{text:"", isTrue:true},{text:"", isTrue:true}], explanation: ""});
-            if(type === 'short') window.builderQuestions.push({type: 'short', q: "", correct: "", explanation: ""});
+            if(type === 'mcq') window.builderQuestions.push({type: 'mcq', q: "", a: ["", "", "", ""], correct: 0, explanation: "", image: ""});
+            if(type === 'tf') window.builderQuestions.push({type: 'tf', q: "", statements: [{text:"", isTrue:true},{text:"", isTrue:true},{text:"", isTrue:true},{text:"", isTrue:true}], explanation: "", image: ""});
+            if(type === 'short') window.builderQuestions.push({type: 'short', q: "", correct: "", explanation: "", image: ""});
             renderBuilder();
             
-            // Tự động cuộn xuống cuối cùng khi thêm câu mới
             setTimeout(() => {
                 const area = document.getElementById("visual-builder-area");
                 area.scrollTop = area.scrollHeight;
@@ -621,13 +620,18 @@
         };
 
         window.previewExam = () => {
-            syncBuilderData(); // Lấy dữ liệu mới nhất đang gõ
+            syncBuilderData(); 
             try {
                 const qList = window.builderQuestions;
                 let html = "";
                 qList.forEach((q, i) => {
                     html += `<div style="margin-bottom:25px; padding-bottom:15px; border-bottom:1px solid #e2e8f0; font-size: 16px;">`;
-                    html += `<b style="color: var(--primary);">Câu ${i+1}:</b> ${q.q}<br><br>`;
+                    html += `<b style="color: var(--primary);">Câu ${i+1}:</b> ${q.q}<br>`;
+                    
+                    // LỆNH IN ẢNH RA MÀN HÌNH XEM TRƯỚC
+                    if (q.image && q.image.trim() !== "") {
+                        html += `<div style="margin: 15px 0;"><img src="${q.image}" style="max-width:100%; max-height:250px; border-radius: 8px; border: 1px solid #cbd5e1;"></div>`;
+                    }
                     
                     if(q.type === 'mcq') {
                         q.a.forEach((ans, j) => html += `<div style="padding:10px 15px; margin:5px 0; background:#f8fafc; border-radius:8px; border: 1px solid #e2e8f0; ${q.correct === j ? 'border-color: #10b981; background: #dcfce7; font-weight: bold; color: #166534;' : ''}">${ans}</div>`);
@@ -638,15 +642,9 @@
                     } else {
                         html += `<div style="background: #f8fafc; padding: 15px; border-radius: 8px;">Đáp án chuẩn: <b style="color:#ef4444; font-size: 18px;">${q.correct}</b></div>`;
                     }
-
-                    // --- BỔ SUNG LỆNH HIỂN THỊ HƯỚNG DẪN GIẢI Ở ĐÂY ---
                     if (q.explanation && q.explanation.trim() !== "") {
-                        html += `<div style="margin-top:15px; background: #f0fdf4; border-left: 5px solid #22c55e; padding: 15px; border-radius: 0 8px 8px 0; font-size: 15px; color: #166534; white-space: pre-wrap;">
-                            <b>📖 Hướng dẫn giải:</b><br><br>${q.explanation}
-                        </div>`;
+                        html += `<div style="margin-top:15px; background: #f0fdf4; border-left: 5px solid #22c55e; padding: 15px; border-radius: 0 8px 8px 0; font-size: 15px; color: #166534; white-space: pre-wrap;"><b>📖 Hướng dẫn giải:</b><br><br>${q.explanation}</div>`;
                     }
-                    // ------------------------------------------------
-
                     html += `</div>`;
                 });
                 document.getElementById("previewArea").innerHTML = html;
@@ -866,12 +864,16 @@
 
         function renderQ() {
             const q = questions[currentIdx];
-            
-            // Sửa lại chỗ này: Tự động nhìn vào hộp Đỏ hoặc Xanh để lấy đúng tên đề
             const pickerId = currentMode === 'exam' ? "studentExamPicker_exam" : "studentExamPicker_practice";
             document.getElementById("quiz-title").innerText = document.getElementById(pickerId).value;
             
-            document.getElementById("question-text").innerHTML = `<b style="color: var(--primary);">Câu ${currentIdx + 1}/${questions.length}:</b> <br><br>` + q.q;
+            // LỆNH IN ẢNH CHO HỌC SINH LÀM BÀI
+            let qHtml = `<b style="color: var(--primary);">Câu ${currentIdx + 1}/${questions.length}:</b> <br><br>` + q.q;
+            if (q.image && q.image.trim() !== "") {
+                qHtml += `<div style="margin: 20px 0; text-align: left;"><img src="${q.image}" style="max-width:100%; max-height:350px; border-radius:8px; border: 1px solid #cbd5e1;"></div>`;
+            }
+            document.getElementById("question-text").innerHTML = qHtml;
+            
             let html = ""; const savedAns = userAnswers[currentIdx];
             if(q.type === "mcq") {
                 q.a.forEach((ans, i) => html += `<button class="mcq-option ${savedAns === i ? "selected" : ""}" onclick="saveAns(${i})">${ans}</button>`);
@@ -1037,6 +1039,25 @@
             document.getElementById("summary-area").innerHTML = buildResultHTML(item.details, item.score, true); 
             document.getElementById("review-area").innerHTML = "";
             if(window.MathJax) MathJax.typesetPromise();
+        };
+        // ================= XỬ LÝ ẢNH =================
+        window.handleImageUpload = (input, idx) => {
+            const file = input.files[0];
+            if(!file) return;
+            if(file.size > 2 * 1024 * 1024) return alert("Dung lượng ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                syncBuilderData(); // Lưu lại chữ đang gõ
+                window.builderQuestions[idx].image = e.target.result;
+                renderBuilder();
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.removeImage = (idx) => {
+            syncBuilderData();
+            window.builderQuestions[idx].image = "";
+            renderBuilder();
         };
     </script>
 </body>
