@@ -469,7 +469,15 @@
 
         // ================= GIÁO VIÊN: VISUAL BUILDER =================
 
-        window.openCreateExam = () => { showScreen('screen-teacher-create'); };
+        window.openCreateExam = () => { 
+            showScreen('screen-teacher-create'); 
+            
+            // 1. Tự động gạt danh sách chọn về chữ "-- [ ✨ Tạo đề mới tinh ] --"
+            document.getElementById("editExamPicker").value = ""; 
+            
+            // 2. Dọn dẹp sạch sẽ các câu hỏi cũ trên màn hình để trả lại Form trống
+            loadExamToEdit(); 
+        };
 
         window.loadExamToEdit = () => {
             const name = document.getElementById("editExamPicker").value;
@@ -818,7 +826,7 @@
                 }
             }
             
-            // Lấy dữ liệu đề, đặt lại các biến thời gian, điểm số
+            // Lấy dữ liệu đề mới, đặt lại toàn bộ các biến về số 0
             questions = dbExams[name].questions; 
             currentMode = mode; 
             currentIdx = 0; 
@@ -826,7 +834,7 @@
             cheatCount = 0; 
             timeLeft = dbExams[name].time * 60;
             
-            // Nếu là thi chính thức thì ghi chú lên bảng theo dõi của Giáo viên
+            // Ghi danh lên bảng Giám sát của Giáo viên
             if(mode === 'exam') {
                 update(ref(db, `students/${currentUser.fullName}`), { 
                     examName: name, 
@@ -834,7 +842,8 @@
                     status: "Đang làm", 
                     score: 0, 
                     cheats: 0, 
-                    timeLeft: timeLeft 
+                    timeLeft: timeLeft,
+                    detailAnswers: null // Xóa dữ liệu rác của bài cũ
                 });
             }
             
@@ -843,6 +852,11 @@
             renderQ(); 
             renderGrid(); 
             startTimer();
+
+            // LỆNH CỐT LÕI: Ép hệ thống nộp ngay bản nháp trắng của "ĐỀ MỚI" lên cho thầy xem lập tức!
+            if(mode === 'exam') {
+                syncScore(); 
+            }
         };
 
         function startTimer() {
@@ -909,22 +923,54 @@
         function syncScore() {
             if(currentMode !== 'exam') return;
             let sc = 0;
+            let liveDetails = []; // Mảng chứa chi tiết bài làm thời gian thực
+            
             const cM = questions.filter(q => q.type === 'mcq').length, cT = questions.filter(q => q.type === 'tf').length, cS = questions.filter(q => q.type === 'short').length;
             const isStandard = (cM === 12 && cT === 4 && cS === 6);
             const totalQ = questions.length;
 
             questions.forEach((q, i) => {
-                let e = 0; const u = userAnswers[i];
-                if(q.type==="mcq" && u===q.correct) e = isStandard ? 0.25 : (10 / totalQ);
+                let e = 0, sA = "Chưa làm", cA = ""; const u = userAnswers[i];
+                
+                if(q.type==="mcq") { 
+                    cA = q.a[q.correct]; 
+                    if(u!==undefined) { 
+                        sA=q.a[u]; 
+                        if(u===q.correct) e = isStandard ? 0.25 : (10 / totalQ); 
+                    } 
+                }
                 else if(q.type==="tf") { 
-                    let cp=0; q.statements.forEach((st, si) => { if(u && u[si]===st.isTrue.toString()) cp++; }); 
+                    let cp=0, sa=[], ca=[]; 
+                    q.statements.forEach((st, si) => { 
+                        const uv=u?u[si]:null; 
+                        if(uv===st.isTrue.toString()) cp++; 
+                        sa.push(uv?(uv==="true"?"Đ":"S"):"_"); 
+                        ca.push(st.isTrue?"Đ":"S"); 
+                    }); 
                     if (isStandard) { if (cp === 1) e = 0.1; else if (cp === 2) e = 0.25; else if (cp === 3) e = 0.5; else if (cp === 4) e = 1.0; } 
                     else { e = (cp/q.statements.length)*(10 / totalQ); }
+                    cA=ca.join(" | "); if(u) sA=sa.join(" | "); 
                 }
-                else if(q.type==="short" && u && u.toLowerCase()===q.correct.toLowerCase()) e = isStandard ? 0.5 : (10 / totalQ);
+                else if(q.type==="short") {
+                    cA = q.correct; 
+                    if(u && u.trim() !== "") { 
+                        sA=u; 
+                        if(u.trim().toLowerCase()===q.correct.toLowerCase()) e = isStandard ? 0.5 : (10 / totalQ); 
+                    } 
+                }
+                
                 sc += e;
+                
+                // Đóng gói luôn hình ảnh (nếu có) để thầy xem live không bị mất ảnh
+                const imgTag = q.image ? `<br><img src="${q.image}" style="max-width:100%; max-height:200px; margin-top:10px; border-radius:8px;">` : "";
+                liveDetails.push({ type: q.type, qText: q.q + imgTag, sAns: sA, cAns: cA, earned: e, explanation: q.explanation }); 
             });
-            update(ref(db, `students/${currentUser.fullName}`), { score: sc.toFixed(2) });
+            
+            // CẬP NHẬT CẢ ĐIỂM SỐ VÀ CHI TIẾT LÊN BẢNG GIÁM SÁT NGAY LẬP TỨC
+            update(ref(db, `students/${currentUser.fullName}`), { 
+                score: sc.toFixed(2),
+                detailAnswers: liveDetails 
+            });
         }
 
         window.confirmFinish = (force = false) => {
