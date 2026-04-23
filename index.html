@@ -6,10 +6,22 @@
     <title>Hệ thống Học tập & Thi cử - Lớp Toán Thầy Hùng Anh</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script>
-    window.MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-    };
-</script>
+        // Cấu hình MathJax Nâng Cấp: Nhận diện $ và TỰ ĐỘNG DÃN CÁCH
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']] 
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    // Thuật toán tự động chèn lệnh dãn cách và phóng to (\displaystyle) vào mọi công thức
+                    MathJax.startup.document.inputJax[0].preFilters.add(({math}) => {
+                        math.math = '\\displaystyle ' + math.math;
+                    });
+                }
+            }
+        };
+    </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         /* ================= UI/UX NÂNG CẤP ================= */
