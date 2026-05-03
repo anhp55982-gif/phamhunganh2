@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Học tập & Thi cử - Lớp Toán Thầy Hùng Anh</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script>
     window.MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
@@ -245,6 +243,12 @@
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
                 <input type="text" id="examNameInput" placeholder="Tên đề thi (VD: Đề Giữa Kì 2)">
                 <input type="number" id="examTimeInput" placeholder="Thời gian (Phút)" value="45">
+                <select id="examClassInput" style="margin:0; padding:12px; border-radius: 6px;">
+                    <option value="10">Lớp 10</option>
+                    <option value="11">Lớp 11</option>
+                    <option value="12">Lớp 12</option>
+                    <option value="all">Khối Khác</option>
+                </select>
                 <select id="examTypeInput" style="margin:0; padding:16px;">
                     <option value="exam">🔵 ĐỀ KIỂM TRA</option>
                     <option value="practice">🟢 BÀI TẬP TỰ LUYỆN</option>
@@ -252,6 +256,10 @@
                 <select id="examScoringInput" style="margin:0; padding:16px;">
                     <option value="free">Chia đều 10 điểm</option>
                     <option value="mixed73">Tự động chấm 7đ (TN:3, ĐS:2, TLN:2) + Tự luận 3đ</option>
+                </select>
+                <select id="examVisibilityInput" style="margin:0; padding:12px; border-radius: 6px; font-weight:bold; color: #b91c1c; background: #fee2e2;">
+                    <option value="show">👁️ HIỆN ĐỀ</option>
+                    <option value="hide">🙈 ẨN ĐỀ</option>
                 </select>
             </div>
             
@@ -407,11 +415,37 @@
             }
         };
 
-        onValue(ref(db, 'exams'), (snap) => {
-            if(snap.exists()) {
-                dbExams = snap.val();
-                updateExamPickers();
+        // BỘ LỌC DANH SÁCH ĐỀ THI
+        onValue(ref(db, 'exams'), (snapshot) => {
+            dbExams = snapshot.val() || {};
+            const picker1 = document.getElementById("studentExamPicker_exam");
+            const picker2 = document.getElementById("studentExamPicker_practice");
+            const picker3 = document.getElementById("editExamPicker");
+            
+            if(!picker1) return;
+            
+            let h1 = '<option value="">-- Chọn đề thi --</option>';
+            let h2 = '<option value="">-- Chọn bài tự luyện --</option>';
+            let h3 = '<option value="">-- Chọn đề để sửa --</option>';
+            
+            for(let key in dbExams) {
+                const ex = dbExams[key];
+                
+                // Tự động gắn nhãn Lớp vào trước tên đề (VD: [Lớp 10] Đề Giữa Kì 2)
+                const clsLabel = ex.targetClass && ex.targetClass !== 'all' ? `[Lớp ${ex.targetClass}] ` : "";
+                
+                // 1. Phân quyền Giáo viên: Luôn thấy TẤT CẢ đề. Đề nào ẩn sẽ có icon 🙈
+                h3 += `<option value="${key}">${ex.visibility === 'hide' ? '🙈 (ĐANG ẨN) ' : ''}${clsLabel}${key}</option>`;
+                
+                // 2. Phân quyền Học sinh: CHỈ THẤY đề đang ở trạng thái "show"
+                if(ex.visibility !== 'hide') {
+                    if(ex.type === 'practice') h2 += `<option value="${key}">${clsLabel}${key}</option>`;
+                    else h1 += `<option value="${key}">${clsLabel}${key}</option>`;
+                }
             }
+            picker1.innerHTML = h1;
+            picker2.innerHTML = h2;
+            picker3.innerHTML = h3;
         });
 
         function updateExamPickers() {
@@ -492,6 +526,8 @@
                 document.getElementById("examTimeInput").value = 45;
                 document.getElementById("examTypeInput").value = "exam"; 
                 document.getElementById("examScoringInput").value = "free"; 
+                document.getElementById("examClassInput").value = "10";
+                document.getElementById("examVisibilityInput").value = "show";
                 window.builderQuestions = []; 
             } else {
                 const ex = dbExams[name];
@@ -499,6 +535,8 @@
                 document.getElementById("examTimeInput").value = ex.time;
                 document.getElementById("examTypeInput").value = ex.type || "exam"; 
                 document.getElementById("examScoringInput").value = ex.scoring || "free"; 
+                document.getElementById("examClassInput").value = ex.targetClass || "10";
+                document.getElementById("examVisibilityInput").value = ex.visibility || "show";
                 window.builderQuestions = JSON.parse(JSON.stringify(ex.questions)); 
             }
             renderBuilder();
@@ -685,13 +723,25 @@
             const name = document.getElementById("examNameInput").value.trim();
             const time = parseInt(document.getElementById("examTimeInput").value);
             const type = document.getElementById("examTypeInput").value; 
-            const scoring = document.getElementById("examScoringInput").value; // Thêm loại điểm
+            const scoring = document.getElementById("examScoringInput").value; 
+            
+            // Lấy thêm 2 thông số mới
+            const targetClass = document.getElementById("examClassInput").value;
+            const visibility = document.getElementById("examVisibilityInput").value;
+            
             syncBuilderData(); 
             
             if(!name || !time) return alert("Vui lòng nhập tên đề và thời gian!");
             if(window.builderQuestions.length === 0) return alert("Đề thi chưa có câu hỏi nào!");
             
-            set(ref(db, `exams/${name}`), { time: time, type: type, scoring: scoring, questions: window.builderQuestions })
+            set(ref(db, `exams/${name}`), { 
+                time: time, 
+                type: type, 
+                scoring: scoring, 
+                targetClass: targetClass, // Lưu thông tin Lớp
+                visibility: visibility,   // Lưu trạng thái Ẩn/Hiện
+                questions: window.builderQuestions 
+            })
             .then(() => { alert("Lưu đề thi lên hệ thống thành công!"); showScreen('screen-teacher-dash'); })
             .catch(err => alert("Lỗi: " + err.message));
         };
