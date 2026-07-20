@@ -1686,13 +1686,18 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             
             if(!name || !dbExams[name]) return alert("Vui lòng chọn đề thi/bài tập!");
             
-            // Nếu là thi chính thức thì hỏi mật khẩu
+            // Xác nhận trước khi vào phòng thi
             if(mode === 'exam') {
-                const d = new Date();
-                const code = String(d.getDate()).padStart(2, '0') + String(d.getMonth() + 1).padStart(2, '0');
-                if(prompt("🔑 Vui lòng nhập Mã phòng thi để bắt đầu:") !== code) {
-                    return alert("Mã phòng thi không chính xác! Vui lòng hỏi Giáo viên.");
-                }
+                const ex0 = dbExams[name];
+                const soCau = (ex0.questions || []).length;
+                const sanSang = confirm(
+                    `📋 ĐỀ: ${name}\n` +
+                    `⏱ Thời gian: ${ex0.time} phút\n` +
+                    `📝 Số câu: ${soCau} câu\n\n` +
+                    `⚠️ Lưu ý: Thoát tab 2 lần hệ thống sẽ tự động nộp bài.\n\n` +
+                    `Em đã sẵn sàng làm bài chưa?`
+                );
+                if(!sanSang) return;
             }
 
             const exam = dbExams[name];
