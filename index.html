@@ -729,11 +729,60 @@
             draftKey = "";
         }
 
-        window.showScreen = (id) => {
+        // ================= ĐIỀU HƯỚNG NÚT QUAY LẠI CỦA TRÌNH DUYỆT =================
+        let manHinhHienTai = "";
+
+        // Đổi màn hình mà KHÔNG ghi vào lịch sử (dùng khi nút Back gọi ngược lại)
+        function veManHinh(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            const el = document.getElementById(id);
+            if(!el) return;
+            el.classList.add('active');
+            manHinhHienTai = id;
+            window.scrollTo(0, 0);
             if(window.MathJax) MathJax.typesetPromise();
+        }
+
+        window.showScreen = (id) => {
+            if(id === manHinhHienTai) return;
+            veManHinh(id);
+            // Ghi mốc vào lịch sử để nút Quay lại của Chrome hoạt động
+            history.pushState({ screen: id }, "", "#" + id);
         };
+
+        // Người dùng bấm nút Quay lại / Tiến tới của trình duyệt
+        window.addEventListener("popstate", (e) => {
+            const dich = (e.state && e.state.screen) ? e.state.screen : "screen-login";
+
+            // Đang làm bài thi thì hỏi trước, tránh mất bài do lỡ tay
+            const dangThi = currentMode === 'exam' && document.getElementById("screen-quiz").classList.contains("active");
+            if(dangThi && dich !== "screen-quiz") {
+                const thoat = confirm(
+                    "⚠️ Em đang trong giờ làm bài!\n\n" +
+                    "Rời khỏi phòng thi bây giờ, bài làm sẽ được lưu tạm nhưng đồng hồ vẫn chạy.\n\n" +
+                    "Em có chắc muốn quay lại không?"
+                );
+                if(!thoat) {
+                    // Ở lại phòng thi: đẩy mốc trở lại
+                    history.pushState({ screen: "screen-quiz" }, "", "#screen-quiz");
+                    return;
+                }
+                saveDraft();
+            }
+
+            // Chưa đăng nhập mà lùi về màn hình bên trong thì đưa về đăng nhập
+            if(!currentUser && dich !== "screen-login") {
+                veManHinh("screen-login");
+                history.replaceState({ screen: "screen-login" }, "", "#screen-login");
+                return;
+            }
+
+            veManHinh(dich);
+        });
+
+        // Đặt mốc đầu tiên khi mở trang
+        history.replaceState({ screen: "screen-login" }, "", "#screen-login");
+        manHinhHienTai = "screen-login";
 
         window.toggleLoginStyle = () => {
             const isTeacher = document.getElementById("role-gv").checked;
