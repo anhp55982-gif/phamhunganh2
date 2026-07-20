@@ -1725,8 +1725,28 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 }
             }
         }
-        document.addEventListener("visibilitychange", () => { if(document.hidden) ghiNhanThoatTab(); });
-        window.addEventListener("blur", () => { ghiNhanThoatTab(); });   // bắt cả Alt-Tab sang cửa sổ khác
+        // Cờ tạm để bỏ qua blur do hộp thoại confirm/alert gây ra
+        let dangMoHopThoai = false;
+        window.danhDauHopThoai = (v) => { dangMoHopThoai = v; };
+
+        document.addEventListener("visibilitychange", () => {
+            if(document.hidden) ghiNhanThoatTab();
+        });
+
+        // Alt-Tab: chỉ tính khi cửa sổ mất focus THẬT SỰ trong một khoảng đủ lâu
+        let henGioBlur = null;
+        window.addEventListener("blur", () => {
+            if(dangMoHopThoai) return;                    // đang mở confirm/alert thì bỏ qua
+            if(document.hidden) return;                   // đã có visibilitychange lo rồi, tránh đếm 2 lần
+            henGioBlur = setTimeout(() => {
+                // Sau 1.5 giây mà vẫn chưa quay lại thì mới coi là thoát thật
+                if(!document.hasFocus()) ghiNhanThoatTab();
+            }, 1500);
+        });
+
+        window.addEventListener("focus", () => {
+            if(henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }   // quay lại kịp thì huỷ, không tính
+        });
 
         window.startStudentMode = (mode) => {
             // Xác định xem lấy tên đề ở hộp Đỏ (Thi) hay hộp Xanh (Tự luyện)
