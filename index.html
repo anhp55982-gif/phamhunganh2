@@ -6,7 +6,18 @@
     <title>Hệ thống Học tập & Thi cử - Lớp Toán Thầy Hùng Anh</title>
 <script>
     window.MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        chtml: {
+            // Cho phép công thức dài tự ngắt xuống dòng thay vì tràn ra ngoài màn hình
+            linebreaks: { automatic: true, width: "container" },
+            scale: 1
+        },
+        options: {
+            enableMenu: false   // tắt menu chuột phải của MathJax cho gọn trên điện thoại
+        }
     };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -138,6 +149,31 @@
         .role-switch input[type="radio"]:checked + label { color: var(--primary); background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         body.teacher-mode .role-switch { background: #e2e8f0; }
         body.teacher-mode .role-switch input[type="radio"]:checked + label { color: #0284c7; background: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* ================= CÔNG THỨC TOÁN DÀI ================= */
+        /* Cho phép công thức quá dài cuộn ngang thay vì bị cắt mất */
+        mjx-container[jax="CHTML"] {
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding-bottom: 2px;   /* chừa chỗ cho thanh cuộn, tránh cắt chân chữ */
+        }
+        /* Công thức khối (display) căn trái để cuộn từ đầu công thức */
+        mjx-container[jax="CHTML"][display="true"] {
+            margin: 0.6em 0 !important;
+            text-align: left !important;
+        }
+        /* Thanh cuộn mảnh, kín đáo */
+        mjx-container[jax="CHTML"]::-webkit-scrollbar { height: 5px; }
+        mjx-container[jax="CHTML"]::-webkit-scrollbar-track { background: transparent; }
+        mjx-container[jax="CHTML"]::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Vùng chứa đề bài và phương án: không cho chữ tràn ra ngoài */
+        #question-text, .mcq-option, .review-box, .tf-table td, #gv-detail-content, #summary-area {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
+        }
 
         /* SCROLLBAR CHO KHU VỰC SOẠN ĐỀ */
         #visual-builder-area::-webkit-scrollbar { width: 8px; }
@@ -729,6 +765,11 @@
             draftKey = "";
         }
 
+        // Cờ tạm để bỏ qua blur do hộp thoại confirm/alert gây ra
+        // (khai báo sớm vì showScreen và startStudentMode bên dưới đều dùng tới)
+        let dangMoHopThoai = false;
+        window.danhDauHopThoai = (v) => { dangMoHopThoai = v; };
+
         // ================= ĐIỀU HƯỚNG NÚT QUAY LẠI CỦA TRÌNH DUYỆT =================
         let manHinhHienTai = "";
 
@@ -757,11 +798,13 @@
             // Đang làm bài thi thì hỏi trước, tránh mất bài do lỡ tay
             const dangThi = currentMode === 'exam' && document.getElementById("screen-quiz").classList.contains("active");
             if(dangThi && dich !== "screen-quiz") {
+                danhDauHopThoai(true);
                 const thoat = confirm(
                     "⚠️ Em đang trong giờ làm bài!\n\n" +
                     "Rời khỏi phòng thi bây giờ, bài làm sẽ được lưu tạm nhưng đồng hồ vẫn chạy.\n\n" +
                     "Em có chắc muốn quay lại không?"
                 );
+                setTimeout(() => danhDauHopThoai(false), 300);
                 if(!thoat) {
                     // Ở lại phòng thi: đẩy mốc trở lại
                     history.pushState({ screen: "screen-quiz" }, "", "#screen-quiz");
@@ -1345,7 +1388,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         q.a.forEach((ans, j) => html += `<div style="padding:10px 15px; margin:5px 0; background:#f8fafc; border-radius:8px; border: 1px solid #e2e8f0; ${q.correct === j ? 'border-color: #10b981; background: #dcfce7; font-weight: bold; color: #166534;' : ''}">${ans}</div>`);
                     } else if(q.type === 'tf') {
                         html += `<ul style="background: #f8fafc; padding: 15px 30px; border-radius: 8px;">`;
-                        q.statements.forEach(st => html += `<li style="margin-bottom:8px;">${st.text} <b style="color: ${st.isTrue ? '#10b981' : '#ef4444'};">(${st.isTrue ? "ĐÚNG" : "SAI"})</b></li>`);
+                        q.statements.forEach(st => html += `<li style="margin-bottom:8px;">${xuLyCongThucDai(st.text)} <b style="color: ${st.isTrue ? '#10b981' : '#ef4444'};">(${st.isTrue ? "ĐÚNG" : "SAI"})</b></li>`);
                         html += `</ul>`;
                     } else {
                         html += `<div style="background: #f8fafc; padding: 15px; border-radius: 8px;">Đáp án chuẩn: <b style="color:#ef4444; font-size: 18px;">${q.correct}</b></div>`;
@@ -1725,10 +1768,6 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 }
             }
         }
-        // Cờ tạm để bỏ qua blur do hộp thoại confirm/alert gây ra
-        let dangMoHopThoai = false;
-        window.danhDauHopThoai = (v) => { dangMoHopThoai = v; };
-
         document.addEventListener("visibilitychange", () => {
             if(document.hidden) ghiNhanThoatTab();
         });
@@ -1759,6 +1798,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(mode === 'exam') {
                 const ex0 = dbExams[name];
                 const soCau = (ex0.questions || []).length;
+                danhDauHopThoai(true);
                 const sanSang = confirm(
                     `📋 ĐỀ: ${name}\n` +
                     `⏱ Thời gian: ${ex0.time} phút\n` +
@@ -1766,6 +1806,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     `⚠️ Lưu ý: Thoát tab 2 lần hệ thống sẽ tự động nộp bài.\n\n` +
                     `Em đã sẵn sàng làm bài chưa?`
                 );
+                setTimeout(() => danhDauHopThoai(false), 300);
                 if(!sanSang) return;
             }
 
@@ -1868,13 +1909,30 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             });
         }
 
+        // ================= XỬ LÝ CÔNG THỨC TOÁN DÀI =================
+        // Công thức $...$ quá dài sẽ tràn khỏi màn hình điện thoại và bị cắt mất.
+        // Hàm này tự chuyển những công thức dài sang dạng khối $$...$$ để MathJax
+        // tự ngắt xuống dòng, đồng thời CSS cho phép cuộn ngang nếu vẫn còn quá rộng.
+        const NGUONG_DAI_CT = 45;   // công thức dài hơn ngần này ký tự thì tách ra dòng riêng
+
+        function xuLyCongThucDai(text) {
+            if(!text || typeof text !== 'string') return text || "";
+            if(text.includes('$$')) return text;   // đã có công thức khối sẵn thì để nguyên
+
+            // Tìm các cặp $...$ và tách những cặp quá dài ra dòng riêng
+            return text.replace(/\$([^$]+?)\$/g, (nguyenVan, noiDung) => {
+                if(noiDung.trim().length > NGUONG_DAI_CT) return `$$${noiDung}$$`;
+                return nguyenVan;
+            });
+        }
+
         function renderQ() {
             const q = questions[currentIdx];
             if(!q) return;
             document.getElementById("quiz-title").innerText = activeExamName;
             
             // In nội dung đề và ảnh
-            let qHtml = `<b style="color: var(--primary);">Câu ${currentIdx + 1}/${questions.length}:</b> <br><br>` + q.q;
+            let qHtml = `<b style="color: var(--primary);">Câu ${currentIdx + 1}/${questions.length}:</b> <br><br>` + xuLyCongThucDai(q.q);
             if (q.image && q.image.trim() !== "") {
                 qHtml += `<div style="margin: 20px 0; text-align: left;"><img src="${q.image}" style="max-width:100%; max-height:350px; border-radius:8px; border: 1px solid #cbd5e1;"></div>`;
             }
@@ -1883,11 +1941,11 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             // In các lựa chọn đáp án
             let html = ""; const savedAns = userAnswers[currentIdx];
             if(q.type === "mcq") {
-                q.a.forEach((ans, i) => html += `<button class="mcq-option ${savedAns === i ? "selected" : ""}" onclick="saveAns(${i})">${ans}</button>`);
+                q.a.forEach((ans, i) => html += `<button class="mcq-option ${savedAns === i ? "selected" : ""}" onclick="saveAns(${i})">${xuLyCongThucDai(ans)}</button>`);
             } else if(q.type === "tf") {
                 html += `<table class="tf-table"><tr><th>Mệnh đề</th><th style="width: 60px;">Đúng</th><th style="width: 60px;">Sai</th></tr>`;
                 q.statements.forEach((s, i) => html += `<tr>
-                    <td style="text-align:left; padding: 15px;">${s.text}</td>
+                    <td style="text-align:left; padding: 15px;">${xuLyCongThucDai(s.text)}</td>
                     <td style="text-align:center;"><input type="radio" style="width: 20px; height: 20px; cursor: pointer;" name="tf-${i}" value="true" ${savedAns && savedAns[i]==="true"?"checked":""} onchange="saveTF(${i}, 'true')"></td>
                     <td style="text-align:center;"><input type="radio" style="width: 20px; height: 20px; cursor: pointer;" name="tf-${i}" value="false" ${savedAns && savedAns[i]==="false"?"checked":""} onchange="saveTF(${i}, 'false')"></td>
                 </tr>`);
