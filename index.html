@@ -1656,6 +1656,34 @@ DAP AN: 0,5`;
             return i < 0 ? { cd: k, bai: "" } : { cd: k.slice(0, i), bai: k.slice(i + 1) };
         }
 
+        let cdMoRong = new Set();   // các chủ đề đang xổ danh sách bài
+
+        window.toggleChuDeTongQuan = (cd) => {
+            if(cdMoRong.has(cd)) cdMoRong.delete(cd); else cdMoRong.add(cd);
+            veTongQuanBank();
+        };
+
+        window.xoTatCaChuDe = (bat) => {
+            if(bat) {
+                const bang = thongKeBank("", "", true);
+                Object.keys(bang).forEach(k => cdMoRong.add(tachKhoa(k).cd));
+            } else cdMoRong.clear();
+            veTongQuanBank();
+        };
+
+        // Bấm vào một ô số trong bảng để lọc nhanh danh sách bên dưới
+        window.locNhanhTuBang = (cd, bai, muc) => {
+            document.getElementById("bankLocChuDe").value = cd === "(chưa gắn chủ đề)" ? "" : cd;
+            capNhatLocBai();
+            const elB = document.getElementById("bankLocBai");
+            if(elB) elB.value = (bai && bai !== "(chưa gắn bài)") ? bai : "";
+            const elM = document.getElementById("bankLocMucDo");
+            if(elM) elM.value = muc || "";
+            document.getElementById("bankTimKiem").value = "";
+            renderBank();
+            document.getElementById("bankDanhSach").scrollIntoView({behavior:'smooth', block:'start'});
+        };
+
         function veTongQuanBank() {
             const khung = document.getElementById("bankTongQuan");
             if(!khung) return;
@@ -1663,7 +1691,6 @@ DAP AN: 0,5`;
             if(tong === 0) { khung.innerHTML = ""; return; }
 
             const bang = thongKeBank("", "", true);
-            // Gom lại thành cây: chủ đề -> danh sách bài
             const cay = {};
             Object.keys(bang).forEach(k => {
                 const { cd, bai } = tachKhoa(k);
@@ -1675,45 +1702,60 @@ DAP AN: 0,5`;
             const theoLoai = { mcq:0, tf:0, short:0, essay:0 };
             Object.values(dbBank).forEach(q => { if(theoLoai[q.type] !== undefined) theoLoai[q.type]++; });
 
+            const oSo = (n, cd, bai, m, nho) => {
+                if(!n) return `<td style="padding:${nho?'6px':'9px'}; color:#e2e8f0;">·</td>`;
+                return `<td style="padding:${nho?'6px':'9px'};">
+                    <span onclick="locNhanhTuBang('${cd.replace(/'/g,"\\'")}','${(bai||'').replace(/'/g,"\\'")}','${m}')"
+                        title="Bấm để lọc nhanh nhóm câu này"
+                        style="display:inline-block; min-width:30px; padding:3px 8px; border-radius:6px; cursor:pointer;
+                               background:${MAU_MUC[m]}18; color:${MAU_MUC[m]}; font-weight:bold; font-size:${nho?'13px':'14px'};">${n}</span></td>`;
+            };
+
             let h = `<div style="background:white; border:2px solid #bae6fd; border-radius:14px; padding:18px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-                    <b style="color:#0369a1; font-size:16px;">📊 Tổng quan ngân hàng: ${tong} câu</b>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                    <b style="color:#0369a1; font-size:16px;">📊 Tổng quan: ${tong} câu</b>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:12px; align-items:center;">
                         ${Object.entries(theoLoai).filter(([,n])=>n>0).map(([t,n])=>
                             `<span style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:20px; font-weight:bold;">${(TEN_LOAI[t]||t)}: ${n}</span>`).join('')}
+                        <button onclick="xoTatCaChuDe(${cdMoRong.size === 0})" style="padding:5px 12px; margin:0; border:1px solid #bae6fd; border-radius:20px; background:white; color:#0369a1; cursor:pointer; font-size:12px; font-weight:bold;">
+                            ${cdMoRong.size === 0 ? '▼ Xổ hết bài' : '▲ Gập hết'}</button>
                     </div>
                 </div>
-                <div style="overflow-x:auto;"><table style="width:100%; font-size:14px;">
-                <thead><tr style="background:#f8fafc;">
-                    <th style="text-align:left; padding:9px;">Chủ đề / Bài</th>
-                    ${CAC_MUC.map(m=>`<th style="padding:9px; width:70px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
-                    <th style="padding:9px; width:70px;">Tổng</th></tr></thead><tbody>`;
+                <div style="font-size:12px; color:#94a3b8; margin-bottom:10px;">Bấm tên chủ đề để xem các bài · Bấm con số để lọc nhanh nhóm câu đó</div>
+                <div style="overflow:auto; max-height:340px;"><table style="width:100%; font-size:14px;">
+                <thead style="position:sticky; top:0; z-index:1;"><tr style="background:#f8fafc;">
+                    <th style="text-align:left; padding:9px; background:#f8fafc;">Chủ đề / Bài</th>
+                    ${CAC_MUC.map(m=>`<th style="padding:9px; width:64px; color:${MAU_MUC[m]}; background:#f8fafc;">${TEN_MUC[m]}</th>`).join('')}
+                    <th style="padding:9px; width:60px; background:#f8fafc;">Tổng</th></tr></thead><tbody>`;
 
             dsChuDe.forEach(cd => {
                 const dsBai = Object.keys(cay[cd]).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
-                // Dòng chủ đề (cộng dồn mọi bài)
                 const congDon = {}; CAC_MUC.forEach(m => congDon[m] = 0);
                 dsBai.forEach(b => CAC_MUC.forEach(m => congDon[m] += cay[cd][b][m].length));
                 const tongCd = CAC_MUC.reduce((s,m)=>s+congDon[m], 0);
 
+                const coBaiThat = dsBai.some(b => b !== "(chưa gắn bài)");
+                const soBai = dsBai.filter(b => CAC_MUC.reduce((s,m)=>s+cay[cd][b][m].length,0) > 0).length;
+                const dangMo = cdMoRong.has(cd);
+
                 h += `<tr style="background:#f0f9ff;">
-                    <td style="text-align:left; padding:9px; font-weight:bold; color:#0369a1;">🏷 ${cd}</td>`;
-                CAC_MUC.forEach(m => h += `<td style="padding:9px; font-weight:bold; color:${congDon[m]?MAU_MUC[m]:'#cbd5e1'};">${congDon[m]||'–'}</td>`);
+                    <td style="text-align:left; padding:9px;">
+                        <span ${coBaiThat?`onclick="toggleChuDeTongQuan('${cd.replace(/'/g,"\\'")}')" style="cursor:pointer;"`:''} style="font-weight:bold; color:#0369a1;">
+                            ${coBaiThat ? (dangMo ? '▼' : '▶') : '　'} 🏷 ${cd}
+                            ${coBaiThat && soBai > 1 ? `<span style="font-weight:normal; color:#94a3b8; font-size:12px;">(${soBai} bài)</span>` : ''}
+                        </span></td>`;
+                CAC_MUC.forEach(m => h += oSo(congDon[m], cd, "", m, false));
                 h += `<td style="padding:9px; font-weight:bold; color:#0284c7;">${tongCd}</td></tr>`;
 
-                // Các dòng bài con - chỉ hiện khi chủ đề có nhiều hơn 1 bài, hoặc bài có tên thật
-                const coBaiThat = dsBai.some(b => b !== "(chưa gắn bài)");
-                if(coBaiThat) {
+                // Chỉ xổ danh sách bài khi chủ đề đang mở
+                if(coBaiThat && dangMo) {
                     dsBai.forEach(b => {
                         const r = cay[cd][b];
                         const t = CAC_MUC.reduce((s,m)=>s+r[m].length, 0);
                         if(t === 0) return;
-                        h += `<tr><td style="text-align:left; padding:7px 9px 7px 30px; color:#475569; font-size:13px;">📕 ${b}</td>`;
-                        CAC_MUC.forEach(m => {
-                            const n = r[m].length;
-                            h += `<td style="padding:7px; font-size:13px; color:${n?MAU_MUC[m]:'#e2e8f0'};">${n||'·'}</td>`;
-                        });
-                        h += `<td style="padding:7px; font-size:13px; color:#64748b;">${t}</td></tr>`;
+                        h += `<tr><td style="text-align:left; padding:6px 9px 6px 34px; color:#475569; font-size:13px;">📕 ${b}</td>`;
+                        CAC_MUC.forEach(m => h += oSo(r[m].length, cd, b, m, true));
+                        h += `<td style="padding:6px; font-size:13px; color:#64748b;">${t}</td></tr>`;
                     });
                 }
             });
@@ -1726,7 +1768,6 @@ DAP AN: 0,5`;
             h += `<td style="padding:9px; font-weight:bold; color:#0284c7; font-size:16px;">${tong}</td></tr>`;
             h += `</tbody></table></div>`;
 
-            // Cảnh báo câu chưa phân loại
             const chuaCd = Object.values(dbBank).filter(q => !q.topic).length;
             const chuaBai = Object.values(dbBank).filter(q => q.topic && !q.lesson).length;
             if(chuaCd || chuaBai) {
@@ -1763,10 +1804,11 @@ DAP AN: 0,5`;
                 return;
             }
 
-            let h = `<table style="width:100%; font-size:14px; background:white; border-radius:10px; overflow:hidden;">
-                <thead><tr style="background:#ffedd5;">
-                    <th style="text-align:left; padding:10px;">Chủ đề / Bài</th>
-                    ${CAC_MUC.map(m=>`<th style="padding:10px; width:110px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
+            let h = `<div style="max-height:380px; overflow:auto; border-radius:10px;">
+                <table style="width:100%; font-size:14px; background:white;">
+                <thead style="position:sticky; top:0; z-index:1;"><tr style="background:#ffedd5;">
+                    <th style="text-align:left; padding:10px; background:#ffedd5;">Chủ đề / Bài</th>
+                    ${CAC_MUC.map(m=>`<th style="padding:10px; width:110px; color:${MAU_MUC[m]}; background:#ffedd5;">${TEN_MUC[m]}</th>`).join('')}
                 </tr></thead><tbody>`;
 
             let cdTruoc = "";
@@ -1789,7 +1831,7 @@ DAP AN: 0,5`;
                 });
                 h += `</tr>`;
             });
-            h += `</tbody></table>`;
+            h += `</tbody></table></div>`;
             khung.innerHTML = h;
             tomTatMaTran();
         };
