@@ -353,6 +353,79 @@
                 </div>
             </div>
 
+            <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
+                <button class="btn" style="margin:0; flex:1; min-width:240px; background:linear-gradient(to right,#16a34a,#15803d); font-size:15px;" onclick="moThemCauBank()">➕ THÊM CÂU MỚI VÀO NGÂN HÀNG</button>
+                <button class="btn" style="margin:0; flex:1; min-width:240px; background:linear-gradient(to right,#8b5cf6,#7c3aed); font-size:15px;" onclick="moNhapHangLoatBank()">⚡ NHẬP NHIỀU CÂU BẰNG VĂN BẢN</button>
+            </div>
+
+            <div id="bankThemCauBox" style="display:none; background:#f0fdf4; border:2px solid #86efac; border-radius:16px; padding:22px; margin-bottom:20px;">
+                <h3 style="margin-top:0; color:#15803d;">➕ Thêm câu hỏi mới</h3>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#475569;">Dạng câu</label>
+                        <select id="ncLoai" style="margin:4px 0 0 0; padding:11px;" onchange="veFormThemCau()">
+                            <option value="mcq">📝 Trắc nghiệm</option>
+                            <option value="tf">⚖️ Đúng/Sai</option>
+                            <option value="short">✍️ Trả lời ngắn</option>
+                            <option value="essay">📄 Tự luận</option>
+                        </select></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">🏷 Chủ đề</label>
+                        <input type="text" id="ncChuDe" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Lượng giác"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0891b2;">📊 Mức độ</label>
+                        <select id="ncMucDo" style="margin:4px 0 0 0; padding:11px;">
+                            <option value="NB">Nhận biết</option>
+                            <option value="TH" selected>Thông hiểu</option>
+                            <option value="VD">Vận dụng</option>
+                            <option value="VDC">Vận dụng cao</option>
+                        </select></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lớp</label>
+                        <select id="ncLop" style="margin:4px 0 0 0; padding:11px;">
+                            <option value="">Không ghi</option>
+                            <option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                        </select></div>
+                </div>
+
+                <label style="font-size:14px; font-weight:bold; color:#475569;">Nội dung câu hỏi (công thức đặt trong $...$):</label>
+                <textarea id="ncNoiDung" rows="3" style="margin:5px 0 14px 0; font-family:monospace;" placeholder="VD: Rút gọn biểu thức $A = \cos(\pi - \alpha)$"></textarea>
+
+                <div id="ncPhanDapAn"></div>
+
+                <label style="font-size:14px; font-weight:bold; color:#059669;">📖 Lời giải (không bắt buộc):</label>
+                <textarea id="ncLoiGiai" rows="2" style="margin:5px 0 14px 0; font-family:monospace; background:#f0fdf4; border-color:#6ee7b7;"></textarea>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:13px 22px;" onclick="luuCauMoiVaoBank()">💾 LƯU VÀO NGÂN HÀNG</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px; background:#94a3b8;" onclick="document.getElementById('bankThemCauBox').style.display='none'">✖ Đóng</button>
+                </div>
+            </div>
+
+            <div id="bankBulkBox" style="display:none; background:#faf5ff; border:2px solid #c4b5fd; border-radius:16px; padding:22px; margin-bottom:20px;">
+                <h3 style="margin-top:0; color:#6d28d9;">⚡ Nhập nhiều câu vào ngân hàng</h3>
+                <div style="background:white; border:1px solid #ddd6fe; border-radius:10px; padding:14px; margin-bottom:12px; font-size:13px; color:#4c1d95; line-height:1.8;">
+                    Dùng cùng cú pháp với phần soạn đề. Thêm dòng <code style="background:#f5f3ff; padding:2px 6px; border-radius:4px;">CHUDE:</code> để gắn chủ đề cho câu.<br>
+                    <b>Ví dụ:</b> <code style="background:#f5f3ff; padding:2px 6px; border-radius:4px;">CHUDE: Lượng giác</code>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">Chủ đề mặc định (nếu câu không ghi CHUDE):</label>
+                        <input type="text" id="bankBulkChuDe" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="Để trống nếu không cần"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lớp:</label>
+                        <select id="bankBulkLop" style="margin:4px 0 0 0; padding:11px;">
+                            <option value="">Không ghi</option><option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
+                        </select></div>
+                </div>
+                <textarea id="bankBulkText" rows="12" style="font-family:'Courier New',monospace; font-size:14px; margin-bottom:12px;" placeholder="Dán nội dung vào đây..."></textarea>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="chenViDuMauBank()">📋 Chèn ví dụ mẫu</button>
+                    <button class="btn btn-blue" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="kiemTraBulkBank()">👁 Kiểm tra cú pháp</button>
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="nhapBulkVaoBank()">➕ THÊM VÀO NGÂN HÀNG</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:12px 18px; font-size:14px; background:#94a3b8;" onclick="document.getElementById('bankBulkBox').style.display='none'">✖ Đóng</button>
+                </div>
+                <div id="bankBulkKetQua" style="margin-top:14px;"></div>
+            </div>
+
             <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
                 <button class="btn btn-green" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="chonTatCaBank(true)">☑ Chọn tất cả (đang lọc)</button>
                 <button class="btn btn-gray" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="chonTatCaBank(false)">☐ Bỏ chọn hết</button>
@@ -365,7 +438,7 @@
 
             <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
                 <button class="btn btn-blue" style="margin:0; flex:1; min-width:220px;" onclick="chuyenVaoDe()">➡️ ĐƯA CÂU ĐÃ CHỌN VÀO ĐỀ</button>
-                <button class="btn btn-green" style="margin:0; flex:1; min-width:220px;" onclick="xuatWordTuBank()">📄 XUẤT RA FILE WORD</button>
+                <button class="btn btn-green" style="margin:0; flex:1; min-width:220px;" onclick="xuatTexTuBank()">📄 XUẤT RA FILE LaTeX (.tex)</button>
             </div>
             <button class="btn btn-gray" style="margin-top:15px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
         </div>
@@ -469,7 +542,7 @@
             
             <div style="display:flex; gap:10px; margin-top: 10px; flex-wrap:wrap;">
                 <button class="btn btn-gray" onclick="previewExam()">👁 XEM TRƯỚC ĐỀ THI</button>
-                <button class="btn btn-green" onclick="xuatWordTuDe()">📄 XUẤT RA WORD</button>
+                <button class="btn btn-green" onclick="xuatTexTuDe()">📄 XUẤT FILE .TEX</button>
                 <button class="btn btn-blue" style="background: #0284c7;" onclick="saveExamToFirebase()">💾 LƯU ĐỀ THI</button>
                 <button class="btn btn-red" onclick="deleteExamFirebase()">🗑 XOÁ ĐỀ NÀY</button>
                 <button class="btn btn-gray" style="background: #64748b;" onclick="showScreen('screen-teacher-dash')">🔙 HUỶ BỎ</button>
@@ -1038,7 +1111,199 @@
             }
         }
 
-        window.openBank = () => { showScreen('screen-bank'); bankDaChon.clear(); capNhatDanhSachChuDe(); renderBank(); };
+        // ================= THÊM CÂU TRỰC TIẾP VÀO NGÂN HÀNG =================
+        window.moThemCauBank = () => {
+            const b = document.getElementById("bankThemCauBox");
+            const hien = b.style.display !== 'block';
+            b.style.display = hien ? 'block' : 'none';
+            document.getElementById("bankBulkBox").style.display = 'none';
+            if(hien) { veFormThemCau(); b.scrollIntoView({behavior:'smooth', block:'center'}); }
+        };
+
+        window.moNhapHangLoatBank = () => {
+            const b = document.getElementById("bankBulkBox");
+            const hien = b.style.display !== 'block';
+            b.style.display = hien ? 'block' : 'none';
+            document.getElementById("bankThemCauBox").style.display = 'none';
+            if(hien) b.scrollIntoView({behavior:'smooth', block:'center'});
+        };
+
+        // Vẽ phần nhập đáp án tuỳ theo dạng câu đang chọn
+        window.veFormThemCau = () => {
+            const loai = document.getElementById("ncLoai").value;
+            const khung = document.getElementById("ncPhanDapAn");
+            let h = "";
+
+            if(loai === 'mcq') {
+                h = `<label style="font-size:14px; font-weight:bold; color:#475569;">4 phương án (bấm nút tròn để chọn đáp án đúng):</label>
+                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 14px 0;">`;
+                ['A','B','C','D'].forEach((n,i) => {
+                    h += `<div style="display:flex; align-items:center; gap:10px; background:white; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+                        <input type="radio" name="ncDung" value="${i}" ${i===0?'checked':''} style="width:20px; height:20px; cursor:pointer; margin:0;">
+                        <div style="flex:1;"><label style="font-size:12px; color:#64748b; font-weight:bold;">Đáp án ${n}</label>
+                        <input type="text" id="ncPA${i}" style="margin:2px 0 0 0; padding:9px; font-family:monospace;" placeholder="Nội dung..."></div>
+                    </div>`;
+                });
+                h += `</div>`;
+            }
+            else if(loai === 'tf') {
+                h = `<label style="font-size:14px; font-weight:bold; color:#475569;">4 mệnh đề:</label><div style="margin:6px 0 14px 0;">`;
+                ['a','b','c','d'].forEach((n,i) => {
+                    h += `<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; background:white; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+                        <b style="width:28px; color:#0f172a;">${n})</b>
+                        <input type="text" id="ncMD${i}" style="margin:0; padding:10px; flex:1; font-family:monospace;" placeholder="Nội dung mệnh đề...">
+                        <select id="ncDS${i}" style="margin:0; padding:10px; width:120px; font-weight:bold;">
+                            <option value="true">✔ ĐÚNG</option><option value="false">✘ SAI</option>
+                        </select></div>`;
+                });
+                h += `</div>`;
+            }
+            else if(loai === 'short') {
+                h = `<label style="font-size:14px; font-weight:bold; color:#ef4444;">Đáp án chính xác:</label>
+                     <input type="text" id="ncDapAn" style="margin:5px 0 14px 0; padding:12px; font-weight:bold; color:#dc2626; border-color:#fca5a5; font-size:17px;" placeholder="VD: 2 hoặc 0,5">`;
+            }
+            else {
+                h = `<div style="background:#fffbeb; padding:14px; border-radius:8px; border:1px dashed #fcd34d; margin-bottom:14px; color:#92400e; font-size:14px;">
+                     ⚠️ Câu tự luận không có đáp án tự động — học sinh làm ra giấy, thầy/cô chấm tay.</div>`;
+            }
+            khung.innerHTML = h;
+        };
+
+        window.luuCauMoiVaoBank = () => {
+            const loai = document.getElementById("ncLoai").value;
+            const nd   = document.getElementById("ncNoiDung").value.trim();
+            if(!nd) return alert("Chưa nhập nội dung câu hỏi!");
+
+            const cau = {
+                type: loai,
+                q: nd,
+                explanation: document.getElementById("ncLoiGiai").value.trim(),
+                topic: document.getElementById("ncChuDe").value.trim(),
+                level: document.getElementById("ncMucDo").value,
+                grade: document.getElementById("ncLop").value,
+                image: "",
+                addedAt: Date.now()
+            };
+
+            if(loai === 'mcq') {
+                const pa = [0,1,2,3].map(i => document.getElementById("ncPA"+i).value.trim());
+                if(pa.some(x => !x)) return alert("Phải nhập đủ 4 phương án!");
+                const chon = document.querySelector('input[name="ncDung"]:checked');
+                cau.a = pa;
+                cau.correct = chon ? parseInt(chon.value) : 0;
+            }
+            else if(loai === 'tf') {
+                const md = [0,1,2,3].map(i => ({
+                    text: document.getElementById("ncMD"+i).value.trim(),
+                    isTrue: document.getElementById("ncDS"+i).value === 'true'
+                }));
+                if(md.some(x => !x.text)) return alert("Phải nhập đủ 4 mệnh đề!");
+                cau.statements = md;
+            }
+            else if(loai === 'short') {
+                const da = document.getElementById("ncDapAn").value.trim();
+                if(!da) return alert("Chưa nhập đáp án!");
+                cau.correct = da;
+            }
+
+            push(ref(db, 'bank'), cau)
+                .then(() => {
+                    // Xoá nội dung để nhập câu tiếp theo, giữ nguyên chủ đề/mức độ/lớp
+                    document.getElementById("ncNoiDung").value = "";
+                    document.getElementById("ncLoiGiai").value = "";
+                    veFormThemCau();
+                    document.getElementById("ncNoiDung").focus();
+                    alert("✅ Đã thêm vào ngân hàng! Thầy/cô có thể nhập tiếp câu sau.");
+                })
+                .catch(e => alert("Lỗi khi lưu: " + e.message));
+        };
+
+        // --- Nhập hàng loạt vào ngân hàng ---
+        window.chenViDuMauBank = () => {
+            document.getElementById("bankBulkText").value =
+`[TN] Rút gọn $\\sin(\\pi - \\alpha)$ ta được:
+CHUDE: Lượng giác
+A. $\\sin\\alpha$ *
+B. $-\\sin\\alpha$
+C. $\\cos\\alpha$
+D. $-\\cos\\alpha$
+GIAI: Góc bù nhau có sin bằng nhau.
+
+[TLN] Tính $\\cos 60^\\circ$
+CHUDE: Lượng giác
+DAP AN: 0,5`;
+            kiemTraBulkBank();
+        };
+
+        function docBulkBank() {
+            const text = document.getElementById("bankBulkText").value;
+            if(!text.trim()) return { ds: [], loi: [] };
+            // Tách dòng CHUDE: ra khỏi nội dung trước khi phân tích
+            const cdMacDinh = document.getElementById("bankBulkChuDe").value.trim();
+            const chuDeTheoKhoi = [];
+            const sach = text.split(/\n\s*\n/).map(k => {
+                let cd = "";
+                const dong = k.split('\n').filter(d => {
+                    const m = d.trim().match(/^CHUDE\s*:\s*(.*)$/i);
+                    if(m) { cd = m[1].trim(); return false; }
+                    return true;
+                });
+                chuDeTheoKhoi.push(cd);
+                return dong.join('\n');
+            }).join('\n\n');
+
+            const kq = phanTichVanBan(sach);
+            const lop = document.getElementById("bankBulkLop").value;
+            kq.ds.forEach((q, i) => {
+                delete q._qid;
+                q.topic = chuDeTheoKhoi[i] || cdMacDinh || "";
+                q.level = q.level || "TH";
+                q.grade = lop;
+                q.addedAt = Date.now();
+            });
+            return kq;
+        }
+
+        window.kiemTraBulkBank = () => {
+            const { ds, loi } = docBulkBank();
+            const khung = document.getElementById("bankBulkKetQua");
+            let h = "";
+            if(loi.length) {
+                h += `<div style="background:#fef2f2; border:2px solid #fca5a5; border-radius:10px; padding:14px; margin-bottom:10px;">
+                    <b style="color:#b91c1c;">⚠️ ${loi.length} vấn đề:</b>
+                    <ul style="margin:8px 0 0 0; color:#7f1d1d; font-size:14px; line-height:1.7;">${loi.map(l=>`<li>${l}</li>`).join('')}</ul></div>`;
+            }
+            const dem = {};
+            ds.forEach(q => { const t = q.topic || "(chưa gắn chủ đề)"; dem[t] = (dem[t]||0)+1; });
+            h += `<div style="background:${ds.length?'#f0fdf4':'#fef2f2'}; border:2px solid ${ds.length?'#86efac':'#fca5a5'}; border-radius:10px; padding:14px;">
+                <b style="color:${ds.length?'#15803d':'#b91c1c'};">${ds.length?'✅':'❌'} Đọc được ${ds.length} câu</b>
+                <div style="margin-top:8px; font-size:14px; color:#334155; line-height:1.7;">
+                ${Object.entries(dem).map(([t,n])=>`🏷 ${t}: <b>${n}</b> câu`).join('<br>')}</div></div>`;
+            khung.innerHTML = h;
+            return ds;
+        };
+
+        window.nhapBulkVaoBank = () => {
+            const ds = kiemTraBulkBank();
+            if(!ds || ds.length === 0) return alert("Chưa đọc được câu nào. Kiểm tra lại cú pháp!");
+            if(!confirm(`Thêm ${ds.length} câu vào ngân hàng?`)) return;
+            Promise.all(ds.map(q => push(ref(db, 'bank'), q)))
+                .then(() => {
+                    document.getElementById("bankBulkText").value = "";
+                    document.getElementById("bankBulkKetQua").innerHTML = "";
+                    document.getElementById("bankBulkBox").style.display = 'none';
+                    alert(`✅ Đã thêm ${ds.length} câu vào ngân hàng!`);
+                })
+                .catch(e => alert("Lỗi khi lưu: " + e.message));
+        };
+
+        window.openBank = () => {
+            showScreen('screen-bank');
+            bankDaChon.clear();
+            capNhatDanhSachChuDe();
+            veFormThemCau();
+            renderBank();
+        };
 
         // Lấy danh sách câu sau khi áp dụng bộ lọc
         function locBank() {
@@ -1194,75 +1459,110 @@
                 .catch(e => alert("Lỗi khi lưu: " + e.message));
         };
 
-        // ================= XUẤT ĐỀ RA FILE WORD =================
-        // Dùng định dạng HTML mà Word mở được (.doc), giữ font Times New Roman 13pt.
-        // Công thức LaTeX giữ nguyên dạng $...$ để thầy/cô dán vào MathType nếu cần.
-        function taoNoiDungWord(cauHoi, tieuDe, kemDapAn) {
-            const esc = t => String(t == null ? "" : t)
-                .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-                .replace(/\n/g,"<br>");
+        // ================= XUẤT ĐỀ RA FILE LaTeX (.tex) =================
+        // Giữ nguyên công thức LaTeX gốc - biên dịch bằng XeLaTeX ra PDF là đẹp nhất.
 
-            let h = `<h1 style="text-align:center; font-size:16pt; font-weight:bold;">${esc(tieuDe)}</h1>`;
-            h += `<p style="text-align:center; font-style:italic; font-size:12pt;">Họ và tên: .................................................... Lớp: ..............</p>`;
-            h += `<hr>`;
+        // Thoát các ký tự đặc biệt của LaTeX trong phần VĂN BẢN (ngoài dấu $...$)
+        function thoatLatex(t) {
+            return String(t == null ? "" : t)
+                .replace(/\\/g, "\\textbackslash{}")
+                .replace(/([&%#_{}])/g, "\\$1")
+                .replace(/\^/g, "\\textasciicircum{}")
+                .replace(/~/g, "\\textasciitilde{}");
+        }
+
+        // Xử lý nội dung có lẫn công thức: phần trong $...$ giữ nguyên, phần chữ thì thoát ký tự
+        function chuanBiNoiDung(t) {
+            const raw = String(t == null ? "" : t);
+            const phan = raw.split(/(\$[^$]*\$)/g);
+            return phan.map(p => (p.startsWith("$") && p.endsWith("$") && p.length > 1)
+                ? p                       // là công thức -> giữ nguyên
+                : thoatLatex(p)           // là chữ thường -> thoát ký tự đặc biệt
+            ).join("").replace(/\n/g, "\\\\\n");
+        }
+
+        function taoNoiDungTex(cauHoi, tieuDe, kemDapAn) {
+            let t = "";
+            t += "% Đề thi xuất từ hệ thống Lớp Toán Thầy Hùng Anh\n";
+            t += "%\n";
+            t += "% CÁCH BIÊN DỊCH: dùng XeLaTeX hoặc LuaLaTeX (KHÔNG dùng pdfLaTeX)\n";
+            t += "% Trên Overleaf: Menu > Compiler > chọn XeLaTeX\n";
+            t += "% Trên TeXShop/TeXstudio: chọn XeLaTeX rồi bấm biên dịch\n\n";
+            t += "\\documentclass[12pt,a4paper]{article}\n";
+            t += "\\usepackage{amsmath,amssymb}\n";
+            t += "\\usepackage[margin=2cm]{geometry}\n";
+            t += "\\usepackage{multicol}\n";
+            t += "\\usepackage{enumitem}\n";
+            t += "\\usepackage{graphicx}\n";
+            t += "\\setlength{\\parindent}{0pt}\n";
+            t += "\\linespread{1.5}\n";
+            t += "\\setlength{\\parskip}{6pt}\n\n";
+            t += "\\begin{document}\n\n";
+            t += "\\begin{center}\n";
+            t += "{\\Large\\bfseries " + thoatLatex(tieuDe) + "}\\\\[10pt]\n";
+            t += "\\textit{Họ và tên: \\dotfill\\ Lớp: \\rule{2.5cm}{0.4pt}}\n";
+            t += "\\end{center}\n\n\\vspace{6pt}\\hrule\\vspace{14pt}\n\n";
 
             let stt = 0;
             cauHoi.forEach(q => {
                 stt++;
-                h += `<p style="margin-top:12pt;"><b>Câu ${stt}.</b> ${esc(q.q)}`;
-                if(q.topic) h += ` <i style="font-size:10pt; color:#666;">[${esc(q.topic)}${q.level? ' - '+(TEN_MUC[q.level]||q.level) : ''}]</i>`;
-                h += `</p>`;
+                t += "\\textbf{Câu " + stt + ".} " + chuanBiNoiDung(q.q);
+                if(q.topic) {
+                    t += " {\\small\\textit{[" + thoatLatex(q.topic);
+                    if(q.level) t += " -- " + thoatLatex(TEN_MUC[q.level] || q.level);
+                    t += "]}}";
+                }
+                t += "\n\n";
 
-                if(q.image) h += `<p style="text-align:center;"><img src="${q.image}" style="max-width:400px;"></p>`;
+                if(q.image) {
+                    t += "% Câu này có hình ảnh - thầy/cô lưu ảnh ra file rồi bỏ chú thích dòng dưới\n";
+                    t += "% \\begin{center}\\includegraphics[width=0.5\\textwidth]{hinh" + stt + ".png}\\end{center}\n\n";
+                }
 
                 if(q.type === 'mcq') {
                     const nhan = ['A','B','C','D'];
-                    h += `<table style="width:100%; border:none;"><tr>`;
-                    (q.a||[]).forEach((pa, i) => {
+                    t += "\\begin{multicols}{2}\n";
+                    (q.a || []).forEach((pa, i) => {
                         const dung = kemDapAn && i === q.correct;
-                        h += `<td style="width:25%; border:none; padding:3pt;">${dung?'<b>':''}${nhan[i]}. ${esc(pa)}${dung?'</b>':''}</td>`;
+                        t += "\\noindent " + (dung ? "\\textbf{" : "") + nhan[i] + ". "
+                           + chuanBiNoiDung(pa) + (dung ? "}" : "") + "\n\n";
                     });
-                    h += `</tr></table>`;
+                    t += "\\end{multicols}\n\n";
                 }
                 else if(q.type === 'tf') {
                     const nhan = ['a','b','c','d'];
-                    (q.statements||[]).forEach((st, i) => {
-                        h += `<p style="margin-left:20pt; margin-top:2pt; margin-bottom:2pt;">${nhan[i]}) ${esc(st.text)}`;
-                        if(kemDapAn) h += ` <b>(${st.isTrue ? 'Đúng' : 'Sai'})</b>`;
-                        h += `</p>`;
+                    t += "\\begin{itemize}[leftmargin=1.2cm,itemsep=6pt,parsep=0pt]\n";
+                    (q.statements || []).forEach((st, i) => {
+                        t += "\\item[" + nhan[i] + ")] " + chuanBiNoiDung(st.text);
+                        if(kemDapAn) t += " \\textbf{(" + (st.isTrue ? "Đúng" : "Sai") + ")}";
+                        t += "\n";
                     });
+                    t += "\\end{itemize}\n\n";
                 }
                 else if(q.type === 'short') {
-                    h += kemDapAn
-                        ? `<p style="margin-left:20pt;"><b>Đáp án: ${esc(q.correct)}</b></p>`
-                        : `<p style="margin-left:20pt;">Trả lời: ..............................................</p>`;
+                    t += kemDapAn
+                        ? "\\hspace*{1cm}\\textbf{Đáp án: " + chuanBiNoiDung(q.correct) + "}\n\n"
+                        : "\\hspace*{1cm}Trả lời: \\rule{6cm}{0.4pt}\n\n";
                 }
                 else if(q.type === 'essay') {
-                    h += `<p style="margin-left:20pt; font-style:italic;">(Học sinh trình bày lời giải)</p>`;
+                    t += "\\hspace*{1cm}\\textit{(Học sinh trình bày lời giải)}\n\n";
+                    if(!kemDapAn) t += "\\vspace{4cm}\n\n";
                 }
 
                 if(kemDapAn && q.explanation && q.explanation.trim()) {
-                    h += `<p style="margin-left:20pt; font-style:italic; color:#0b5394;"><b>Lời giải:</b> ${esc(q.explanation)}</p>`;
+                    t += "\\textit{\\textbf{Lời giải:} " + chuanBiNoiDung(q.explanation) + "}\n\n";
                 }
+                t += "\\vspace{10pt}\n\n";
             });
 
-            if(stt === 0) h += `<p>(Chưa có câu hỏi nào)</p>`;
-            h += `<p style="text-align:center; margin-top:20pt;">--- HẾT ---</p>`;
-            return h;
+            if(stt === 0) t += "(Chưa có câu hỏi nào)\n\n";
+            t += "\\begin{center}\\textbf{--- HẾT ---}\\end{center}\n\n";
+            t += "\\end{document}\n";
+            return t;
         }
 
-        function taiFileWord(noiDung, tenFile) {
-            const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8">
-<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
-<style>
-@page { size: A4; margin: 2cm 2cm 2cm 2.5cm; }
-body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.4; }
-h1 { font-family: 'Times New Roman', serif; }
-table { border-collapse: collapse; }
-</style></head><body>${noiDung}</body></html>`;
-
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+        function taiFileTex(noiDung, tenFile) {
+            const blob = new Blob([noiDung], { type: 'application/x-tex;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = tenFile;
@@ -1274,27 +1574,34 @@ table { border-collapse: collapse; }
             return confirm("Xuất kèm ĐÁP ÁN và LỜI GIẢI?\n\nOK = Bản giáo viên (có đáp án)\nCancel = Bản học sinh (đề trắng)");
         }
 
+        function tenFileSach(t) {
+            return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+                .replace(/đ/g,"d").replace(/Đ/g,"D")
+                .replace(/[^\w\s-]/g,"").trim().replace(/\s+/g,"_");
+        }
+
         // Xuất từ trình soạn đề
-        window.xuatWordTuDe = () => {
+        window.xuatTexTuDe = () => {
             syncBuilderData();
             const ds = window.builderQuestions || [];
             if(ds.length === 0) return alert("Đề chưa có câu hỏi nào!");
-            const ten = (document.getElementById("examNameInput").value || "DE_THI").trim();
+            const ten = (document.getElementById("examNameInput").value || "DE THI").trim();
             const kem = hoiKemDapAn();
-            const nd = taoNoiDungWord(ds, ten.toUpperCase(), kem);
-            taiFileWord(nd, `${ten.replace(/[^\wÀ-ỹ\s-]/g,'_')}${kem?'_CoDapAn':''}.doc`);
+            const nd = taoNoiDungTex(ds, ten.toUpperCase(), kem);
+            taiFileTex(nd, tenFileSach(ten) + (kem ? "_CoDapAn" : "") + ".tex");
+            const coAnh = ds.filter(q => q.image).length;
+            if(coAnh > 0) alert(`Lưu ý: đề có ${coAnh} câu kèm ảnh.\n\nFile .tex không nhúng được ảnh, thầy/cô cần lưu ảnh ra file riêng rồi bỏ chú thích dòng \\includegraphics tương ứng.`);
         };
 
         // Xuất từ ngân hàng câu hỏi
-        window.xuatWordTuBank = () => {
+        window.xuatTexTuBank = () => {
             const keys = bankDaChon.size > 0 ? [...bankDaChon] : locBank();
             if(keys.length === 0) return alert("Không có câu nào để xuất!");
             if(bankDaChon.size === 0 && !confirm(`Chưa chọn câu nào. Xuất toàn bộ ${keys.length} câu đang hiển thị?`)) return;
-
             const ds = keys.map(k => dbBank[k]);
             const kem = hoiKemDapAn();
-            const nd = taoNoiDungWord(ds, "BỘ CÂU HỎI TỪ NGÂN HÀNG", kem);
-            taiFileWord(nd, `NganHangCauHoi_${keys.length}cau${kem?'_CoDapAn':''}.doc`);
+            const nd = taoNoiDungTex(ds, "BỘ CÂU HỎI TỪ NGÂN HÀNG", kem);
+            taiFileTex(nd, `NganHang_${keys.length}cau${kem ? "_CoDapAn" : ""}.tex`);
         };
 
         window.openCreateExam = () => { 
