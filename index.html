@@ -334,9 +334,19 @@
 
             <div style="background:#faf5ff; border:2px solid #ddd6fe; border-radius:14px; padding:18px; margin-bottom:20px;">
                 <b style="color:#6d28d9; font-size:15px;">🔍 Lọc câu hỏi</b>
-                <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:12px; margin-top:12px;">
+                <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; margin-top:12px;">
                     <input type="text" id="bankTimKiem" placeholder="Tìm theo nội dung..." style="margin:0; padding:12px;" oninput="renderBank()">
-                    <select id="bankLocChuDe" style="margin:0; padding:12px;" onchange="renderBank()"><option value="">Mọi chủ đề</option></select>
+                    <select id="bankLocChuDe" style="margin:0; padding:12px;" onchange="capNhatLocBai(); renderBank();"><option value="">Mọi chủ đề</option></select>
+                    <select id="bankLocBai" style="margin:0; padding:12px;" onchange="renderBank()"><option value="">Mọi bài</option></select>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-top:12px;">
+                    <select id="bankLocMucDo" style="margin:0; padding:12px;" onchange="renderBank()">
+                        <option value="">Mọi mức độ</option>
+                        <option value="NB">Nhận biết</option>
+                        <option value="TH">Thông hiểu</option>
+                        <option value="VD">Vận dụng</option>
+                        <option value="VDC">Vận dụng cao</option>
+                    </select>
                     <select id="bankLocLoai" style="margin:0; padding:12px;" onchange="renderBank()">
                         <option value="">Mọi dạng</option>
                         <option value="mcq">Trắc nghiệm</option>
@@ -392,6 +402,12 @@
             <div id="bankThemCauBox" style="display:none; background:#f0fdf4; border:2px solid #86efac; border-radius:16px; padding:22px; margin-bottom:20px;">
                 <h3 style="margin-top:0; color:#15803d;">➕ Thêm câu hỏi mới</h3>
 
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">🏷 Chủ đề</label>
+                        <input type="text" id="ncChuDe2" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Lượng giác" oninput="document.getElementById('ncChuDe').value=this.value"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#c2410c;">📕 Bài</label>
+                        <input type="text" id="ncBai" list="ds-bai" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Bài 1. Góc lượng giác"></div>
+                </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
                     <div><label style="font-size:13px; font-weight:bold; color:#475569;">Dạng câu</label>
                         <select id="ncLoai" style="margin:4px 0 0 0; padding:11px;" onchange="veFormThemCau()">
@@ -400,8 +416,7 @@
                             <option value="short">✍️ Trả lời ngắn</option>
                             <option value="essay">📄 Tự luận</option>
                         </select></div>
-                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">🏷 Chủ đề</label>
-                        <input type="text" id="ncChuDe" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Lượng giác"></div>
+                    <input type="hidden" id="ncChuDe">
                     <div><label style="font-size:13px; font-weight:bold; color:#0891b2;">📊 Mức độ</label>
                         <select id="ncMucDo" style="margin:4px 0 0 0; padding:11px;">
                             <option value="NB">Nhận biết</option>
@@ -434,14 +449,27 @@
 
             <div id="bankBulkBox" style="display:none; background:#faf5ff; border:2px solid #c4b5fd; border-radius:16px; padding:22px; margin-bottom:20px;">
                 <h3 style="margin-top:0; color:#6d28d9;">⚡ Nhập nhiều câu vào ngân hàng</h3>
-                <div style="background:white; border:1px solid #ddd6fe; border-radius:10px; padding:14px; margin-bottom:12px; font-size:13px; color:#4c1d95; line-height:1.8;">
-                    Dùng cùng cú pháp với phần soạn đề. Thêm dòng <code style="background:#f5f3ff; padding:2px 6px; border-radius:4px;">CHUDE:</code> để gắn chủ đề cho câu.<br>
-                    <b>Ví dụ:</b> <code style="background:#f5f3ff; padding:2px 6px; border-radius:4px;">CHUDE: Lượng giác</code>
+                <div style="background:white; border:1px solid #ddd6fe; border-radius:10px; padding:14px; margin-bottom:12px; font-size:13px; color:#4c1d95; line-height:1.9;">
+                    Dùng cùng cú pháp với phần soạn đề. Thêm các dòng sau vào <b>bất kỳ đâu trong khối câu hỏi</b> để phân loại riêng cho câu đó:<br>
+                    <code style="background:#f5f3ff; padding:2px 7px; border-radius:4px;">CHUDE: Lượng giác</code>
+                    <code style="background:#f5f3ff; padding:2px 7px; border-radius:4px;">BAI: Bài 1. Góc lượng giác</code><br>
+                    <code style="background:#f5f3ff; padding:2px 7px; border-radius:4px;">MUCDO: TH</code> (NB / TH / VD / VDC)
+                    <code style="background:#f5f3ff; padding:2px 7px; border-radius:4px;">LOP: 11</code><br>
+                    <i style="color:#7c3aed;">Câu nào không ghi thì lấy theo giá trị mặc định bên dưới.</i>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">Chủ đề mặc định (nếu câu không ghi CHUDE):</label>
-                        <input type="text" id="bankBulkChuDe" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="Để trống nếu không cần"></div>
-                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lớp:</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c3aed;">🏷 Chủ đề mặc định:</label>
+                        <input type="text" id="bankBulkChuDe" list="ds-chu-de" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Lượng giác"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#c2410c;">📕 Bài mặc định:</label>
+                        <input type="text" id="bankBulkBai" list="ds-bai" style="margin:4px 0 0 0; padding:11px;" placeholder="VD: Bài 1. Góc lượng giác"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0891b2;">📊 Mức độ mặc định:</label>
+                        <select id="bankBulkMucDo" style="margin:4px 0 0 0; padding:11px;">
+                            <option value="NB">Nhận biết</option>
+                            <option value="TH" selected>Thông hiểu</option>
+                            <option value="VD">Vận dụng</option>
+                            <option value="VDC">Vận dụng cao</option>
+                        </select></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lớp mặc định:</label>
                         <select id="bankBulkLop" style="margin:4px 0 0 0; padding:11px;">
                             <option value="">Không ghi</option><option value="10">Lớp 10</option>
                             <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
@@ -602,6 +630,7 @@
                     <button class="btn" style="margin:0; background:linear-gradient(to right,#0891b2,#0e7490); font-size:15px;" onclick="luuVaoNganHang()">🏦 LƯU CÁC CÂU NÀY VÀO NGÂN HÀNG</button>
                 </div>
                 <datalist id="ds-chu-de"></datalist>
+                <datalist id="ds-bai"></datalist>
             </div>
 
             <div id="bulkImportBox" style="display:none; background:#faf5ff; border:2px solid #c4b5fd; border-radius:16px; padding:25px; margin-bottom:20px;">
@@ -1180,21 +1209,44 @@
 
         // Gom các chủ đề đã dùng để gợi ý khi soạn đề
         function capNhatDanhSachChuDe() {
-            const cd = new Set();
-            Object.values(dbBank).forEach(q => { if(q.topic) cd.add(q.topic); });
-            Object.values(dbExams).forEach(ex => (ex.questions||[]).forEach(q => { if(q.topic) cd.add(q.topic); }));
-            const ds = [...cd].sort((a,b)=>a.localeCompare(b,'vi'));
+            const cd = new Set(), bai = new Set();
+            const gom = q => { if(q.topic) cd.add(q.topic); if(q.lesson) bai.add(q.lesson); };
+            Object.values(dbBank).forEach(gom);
+            Object.values(dbExams).forEach(ex => (ex.questions||[]).forEach(gom));
+
+            const sapXep = arr => [...arr].sort((a,b) => a.localeCompare(b,'vi',{numeric:true}));
+            const ds = sapXep(cd), dsBai = sapXep(bai);
+            const esc = t => t.replace(/"/g,'&quot;');
 
             const dl = document.getElementById("ds-chu-de");
-            if(dl) dl.innerHTML = ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">`).join('');
+            if(dl) dl.innerHTML = ds.map(t=>`<option value="${esc(t)}">`).join('');
+            const dlB = document.getElementById("ds-bai");
+            if(dlB) dlB.innerHTML = dsBai.map(t=>`<option value="${esc(t)}">`).join('');
 
             const sel = document.getElementById("bankLocChuDe");
             if(sel) {
                 const cu = sel.value;
-                sel.innerHTML = `<option value="">Mọi chủ đề</option>` + ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
+                sel.innerHTML = `<option value="">Mọi chủ đề</option>` + ds.map(t=>`<option value="${esc(t)}">${t}</option>`).join('');
                 if(ds.includes(cu)) sel.value = cu;
             }
+            capNhatLocBai();
         }
+
+        // Danh sách Bài phụ thuộc chủ đề đang chọn ở bộ lọc
+        window.capNhatLocBai = () => {
+            const sel = document.getElementById("bankLocBai");
+            if(!sel) return;
+            const cdChon = document.getElementById("bankLocChuDe").value;
+            const bai = new Set();
+            Object.values(dbBank).forEach(q => {
+                if(cdChon && (q.topic||"") !== cdChon) return;
+                if(q.lesson) bai.add(q.lesson);
+            });
+            const ds = [...bai].sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
+            const cu = sel.value;
+            sel.innerHTML = `<option value="">Mọi bài</option>` + ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
+            if(ds.includes(cu)) sel.value = cu;
+        };
 
         // ================= THÊM CÂU TRỰC TIẾP VÀO NGÂN HÀNG =================
         window.moThemCauBank = () => {
@@ -1263,7 +1315,8 @@
                 type: loai,
                 q: nd,
                 explanation: document.getElementById("ncLoiGiai").value.trim(),
-                topic: document.getElementById("ncChuDe").value.trim(),
+                topic: document.getElementById("ncChuDe2").value.trim(),
+                lesson: document.getElementById("ncBai").value.trim(),
                 level: document.getElementById("ncMucDo").value,
                 grade: document.getElementById("ncLop").value,
                 image: "",
@@ -1306,8 +1359,22 @@
         // --- Nhập hàng loạt vào ngân hàng ---
         window.chenViDuMauBank = () => {
             document.getElementById("bankBulkText").value =
-`[TN] Rút gọn $\\sin(\\pi - \\alpha)$ ta được:
+`[TN] Đổi $30^\\circ$ sang radian:
 CHUDE: Lượng giác
+BAI: Bài 1. Góc lượng giác
+MUCDO: NB
+LOP: 11
+A. $\\frac{\\pi}{6}$ *
+B. $\\frac{\\pi}{3}$
+C. $\\frac{\\pi}{4}$
+D. $\\frac{\\pi}{2}$
+GIAI: $30^\\circ = 30 \\cdot \\frac{\\pi}{180} = \\frac{\\pi}{6}$
+
+[TN] Rút gọn $\\sin(\\pi - \\alpha)$ ta được:
+CHUDE: Lượng giác
+BAI: Bài 2. Giá trị lượng giác của một góc
+MUCDO: TH
+LOP: 11
 A. $\\sin\\alpha$ *
 B. $-\\sin\\alpha$
 C. $\\cos\\alpha$
@@ -1316,6 +1383,8 @@ GIAI: Góc bù nhau có sin bằng nhau.
 
 [TLN] Tính $\\cos 60^\\circ$
 CHUDE: Lượng giác
+BAI: Bài 2. Giá trị lượng giác của một góc
+MUCDO: NB
 DAP AN: 0,5`;
             kiemTraBulkBank();
         };
@@ -1323,29 +1392,52 @@ DAP AN: 0,5`;
         function docBulkBank() {
             const text = document.getElementById("bankBulkText").value;
             if(!text.trim()) return { ds: [], loi: [] };
-            // Tách dòng CHUDE: ra khỏi nội dung trước khi phân tích
-            const cdMacDinh = document.getElementById("bankBulkChuDe").value.trim();
-            const chuDeTheoKhoi = [];
-            const sach = text.split(/\n\s*\n/).map(k => {
-                let cd = "";
-                const dong = k.split('\n').filter(d => {
-                    const m = d.trim().match(/^CHUDE\s*:\s*(.*)$/i);
-                    if(m) { cd = m[1].trim(); return false; }
+
+            // Giá trị mặc định khi câu không tự ghi
+            const md = {
+                topic: document.getElementById("bankBulkChuDe").value.trim(),
+                lesson: document.getElementById("bankBulkBai").value.trim(),
+                level: document.getElementById("bankBulkMucDo").value,
+                grade: document.getElementById("bankBulkLop").value
+            };
+
+            const HOP_LE_MUC = { NB:'NB', TH:'TH', VD:'VD', VDC:'VDC',
+                'NHANBIET':'NB', 'THONGHIEU':'TH', 'VANDUNG':'VD', 'VANDUNGCAO':'VDC' };
+            const canhBao = [];
+
+            // Tách các dòng nhãn (CHUDE/BAI/MUCDO/LOP) ra khỏi nội dung trước khi phân tích
+            const nhanTheoKhoi = [];
+            const sach = text.split(/\n\s*\n/).map((khoi, idx) => {
+                const nhan = {};
+                const dong = khoi.split('\n').filter(d => {
+                    const s = d.trim();
+                    let m;
+                    if((m = s.match(/^CHUDE\s*:\s*(.*)$/i)))  { nhan.topic  = m[1].trim(); return false; }
+                    if((m = s.match(/^BAI\s*:\s*(.*)$/i)))     { nhan.lesson = m[1].trim(); return false; }
+                    if((m = s.match(/^LOP\s*:\s*(.*)$/i)))     { nhan.grade  = m[1].trim(); return false; }
+                    if((m = s.match(/^MUCDO\s*:\s*(.*)$/i)))   {
+                        const v = m[1].trim().toUpperCase().replace(/\s+/g,'').normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+                        if(HOP_LE_MUC[v]) nhan.level = HOP_LE_MUC[v];
+                        else canhBao.push(`Khối ${idx+1}: mức độ "${m[1].trim()}" không hợp lệ (dùng NB/TH/VD/VDC), đã lấy mặc định.`);
+                        return false;
+                    }
                     return true;
                 });
-                chuDeTheoKhoi.push(cd);
+                nhanTheoKhoi.push(nhan);
                 return dong.join('\n');
             }).join('\n\n');
 
             const kq = phanTichVanBan(sach);
-            const lop = document.getElementById("bankBulkLop").value;
             kq.ds.forEach((q, i) => {
+                const n = nhanTheoKhoi[i] || {};
                 delete q._qid;
-                q.topic = chuDeTheoKhoi[i] || cdMacDinh || "";
-                q.level = q.level || "TH";
-                q.grade = lop;
+                q.topic  = n.topic  || md.topic  || "";
+                q.lesson = n.lesson || md.lesson || "";
+                q.level  = n.level  || md.level  || "TH";
+                q.grade  = n.grade  || md.grade  || "";
                 q.addedAt = Date.now();
             });
+            kq.loi = kq.loi.concat(canhBao);
             return kq;
         }
 
@@ -1358,12 +1450,36 @@ DAP AN: 0,5`;
                     <b style="color:#b91c1c;">⚠️ ${loi.length} vấn đề:</b>
                     <ul style="margin:8px 0 0 0; color:#7f1d1d; font-size:14px; line-height:1.7;">${loi.map(l=>`<li>${l}</li>`).join('')}</ul></div>`;
             }
-            const dem = {};
-            ds.forEach(q => { const t = q.topic || "(chưa gắn chủ đề)"; dem[t] = (dem[t]||0)+1; });
+            // Gom theo Chủ đề › Bài › Mức độ để thầy/cô kiểm tra trước khi lưu
+            const cay = {};
+            ds.forEach(q => {
+                const cd = q.topic || "(chưa gắn chủ đề)";
+                const bai = q.lesson || "(chưa gắn bài)";
+                if(!cay[cd]) cay[cd] = {};
+                if(!cay[cd][bai]) cay[cd][bai] = { NB:0, TH:0, VD:0, VDC:0, tong:0, lop:new Set() };
+                cay[cd][bai][q.level] = (cay[cd][bai][q.level]||0) + 1;
+                cay[cd][bai].tong++;
+                if(q.grade) cay[cd][bai].lop.add(q.grade);
+            });
+
             h += `<div style="background:${ds.length?'#f0fdf4':'#fef2f2'}; border:2px solid ${ds.length?'#86efac':'#fca5a5'}; border-radius:10px; padding:14px;">
-                <b style="color:${ds.length?'#15803d':'#b91c1c'};">${ds.length?'✅':'❌'} Đọc được ${ds.length} câu</b>
-                <div style="margin-top:8px; font-size:14px; color:#334155; line-height:1.7;">
-                ${Object.entries(dem).map(([t,n])=>`🏷 ${t}: <b>${n}</b> câu`).join('<br>')}</div></div>`;
+                <b style="color:${ds.length?'#15803d':'#b91c1c'}; font-size:15px;">${ds.length?'✅':'❌'} Đọc được ${ds.length} câu</b>
+                <div style="margin-top:10px; font-size:14px; color:#334155; text-align:left;">`;
+            Object.keys(cay).sort((a,b)=>a.localeCompare(b,'vi')).forEach(cd => {
+                const tongCd = Object.values(cay[cd]).reduce((s,b)=>s+b.tong,0);
+                h += `<div style="margin-bottom:10px;">
+                    <div style="font-weight:bold; color:#6d28d9;">🏷 ${cd} <span style="color:#94a3b8; font-weight:normal;">(${tongCd} câu)</span></div>`;
+                Object.keys(cay[cd]).sort((a,b)=>a.localeCompare(b,'vi')).forEach(bai => {
+                    const b = cay[cd][bai];
+                    const chiTiet = CAC_MUC.filter(m=>b[m]>0)
+                        .map(m=>`<span style="color:${MAU_MUC[m]}; font-weight:bold;">${TEN_MUC[m]}: ${b[m]}</span>`).join(' · ');
+                    const lop = b.lop.size ? ` <span style="color:#0369a1;">[Lớp ${[...b.lop].join(', ')}]</span>` : '';
+                    h += `<div style="margin-left:18px; margin-top:3px; font-size:13px;">
+                        📕 ${bai}${lop} — ${chiTiet}</div>`;
+                });
+                h += `</div>`;
+            });
+            h += `</div></div>`;
             khung.innerHTML = h;
             return ds;
         };
@@ -1394,6 +1510,10 @@ DAP AN: 0,5`;
         function locBank() {
             const tim  = (document.getElementById("bankTimKiem").value || "").trim().toLowerCase();
             const cd   = document.getElementById("bankLocChuDe").value;
+            const baiEl = document.getElementById("bankLocBai");
+            const mucEl = document.getElementById("bankLocMucDo");
+            const bai  = baiEl ? baiEl.value : "";
+            const muc  = mucEl ? mucEl.value : "";
             const loai = document.getElementById("bankLocLoai").value;
             const lop  = document.getElementById("bankLocLop").value;
 
@@ -1401,9 +1521,11 @@ DAP AN: 0,5`;
                 const q = dbBank[k];
                 if(loai && q.type !== loai) return false;
                 if(cd && (q.topic || "") !== cd) return false;
+                if(bai && (q.lesson || "") !== bai) return false;
+                if(muc && (q.level || "TH") !== muc) return false;
                 if(lop && (q.grade || "") !== lop) return false;
                 if(tim) {
-                    const noiDung = ((q.q||"") + " " + (q.topic||"") + " " + (q.explanation||"")).toLowerCase();
+                    const noiDung = ((q.q||"") + " " + (q.topic||"") + " " + (q.lesson||"") + " " + (q.explanation||"")).toLowerCase();
                     if(!noiDung.includes(tim)) return false;
                 }
                 return true;
@@ -1461,18 +1583,26 @@ DAP AN: 0,5`;
         const CAC_MUC = ['NB','TH','VD','VDC'];
 
         // Đếm số câu theo chủ đề × mức độ, có thể lọc thêm theo lớp/dạng
-        function thongKeBank(lop, loai) {
-            const bang = {};   // topic -> {NB:[key...], TH:[...], ...}
+        // Gom theo "Chủ đề › Bài". Khoá có dạng "Chủ đề\u0000Bài" để tách lại được.
+        const NGAN = "\u0000";
+        function thongKeBank(lop, loai, gomTheoBai = true) {
+            const bang = {};
             Object.keys(dbBank).forEach(k => {
                 const q = dbBank[k];
                 if(lop && (q.grade || "") !== lop) return;
                 if(loai && q.type !== loai) return;
                 const cd = q.topic || "(chưa gắn chủ đề)";
+                const bai = q.lesson || "(chưa gắn bài)";
+                const khoa = gomTheoBai ? (cd + NGAN + bai) : cd;
                 const mc = CAC_MUC.includes(q.level) ? q.level : 'TH';
-                if(!bang[cd]) { bang[cd] = {}; CAC_MUC.forEach(m => bang[cd][m] = []); }
-                bang[cd][mc].push(k);
+                if(!bang[khoa]) { bang[khoa] = {}; CAC_MUC.forEach(m => bang[khoa][m] = []); }
+                bang[khoa][mc].push(k);
             });
             return bang;
+        }
+        function tachKhoa(k) {
+            const i = k.indexOf(NGAN);
+            return i < 0 ? { cd: k, bai: "" } : { cd: k.slice(0, i), bai: k.slice(i + 1) };
         }
 
         function veTongQuanBank() {
@@ -1481,10 +1611,16 @@ DAP AN: 0,5`;
             const tong = Object.keys(dbBank).length;
             if(tong === 0) { khung.innerHTML = ""; return; }
 
-            const bang = thongKeBank("", "");
-            const chuDe = Object.keys(bang).sort((a,b) => a.localeCompare(b,'vi'));
+            const bang = thongKeBank("", "", true);
+            // Gom lại thành cây: chủ đề -> danh sách bài
+            const cay = {};
+            Object.keys(bang).forEach(k => {
+                const { cd, bai } = tachKhoa(k);
+                if(!cay[cd]) cay[cd] = {};
+                cay[cd][bai] = bang[k];
+            });
+            const dsChuDe = Object.keys(cay).sort((a,b)=>a.localeCompare(b,'vi'));
 
-            // Đếm theo dạng câu
             const theoLoai = { mcq:0, tf:0, short:0, essay:0 };
             Object.values(dbBank).forEach(q => { if(theoLoai[q.type] !== undefined) theoLoai[q.type]++; });
 
@@ -1498,36 +1634,53 @@ DAP AN: 0,5`;
                 </div>
                 <div style="overflow-x:auto;"><table style="width:100%; font-size:14px;">
                 <thead><tr style="background:#f8fafc;">
-                    <th style="text-align:left; padding:9px;">Chủ đề</th>
+                    <th style="text-align:left; padding:9px;">Chủ đề / Bài</th>
                     ${CAC_MUC.map(m=>`<th style="padding:9px; width:70px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
                     <th style="padding:9px; width:70px;">Tổng</th></tr></thead><tbody>`;
 
-            chuDe.forEach(cd => {
-                const r = bang[cd];
-                const tongCd = CAC_MUC.reduce((s,m)=>s+r[m].length, 0);
-                h += `<tr><td style="text-align:left; padding:9px; font-weight:bold; color:#0f172a;">${cd}</td>`;
-                CAC_MUC.forEach(m => {
-                    const n = r[m].length;
-                    h += `<td style="padding:9px; color:${n?MAU_MUC[m]:'#cbd5e1'}; font-weight:${n?'bold':'normal'};">${n||'–'}</td>`;
-                });
+            dsChuDe.forEach(cd => {
+                const dsBai = Object.keys(cay[cd]).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
+                // Dòng chủ đề (cộng dồn mọi bài)
+                const congDon = {}; CAC_MUC.forEach(m => congDon[m] = 0);
+                dsBai.forEach(b => CAC_MUC.forEach(m => congDon[m] += cay[cd][b][m].length));
+                const tongCd = CAC_MUC.reduce((s,m)=>s+congDon[m], 0);
+
+                h += `<tr style="background:#f0f9ff;">
+                    <td style="text-align:left; padding:9px; font-weight:bold; color:#0369a1;">🏷 ${cd}</td>`;
+                CAC_MUC.forEach(m => h += `<td style="padding:9px; font-weight:bold; color:${congDon[m]?MAU_MUC[m]:'#cbd5e1'};">${congDon[m]||'–'}</td>`);
                 h += `<td style="padding:9px; font-weight:bold; color:#0284c7;">${tongCd}</td></tr>`;
+
+                // Các dòng bài con - chỉ hiện khi chủ đề có nhiều hơn 1 bài, hoặc bài có tên thật
+                const coBaiThat = dsBai.some(b => b !== "(chưa gắn bài)");
+                if(coBaiThat) {
+                    dsBai.forEach(b => {
+                        const r = cay[cd][b];
+                        const t = CAC_MUC.reduce((s,m)=>s+r[m].length, 0);
+                        if(t === 0) return;
+                        h += `<tr><td style="text-align:left; padding:7px 9px 7px 30px; color:#475569; font-size:13px;">📕 ${b}</td>`;
+                        CAC_MUC.forEach(m => {
+                            const n = r[m].length;
+                            h += `<td style="padding:7px; font-size:13px; color:${n?MAU_MUC[m]:'#e2e8f0'};">${n||'·'}</td>`;
+                        });
+                        h += `<td style="padding:7px; font-size:13px; color:#64748b;">${t}</td></tr>`;
+                    });
+                }
             });
 
-            // Dòng tổng cộng
-            h += `<tr style="background:#f0f9ff; border-top:2px solid #bae6fd;"><td style="text-align:left; padding:9px; font-weight:bold;">TỔNG CỘNG</td>`;
+            h += `<tr style="background:#e0f2fe; border-top:2px solid #7dd3fc;"><td style="text-align:left; padding:9px; font-weight:bold;">TỔNG CỘNG</td>`;
             CAC_MUC.forEach(m => {
-                const n = chuDe.reduce((s,cd)=>s+bang[cd][m].length, 0);
+                const n = Object.keys(bang).reduce((s,k)=>s+bang[k][m].length, 0);
                 h += `<td style="padding:9px; font-weight:bold; color:${MAU_MUC[m]};">${n}</td>`;
             });
             h += `<td style="padding:9px; font-weight:bold; color:#0284c7; font-size:16px;">${tong}</td></tr>`;
             h += `</tbody></table></div>`;
 
-            // Gợi ý chỗ còn mỏng
-            const mong = [];
-            chuDe.forEach(cd => CAC_MUC.forEach(m => { if(bang[cd][m].length === 0) mong.push(`${cd} – ${TEN_MUC[m]}`); }));
-            if(mong.length > 0 && mong.length <= 8) {
+            // Cảnh báo câu chưa phân loại
+            const chuaCd = Object.values(dbBank).filter(q => !q.topic).length;
+            const chuaBai = Object.values(dbBank).filter(q => q.topic && !q.lesson).length;
+            if(chuaCd || chuaBai) {
                 h += `<div style="margin-top:12px; background:#fffbeb; border-radius:8px; padding:11px; font-size:13px; color:#92400e;">
-                    💡 <b>Chưa có câu nào ở:</b> ${mong.join(' · ')}</div>`;
+                    💡 ${chuaCd ? `<b>${chuaCd}</b> câu chưa gắn chủ đề. ` : ''}${chuaBai ? `<b>${chuaBai}</b> câu chưa gắn bài.` : ''}</div>`;
             }
             h += `</div>`;
             khung.innerHTML = h;
@@ -1546,8 +1699,11 @@ DAP AN: 0,5`;
         window.veMaTran = () => {
             const lop  = document.getElementById("mtLop").value;
             const loai = document.getElementById("mtLoai").value;
-            const bang = thongKeBank(lop, loai);
-            const chuDe = Object.keys(bang).sort((a,b)=>a.localeCompare(b,'vi'));
+            const bang = thongKeBank(lop, loai, true);
+            const chuDe = Object.keys(bang).sort((a,b) => {
+                const A = tachKhoa(a), B = tachKhoa(b);
+                return A.cd.localeCompare(B.cd,'vi') || A.bai.localeCompare(B.bai,'vi',{numeric:true});
+            });
             const khung = document.getElementById("mtBangKhaiBao");
 
             if(chuDe.length === 0) {
@@ -1558,20 +1714,27 @@ DAP AN: 0,5`;
 
             let h = `<table style="width:100%; font-size:14px; background:white; border-radius:10px; overflow:hidden;">
                 <thead><tr style="background:#ffedd5;">
-                    <th style="text-align:left; padding:10px;">Chủ đề</th>
+                    <th style="text-align:left; padding:10px;">Chủ đề / Bài</th>
                     ${CAC_MUC.map(m=>`<th style="padding:10px; width:110px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
                 </tr></thead><tbody>`;
 
-            chuDe.forEach((cd, ci) => {
-                h += `<tr><td style="text-align:left; padding:10px; font-weight:bold;">${cd}</td>`;
+            let cdTruoc = "";
+            chuDe.forEach((khoa, ci) => {
+                const { cd, bai } = tachKhoa(khoa);
+                // Chèn dòng tiêu đề chủ đề khi sang chủ đề mới
+                if(cd !== cdTruoc) {
+                    h += `<tr style="background:#fff7ed;"><td colspan="5" style="text-align:left; padding:9px; font-weight:bold; color:#c2410c;">🏷 ${cd}</td></tr>`;
+                    cdTruoc = cd;
+                }
+                h += `<tr><td style="text-align:left; padding:9px 9px 9px 26px; font-size:13px; color:#475569;">📕 ${bai}</td>`;
                 CAC_MUC.forEach(m => {
-                    const co = bang[cd][m].length;
+                    const co = bang[khoa][m].length;
                     h += `<td style="padding:7px;">
                         <input type="number" min="0" max="${co}" value="0" id="mt_${ci}_${m}"
-                            data-topic="${cd.replace(/"/g,'&quot;')}" data-level="${m}"
+                            data-key="${khoa.replace(/"/g,'&quot;').replace(/\u0000/g,'&#0;')}" data-topic="${cd.replace(/"/g,'&quot;')}" data-lesson="${bai.replace(/"/g,'&quot;')}" data-level="${m}"
                             oninput="tomTatMaTran()" ${co===0?'disabled':''}
                             style="margin:0; padding:8px; text-align:center; font-weight:bold; ${co===0?'background:#f1f5f9; color:#cbd5e1;':''}">
-                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">có ${co} câu</div></td>`;
+                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">có ${co}</div></td>`;
                 });
                 h += `</tr>`;
             });
@@ -1588,7 +1751,7 @@ DAP AN: 0,5`;
             o.forEach(el => {
                 const n = parseInt(el.value) || 0;
                 const max = parseInt(el.max) || 0;
-                if(n > max) { loi.push(`${el.dataset.topic} – ${TEN_MUC[el.dataset.level]}: cần ${n} nhưng chỉ có ${max}`); el.style.borderColor = '#dc2626'; }
+                if(n > max) { loi.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[el.dataset.level]}: cần ${n} nhưng chỉ có ${max}`); el.style.borderColor = '#dc2626'; }
                 else el.style.borderColor = '';
                 tong += n;
                 theoMuc[el.dataset.level] += n;
@@ -1615,7 +1778,7 @@ DAP AN: 0,5`;
         window.bocTheoMaTran = () => {
             const lop  = document.getElementById("mtLop").value;
             const loai = document.getElementById("mtLoai").value;
-            const bang = thongKeBank(lop, loai);
+            const bang = thongKeBank(lop, loai, true);
             const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]');
 
             const chon = [];
@@ -1623,9 +1786,10 @@ DAP AN: 0,5`;
             o.forEach(el => {
                 const n = parseInt(el.value) || 0;
                 if(n <= 0) return;
-                const cd = el.dataset.topic, m = el.dataset.level;
-                const kho = (bang[cd] && bang[cd][m]) ? bang[cd][m].slice() : [];
-                if(kho.length < n) { thieu.push(`${cd} – ${TEN_MUC[m]}: cần ${n}, có ${kho.length}`); return; }
+                const khoa = el.dataset.topic + NGAN + el.dataset.lesson;
+                const m = el.dataset.level;
+                const kho = (bang[khoa] && bang[khoa][m]) ? bang[khoa][m].slice() : [];
+                if(kho.length < n) { thieu.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[m]}: cần ${n}, có ${kho.length}`); return; }
                 // Trộn rồi lấy n câu đầu
                 for(let i = kho.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -1665,10 +1829,12 @@ DAP AN: 0,5`;
             const ds = [...bankDaChon].map(k => dbBank[k]);
             const dem = {}; ds.forEach(q => { dem[q.type] = (dem[q.type]||0)+1; });
             const cd = {}; ds.forEach(q => { const t=q.topic||"(chưa gắn)"; cd[t]=(cd[t]||0)+1; });
+            const mucDo = {}; ds.forEach(q => { const m=q.level||'TH'; mucDo[m]=(mucDo[m]||0)+1; });
             document.getElementById("tdTomTat").innerHTML =
                 `<div style="font-size:14px; color:#334155; line-height:1.8;">
                     <b>Thành phần:</b> ${Object.entries(dem).map(([t,n])=>`${TEN_LOAI[t]||t}: ${n}`).join(' · ')}<br>
-                    <b>Chủ đề:</b> ${Object.entries(cd).map(([t,n])=>`${t} (${n})`).join(' · ')}
+                    <b>Chủ đề:</b> ${Object.entries(cd).map(([t,n])=>`${t} (${n})`).join(' · ')}<br>
+                    <b>Mức độ:</b> ${CAC_MUC.filter(m=>mucDo[m]).map(m=>`<span style="color:${MAU_MUC[m]}; font-weight:bold;">${TEN_MUC[m]}: ${mucDo[m]}</span>`).join(' · ')}
                 </div>`;
 
             document.getElementById("modalTaoDeNhanh").style.display = 'flex';
@@ -1742,6 +1908,7 @@ DAP AN: 0,5`;
                             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
                                 <span style="font-size:12px; background:#f1f5f9; color:#475569; padding:3px 9px; border-radius:20px; font-weight:bold;">${TEN_LOAI[q.type]||q.type}</span>
                                 ${q.topic?`<span style="font-size:12px; background:#f3e8ff; color:#6d28d9; padding:3px 9px; border-radius:20px; font-weight:bold;">🏷 ${q.topic}</span>`:''}
+                                ${q.lesson?`<span style="font-size:12px; background:#ffedd5; color:#c2410c; padding:3px 9px; border-radius:20px; font-weight:bold;">📕 ${q.lesson}</span>`:''}
                                 <span style="font-size:12px; background:white; color:${mucMau}; border:1px solid ${mucMau}; padding:2px 9px; border-radius:20px; font-weight:bold;">${TEN_MUC[q.level]||'Thông hiểu'}</span>
                                 ${q.grade?`<span style="font-size:12px; background:#e0f2fe; color:#0369a1; padding:3px 9px; border-radius:20px; font-weight:bold;">Lớp ${q.grade}</span>`:''}
                                 ${q.image?`<span style="font-size:12px; color:#94a3b8;">🖼 có ảnh</span>`:''}
@@ -1913,10 +2080,12 @@ DAP AN: 0,5`;
             cauHoi.forEach(q => {
                 stt++;
                 t += "\\textbf{Câu " + stt + ".} " + chuanBiNoiDung(q.q);
-                if(q.topic) {
-                    t += " {\\small\\textit{[" + thoatLatex(q.topic);
-                    if(q.level) t += " -- " + thoatLatex(TEN_MUC[q.level] || q.level);
-                    t += "]}}";
+                if(q.topic || q.lesson) {
+                    const nhan = [];
+                    if(q.topic) nhan.push(thoatLatex(q.topic));
+                    if(q.lesson) nhan.push(thoatLatex(q.lesson));
+                    if(q.level) nhan.push(thoatLatex(TEN_MUC[q.level] || q.level));
+                    t += " {\\small\\textit{[" + nhan.join(" -- ") + "]}}";
                 }
                 t += "\n\n";
 
@@ -2068,8 +2237,10 @@ DAP AN: 0,5`;
                 const expl = blk.querySelector('.inp-expl').value;
                 const tEl = blk.querySelector('.inp-topic');
                 const lEl = blk.querySelector('.inp-level');
+                const bEl = blk.querySelector('.inp-lesson');
                 const topic = tEl ? tEl.value.trim() : "";
                 const level = lEl ? lEl.value : "TH";
+                const lesson = bEl ? bEl.value.trim() : "";
                 const img = imgMap[qid] || ""; 
 
                 if(type === 'mcq') {
@@ -2082,7 +2253,7 @@ DAP AN: 0,5`;
                     let correct = 0;
                     const radios = blk.querySelectorAll('.inp-rad');
                     radios.forEach((r, rIdx) => { if(r.checked) correct = rIdx; });
-                    window.builderQuestions.push({_qid: qid, type: 'mcq', q: qText, a: a, correct: correct, explanation: expl, image: img, topic: topic, level: level});
+                    window.builderQuestions.push({_qid: qid, type: 'mcq', q: qText, a: a, correct: correct, explanation: expl, image: img, topic: topic, level: level, lesson: lesson});
                 } 
                 else if(type === 'tf') {
                     const statements = [
@@ -2091,14 +2262,14 @@ DAP AN: 0,5`;
                         {text: blk.querySelector('.inp-st-2').value, isTrue: blk.querySelector('.inp-tf-2').value === 'true'},
                         {text: blk.querySelector('.inp-st-3').value, isTrue: blk.querySelector('.inp-tf-3').value === 'true'}
                     ];
-                    window.builderQuestions.push({_qid: qid, type: 'tf', q: qText, statements: statements, explanation: expl, image: img, topic: topic, level: level});
+                    window.builderQuestions.push({_qid: qid, type: 'tf', q: qText, statements: statements, explanation: expl, image: img, topic: topic, level: level, lesson: lesson});
                 } 
                 else if(type === 'short') {
                     const correct = blk.querySelector('.inp-ans').value;
-                    window.builderQuestions.push({_qid: qid, type: 'short', q: qText, correct: correct, explanation: expl, image: img, topic: topic, level: level});
+                    window.builderQuestions.push({_qid: qid, type: 'short', q: qText, correct: correct, explanation: expl, image: img, topic: topic, level: level, lesson: lesson});
                 }
                 else if(type === 'essay') {
-                    window.builderQuestions.push({_qid: qid, type: 'essay', q: qText, explanation: expl, image: img, topic: topic, level: level});
+                    window.builderQuestions.push({_qid: qid, type: 'essay', q: qText, explanation: expl, image: img, topic: topic, level: level, lesson: lesson});
                 }
             });
         };
@@ -2131,10 +2302,14 @@ DAP AN: 0,5`;
                     <label style="font-weight:bold; color:#475569; font-size:14px;">Nội dung câu hỏi (Có thể gõ công thức Toán LaTeX):</label>
                     <textarea class="inp-q" rows="3" style="margin-bottom: 10px; margin-top:5px; font-family: monospace;" placeholder="Ví dụ: Cho hàm số f(x)...">${q.q}</textarea>
 
-                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
                         <div>
-                            <label style="font-weight:bold; color:#7c3aed; font-size:13px;">🏷 Chủ đề (để thống kê &amp; lọc trong ngân hàng):</label>
-                            <input type="text" class="inp-topic" list="ds-chu-de" value="${(q.topic || '').replace(/"/g,'&quot;')}" style="margin:4px 0 0 0; padding:10px;" placeholder="VD: Công thức cộng, Xét dấu...">
+                            <label style="font-weight:bold; color:#7c3aed; font-size:13px;">🏷 Chủ đề:</label>
+                            <input type="text" class="inp-topic" list="ds-chu-de" value="${(q.topic || '').replace(/"/g,'&quot;')}" style="margin:4px 0 0 0; padding:10px;" placeholder="VD: Lượng giác">
+                        </div>
+                        <div>
+                            <label style="font-weight:bold; color:#c2410c; font-size:13px;">📕 Bài:</label>
+                            <input type="text" class="inp-lesson" list="ds-bai" value="${(q.lesson || '').replace(/"/g,'&quot;')}" style="margin:4px 0 0 0; padding:10px;" placeholder="VD: Bài 1. Góc lượng giác">
                         </div>
                         <div>
                             <label style="font-weight:bold; color:#0891b2; font-size:13px;">📊 Mức độ:</label>
