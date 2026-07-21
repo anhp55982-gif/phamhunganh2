@@ -353,9 +353,40 @@
                 </div>
             </div>
 
+            <div id="bankTongQuan" style="margin-bottom:20px;"></div>
+
             <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
-                <button class="btn" style="margin:0; flex:1; min-width:240px; background:linear-gradient(to right,#16a34a,#15803d); font-size:15px;" onclick="moThemCauBank()">➕ THÊM CÂU MỚI VÀO NGÂN HÀNG</button>
-                <button class="btn" style="margin:0; flex:1; min-width:240px; background:linear-gradient(to right,#8b5cf6,#7c3aed); font-size:15px;" onclick="moNhapHangLoatBank()">⚡ NHẬP NHIỀU CÂU BẰNG VĂN BẢN</button>
+                <button class="btn" style="margin:0; flex:1; min-width:200px; background:linear-gradient(to right,#16a34a,#15803d); font-size:15px;" onclick="moThemCauBank()">➕ THÊM CÂU MỚI</button>
+                <button class="btn" style="margin:0; flex:1; min-width:200px; background:linear-gradient(to right,#8b5cf6,#7c3aed); font-size:15px;" onclick="moNhapHangLoatBank()">⚡ NHẬP NHIỀU CÂU</button>
+                <button class="btn" style="margin:0; flex:1; min-width:200px; background:linear-gradient(to right,#ea580c,#c2410c); font-size:15px;" onclick="moMaTranDe()">🎯 TẠO ĐỀ THEO MA TRẬN</button>
+            </div>
+
+            <div id="bankMaTranBox" style="display:none; background:#fff7ed; border:2px solid #fdba74; border-radius:16px; padding:22px; margin-bottom:20px;">
+                <h3 style="margin-top:0; color:#c2410c;">🎯 Tạo đề theo ma trận</h3>
+                <p style="color:#7c2d12; font-size:14px; margin-top:-6px;">Khai báo số câu cần cho từng chủ đề và mức độ. Hệ thống sẽ tự bốc ngẫu nhiên từ ngân hàng.</p>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c2d12;">Lọc theo lớp (không bắt buộc):</label>
+                        <select id="mtLop" style="margin:4px 0 0 0; padding:11px;" onchange="veMaTran()">
+                            <option value="">Mọi lớp</option><option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
+                        </select></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#7c2d12;">Lọc theo dạng câu (không bắt buộc):</label>
+                        <select id="mtLoai" style="margin:4px 0 0 0; padding:11px;" onchange="veMaTran()">
+                            <option value="">Mọi dạng</option><option value="mcq">Trắc nghiệm</option>
+                            <option value="tf">Đúng/Sai</option><option value="short">Trả lời ngắn</option>
+                            <option value="essay">Tự luận</option>
+                        </select></div>
+                </div>
+
+                <div id="mtBangKhaiBao" style="overflow-x:auto;"></div>
+                <div id="mtTomTat" style="margin-top:14px;"></div>
+
+                <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                    <button class="btn btn-blue" style="margin:0; width:auto; padding:13px 20px; font-size:14px;" onclick="bocTheoMaTran()">🎲 BỐC CÂU THEO MA TRẬN</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:13px 20px; font-size:14px;" onclick="xoaMaTran()">↺ Xoá hết số đã nhập</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:13px 20px; font-size:14px; background:#94a3b8;" onclick="document.getElementById('bankMaTranBox').style.display='none'">✖ Đóng</button>
+                </div>
             </div>
 
             <div id="bankThemCauBox" style="display:none; background:#f0fdf4; border:2px solid #86efac; border-radius:16px; padding:22px; margin-bottom:20px;">
@@ -437,10 +468,64 @@
             <div id="bankDanhSach" style="max-height:480px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:12px; padding:12px; background:#f8fafc;"></div>
 
             <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
-                <button class="btn btn-blue" style="margin:0; flex:1; min-width:220px;" onclick="chuyenVaoDe()">➡️ ĐƯA CÂU ĐÃ CHỌN VÀO ĐỀ</button>
-                <button class="btn btn-green" style="margin:0; flex:1; min-width:220px;" onclick="xuatTexTuBank()">📄 XUẤT RA FILE LaTeX (.tex)</button>
+                <button class="btn" style="margin:0; flex:1; min-width:220px; background:linear-gradient(to right,#0284c7,#0369a1); font-size:16px;" onclick="taoDeNhanh()">🚀 TẠO ĐỀ NGAY (1 BƯỚC)</button>
+                <button class="btn btn-blue" style="margin:0; flex:1; min-width:200px;" onclick="chuyenVaoDe()">➡️ Đưa sang trình soạn đề</button>
+                <button class="btn btn-green" style="margin:0; flex:1; min-width:200px;" onclick="xuatTexTuBank()">📄 Xuất file .tex</button>
             </div>
             <button class="btn btn-gray" style="margin-top:15px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
+        </div>
+
+        <div id="modalTaoDeNhanh" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+            <div style="background:white; border-radius:18px; padding:28px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+                <h2 style="margin-top:0; color:#0369a1; font-size:22px;">🚀 Tạo đề nhanh</h2>
+                <div style="background:#f0f9ff; border-radius:10px; padding:14px; margin-bottom:18px;">
+                    <b style="color:#0284c7; font-size:15px;">Đang chọn <span id="tdSoCau">0</span> câu</b>
+                    <div id="tdTomTat" style="margin-top:6px;"></div>
+                </div>
+
+                <label style="font-size:14px; font-weight:bold; color:#475569;">Tên đề thi:</label>
+                <input type="text" id="tdTen" style="margin:5px 0 14px 0; padding:13px; font-size:16px;">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Thời gian (phút):</label>
+                        <input type="number" id="tdThoiGian" min="5" style="margin:5px 0 0 0; padding:13px;"></div>
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Dành cho lớp:</label>
+                        <select id="tdLop" style="margin:5px 0 0 0; padding:13px;">
+                            <option value="all">Mọi lớp</option><option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
+                        </select></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Hình thức:</label>
+                        <select id="tdLoaiDe" style="margin:5px 0 0 0; padding:13px;">
+                            <option value="exam">🔴 Kiểm tra (tính điểm)</option>
+                            <option value="practice">🟢 Tự luyện (chấm ngay)</option>
+                        </select></div>
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Cách chấm:</label>
+                        <select id="tdChamDiem" style="margin:5px 0 0 0; padding:13px;">
+                            <option value="ratio">⚖️ Cân tỉ lệ 3:2:2:3</option>
+                            <option value="free">Chia đều 10 điểm</option>
+                            <option value="custom">✏️ Tự đặt (sửa sau)</option>
+                        </select></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Trộn đề:</label>
+                        <select id="tdTron" style="margin:5px 0 0 0; padding:13px;">
+                            <option value="on">🔀 Có trộn</option><option value="off">➡️ Không trộn</option>
+                        </select></div>
+                    <div><label style="font-size:14px; font-weight:bold; color:#475569;">Cho HS thấy ngay?</label>
+                        <select id="tdHienNgay" style="margin:5px 0 0 0; padding:13px;">
+                            <option value="show">👁️ Hiện ngay</option><option value="hide">🙈 Ẩn (bật sau)</option>
+                        </select></div>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-green" style="margin:0; flex:1; padding:15px;" onclick="xacNhanTaoDeNhanh()">✅ TẠO ĐỀ</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:15px 24px; background:#94a3b8;" onclick="dongModalTaoDe()">Huỷ</button>
+                </div>
+            </div>
         </div>
 
         <div id="screen-teacher-create" class="screen">
@@ -1329,6 +1414,308 @@ DAP AN: 0,5`;
         const TEN_MUC  = { NB:'Nhận biết', TH:'Thông hiểu', VD:'Vận dụng', VDC:'Vận dụng cao' };
         const MAU_MUC  = { NB:'#16a34a', TH:'#0284c7', VD:'#f59e0b', VDC:'#dc2626' };
 
+        // ================= TRUY VẾT CÂU HỎI QUA CÁC ĐỀ =================
+        // Tìm những đề nào đang dùng câu gốc này
+        function timDeDungCau(bankId) {
+            const ds = [];
+            Object.keys(dbExams).forEach(tenDe => {
+                const ex = dbExams[tenDe];
+                (ex.questions || []).forEach((q, i) => {
+                    if(q.bankId === bankId) ds.push({ tenDe, viTri: i });
+                });
+            });
+            return ds;
+        }
+
+        // Sau khi sửa câu gốc, hỏi có muốn cập nhật các đề đang dùng không
+        window.dongBoCauSangDe = async (bankId) => {
+            const dsDe = timDeDungCau(bankId);
+            if(dsDe.length === 0) return alert("Câu này chưa được dùng trong đề nào.");
+
+            const ten = [...new Set(dsDe.map(d => d.tenDe))];
+            if(!confirm(`Câu này đang được dùng trong ${ten.length} đề:\n\n${ten.map(t=>'• '+t).join('\n')}\n\nCập nhật nội dung mới vào các đề đó?\n\n⚠️ Đề đang có học sinh làm dở sẽ KHÔNG bị ảnh hưởng (các em giữ bản đã tải).`)) return;
+
+            const goc = dbBank[bankId];
+            if(!goc) return alert("Không tìm thấy câu gốc!");
+
+            const viec = [];
+            ten.forEach(tenDe => {
+                const ex = JSON.parse(JSON.stringify(dbExams[tenDe]));
+                (ex.questions || []).forEach((q, i) => {
+                    if(q.bankId === bankId) {
+                        const moi = JSON.parse(JSON.stringify(goc));
+                        delete moi.grade; delete moi.addedAt; delete moi.updatedAt;
+                        moi.bankId = bankId;
+                        ex.questions[i] = moi;
+                    }
+                });
+                viec.push(update(ref(db, 'exams/' + tenDe), { questions: ex.questions }));
+            });
+
+            Promise.all(viec)
+                .then(() => alert(`✅ Đã cập nhật ${ten.length} đề.`))
+                .catch(e => alert("Lỗi: " + e.message));
+        };
+
+        // ================= BẢNG TỔNG QUAN NGÂN HÀNG =================
+        const CAC_MUC = ['NB','TH','VD','VDC'];
+
+        // Đếm số câu theo chủ đề × mức độ, có thể lọc thêm theo lớp/dạng
+        function thongKeBank(lop, loai) {
+            const bang = {};   // topic -> {NB:[key...], TH:[...], ...}
+            Object.keys(dbBank).forEach(k => {
+                const q = dbBank[k];
+                if(lop && (q.grade || "") !== lop) return;
+                if(loai && q.type !== loai) return;
+                const cd = q.topic || "(chưa gắn chủ đề)";
+                const mc = CAC_MUC.includes(q.level) ? q.level : 'TH';
+                if(!bang[cd]) { bang[cd] = {}; CAC_MUC.forEach(m => bang[cd][m] = []); }
+                bang[cd][mc].push(k);
+            });
+            return bang;
+        }
+
+        function veTongQuanBank() {
+            const khung = document.getElementById("bankTongQuan");
+            if(!khung) return;
+            const tong = Object.keys(dbBank).length;
+            if(tong === 0) { khung.innerHTML = ""; return; }
+
+            const bang = thongKeBank("", "");
+            const chuDe = Object.keys(bang).sort((a,b) => a.localeCompare(b,'vi'));
+
+            // Đếm theo dạng câu
+            const theoLoai = { mcq:0, tf:0, short:0, essay:0 };
+            Object.values(dbBank).forEach(q => { if(theoLoai[q.type] !== undefined) theoLoai[q.type]++; });
+
+            let h = `<div style="background:white; border:2px solid #bae6fd; border-radius:14px; padding:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                    <b style="color:#0369a1; font-size:16px;">📊 Tổng quan ngân hàng: ${tong} câu</b>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:12px;">
+                        ${Object.entries(theoLoai).filter(([,n])=>n>0).map(([t,n])=>
+                            `<span style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:20px; font-weight:bold;">${(TEN_LOAI[t]||t)}: ${n}</span>`).join('')}
+                    </div>
+                </div>
+                <div style="overflow-x:auto;"><table style="width:100%; font-size:14px;">
+                <thead><tr style="background:#f8fafc;">
+                    <th style="text-align:left; padding:9px;">Chủ đề</th>
+                    ${CAC_MUC.map(m=>`<th style="padding:9px; width:70px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
+                    <th style="padding:9px; width:70px;">Tổng</th></tr></thead><tbody>`;
+
+            chuDe.forEach(cd => {
+                const r = bang[cd];
+                const tongCd = CAC_MUC.reduce((s,m)=>s+r[m].length, 0);
+                h += `<tr><td style="text-align:left; padding:9px; font-weight:bold; color:#0f172a;">${cd}</td>`;
+                CAC_MUC.forEach(m => {
+                    const n = r[m].length;
+                    h += `<td style="padding:9px; color:${n?MAU_MUC[m]:'#cbd5e1'}; font-weight:${n?'bold':'normal'};">${n||'–'}</td>`;
+                });
+                h += `<td style="padding:9px; font-weight:bold; color:#0284c7;">${tongCd}</td></tr>`;
+            });
+
+            // Dòng tổng cộng
+            h += `<tr style="background:#f0f9ff; border-top:2px solid #bae6fd;"><td style="text-align:left; padding:9px; font-weight:bold;">TỔNG CỘNG</td>`;
+            CAC_MUC.forEach(m => {
+                const n = chuDe.reduce((s,cd)=>s+bang[cd][m].length, 0);
+                h += `<td style="padding:9px; font-weight:bold; color:${MAU_MUC[m]};">${n}</td>`;
+            });
+            h += `<td style="padding:9px; font-weight:bold; color:#0284c7; font-size:16px;">${tong}</td></tr>`;
+            h += `</tbody></table></div>`;
+
+            // Gợi ý chỗ còn mỏng
+            const mong = [];
+            chuDe.forEach(cd => CAC_MUC.forEach(m => { if(bang[cd][m].length === 0) mong.push(`${cd} – ${TEN_MUC[m]}`); }));
+            if(mong.length > 0 && mong.length <= 8) {
+                h += `<div style="margin-top:12px; background:#fffbeb; border-radius:8px; padding:11px; font-size:13px; color:#92400e;">
+                    💡 <b>Chưa có câu nào ở:</b> ${mong.join(' · ')}</div>`;
+            }
+            h += `</div>`;
+            khung.innerHTML = h;
+        }
+
+        // ================= MA TRẬN ĐỀ =================
+        window.moMaTranDe = () => {
+            const b = document.getElementById("bankMaTranBox");
+            const hien = b.style.display !== 'block';
+            b.style.display = hien ? 'block' : 'none';
+            document.getElementById("bankThemCauBox").style.display = 'none';
+            document.getElementById("bankBulkBox").style.display = 'none';
+            if(hien) { veMaTran(); b.scrollIntoView({behavior:'smooth', block:'center'}); }
+        };
+
+        window.veMaTran = () => {
+            const lop  = document.getElementById("mtLop").value;
+            const loai = document.getElementById("mtLoai").value;
+            const bang = thongKeBank(lop, loai);
+            const chuDe = Object.keys(bang).sort((a,b)=>a.localeCompare(b,'vi'));
+            const khung = document.getElementById("mtBangKhaiBao");
+
+            if(chuDe.length === 0) {
+                khung.innerHTML = `<div style="padding:24px; text-align:center; color:#7c2d12; background:white; border-radius:10px;">Không có câu nào khớp bộ lọc này.</div>`;
+                document.getElementById("mtTomTat").innerHTML = "";
+                return;
+            }
+
+            let h = `<table style="width:100%; font-size:14px; background:white; border-radius:10px; overflow:hidden;">
+                <thead><tr style="background:#ffedd5;">
+                    <th style="text-align:left; padding:10px;">Chủ đề</th>
+                    ${CAC_MUC.map(m=>`<th style="padding:10px; width:110px; color:${MAU_MUC[m]};">${TEN_MUC[m]}</th>`).join('')}
+                </tr></thead><tbody>`;
+
+            chuDe.forEach((cd, ci) => {
+                h += `<tr><td style="text-align:left; padding:10px; font-weight:bold;">${cd}</td>`;
+                CAC_MUC.forEach(m => {
+                    const co = bang[cd][m].length;
+                    h += `<td style="padding:7px;">
+                        <input type="number" min="0" max="${co}" value="0" id="mt_${ci}_${m}"
+                            data-topic="${cd.replace(/"/g,'&quot;')}" data-level="${m}"
+                            oninput="tomTatMaTran()" ${co===0?'disabled':''}
+                            style="margin:0; padding:8px; text-align:center; font-weight:bold; ${co===0?'background:#f1f5f9; color:#cbd5e1;':''}">
+                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">có ${co} câu</div></td>`;
+                });
+                h += `</tr>`;
+            });
+            h += `</tbody></table>`;
+            khung.innerHTML = h;
+            tomTatMaTran();
+        };
+
+        window.tomTatMaTran = () => {
+            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]');
+            let tong = 0; let loi = [];
+            const theoMuc = { NB:0, TH:0, VD:0, VDC:0 };
+
+            o.forEach(el => {
+                const n = parseInt(el.value) || 0;
+                const max = parseInt(el.max) || 0;
+                if(n > max) { loi.push(`${el.dataset.topic} – ${TEN_MUC[el.dataset.level]}: cần ${n} nhưng chỉ có ${max}`); el.style.borderColor = '#dc2626'; }
+                else el.style.borderColor = '';
+                tong += n;
+                theoMuc[el.dataset.level] += n;
+            });
+
+            let h = `<div style="background:white; border-radius:10px; padding:14px;">
+                <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+                    <b style="font-size:16px; color:#c2410c;">Tổng: ${tong} câu</b>
+                    ${CAC_MUC.filter(m=>theoMuc[m]>0).map(m=>`<span style="font-size:13px; color:${MAU_MUC[m]}; font-weight:bold;">${TEN_MUC[m]}: ${theoMuc[m]}</span>`).join('')}
+                </div>`;
+            if(loi.length) {
+                h += `<div style="margin-top:10px; background:#fef2f2; border-radius:8px; padding:10px; font-size:13px; color:#b91c1c;">
+                    ⚠️ <b>Ngân hàng không đủ câu:</b><br>${loi.map(l=>'• '+l).join('<br>')}</div>`;
+            }
+            h += `</div>`;
+            document.getElementById("mtTomTat").innerHTML = h;
+        };
+
+        window.xoaMaTran = () => {
+            document.querySelectorAll('#mtBangKhaiBao input[type="number"]').forEach(el => el.value = 0);
+            tomTatMaTran();
+        };
+
+        window.bocTheoMaTran = () => {
+            const lop  = document.getElementById("mtLop").value;
+            const loai = document.getElementById("mtLoai").value;
+            const bang = thongKeBank(lop, loai);
+            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]');
+
+            const chon = [];
+            let thieu = [];
+            o.forEach(el => {
+                const n = parseInt(el.value) || 0;
+                if(n <= 0) return;
+                const cd = el.dataset.topic, m = el.dataset.level;
+                const kho = (bang[cd] && bang[cd][m]) ? bang[cd][m].slice() : [];
+                if(kho.length < n) { thieu.push(`${cd} – ${TEN_MUC[m]}: cần ${n}, có ${kho.length}`); return; }
+                // Trộn rồi lấy n câu đầu
+                for(let i = kho.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [kho[i], kho[j]] = [kho[j], kho[i]];
+                }
+                kho.slice(0, n).forEach(k => chon.push(k));
+            });
+
+            if(thieu.length) return alert("Không đủ câu:\n\n" + thieu.map(t=>'• '+t).join('\n'));
+            if(chon.length === 0) return alert("Thầy/cô chưa nhập số câu nào!");
+
+            bankDaChon.clear();
+            chon.forEach(k => bankDaChon.add(k));
+            renderBank();
+            document.getElementById("bankMaTranBox").style.display = 'none';
+
+            if(confirm(`✅ Đã bốc ${chon.length} câu theo ma trận.\n\nTạo đề ngay bây giờ?\n\nOK = Tạo đề luôn\nCancel = Xem lại danh sách câu trước`)) {
+                taoDeNhanh();
+            }
+        };
+
+        // ================= TẠO ĐỀ NHANH TỪ NGÂN HÀNG =================
+        window.taoDeNhanh = () => {
+            if(bankDaChon.size === 0) return alert("Chưa chọn câu nào!");
+            document.getElementById("tdSoCau").innerText = bankDaChon.size;
+
+            // Gợi ý tên đề theo ngày
+            const d = new Date();
+            const ngay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+            document.getElementById("tdTen").value = `Đề ${ngay}`;
+
+            // Ước lượng thời gian: khoảng 1.5 phút mỗi câu, làm tròn lên bội số 5
+            const uoc = Math.max(15, Math.ceil(bankDaChon.size * 1.5 / 5) * 5);
+            document.getElementById("tdThoiGian").value = uoc;
+
+            // Tóm tắt thành phần đề
+            const ds = [...bankDaChon].map(k => dbBank[k]);
+            const dem = {}; ds.forEach(q => { dem[q.type] = (dem[q.type]||0)+1; });
+            const cd = {}; ds.forEach(q => { const t=q.topic||"(chưa gắn)"; cd[t]=(cd[t]||0)+1; });
+            document.getElementById("tdTomTat").innerHTML =
+                `<div style="font-size:14px; color:#334155; line-height:1.8;">
+                    <b>Thành phần:</b> ${Object.entries(dem).map(([t,n])=>`${TEN_LOAI[t]||t}: ${n}`).join(' · ')}<br>
+                    <b>Chủ đề:</b> ${Object.entries(cd).map(([t,n])=>`${t} (${n})`).join(' · ')}
+                </div>`;
+
+            document.getElementById("modalTaoDeNhanh").style.display = 'flex';
+        };
+
+        window.dongModalTaoDe = () => { document.getElementById("modalTaoDeNhanh").style.display = 'none'; };
+
+        window.xacNhanTaoDeNhanh = () => {
+            const ten = document.getElementById("tdTen").value.trim();
+            if(!ten) return alert("Vui lòng đặt tên đề!");
+            if(/[.#$\[\]\/]/.test(ten)) return alert("Tên đề không được chứa: . # $ [ ] /");
+            if(dbExams[ten] && !confirm(`Đã có đề tên "${ten}". Ghi đè lên đề cũ?`)) return;
+
+            const thoiGian = parseInt(document.getElementById("tdThoiGian").value) || 45;
+            const loaiDe   = document.getElementById("tdLoaiDe").value;
+            const chamDiem = document.getElementById("tdChamDiem").value;
+            const lop      = document.getElementById("tdLop").value;
+            const hienNgay = document.getElementById("tdHienNgay").value;
+            const tron     = document.getElementById("tdTron").value;
+
+            const cauHoi = [...bankDaChon].map(k => {
+                const q = JSON.parse(JSON.stringify(dbBank[k]));
+                delete q.grade; delete q.addedAt; delete q.updatedAt;
+                q.bankId = k;
+                return q;
+            });
+
+            set(ref(db, 'exams/' + ten), {
+                time: thoiGian,
+                type: loaiDe,
+                scoring: chamDiem,
+                targetClass: lop,
+                visibility: hienNgay,
+                shuffle: tron,
+                customScore: { mcq:3, tf:2, short:2, essay:3 },
+                questions: cauHoi
+            })
+            .then(() => {
+                dongModalTaoDe();
+                bankDaChon.clear();
+                renderBank();
+                const nhan = hienNgay === 'show' ? "Đề đã HIỆN, học sinh vào làm được ngay." : "Đề đang ẨN, thầy/cô bật khi cần.";
+                alert(`✅ Đã tạo đề "${ten}" với ${cauHoi.length} câu.\n\n${nhan}`);
+            })
+            .catch(e => alert("Lỗi khi tạo đề: " + e.message));
+        };
+
         window.renderBank = () => {
             const khung = document.getElementById("bankDanhSach");
             const ds = locBank();
@@ -1358,6 +1745,7 @@ DAP AN: 0,5`;
                                 <span style="font-size:12px; background:white; color:${mucMau}; border:1px solid ${mucMau}; padding:2px 9px; border-radius:20px; font-weight:bold;">${TEN_MUC[q.level]||'Thông hiểu'}</span>
                                 ${q.grade?`<span style="font-size:12px; background:#e0f2fe; color:#0369a1; padding:3px 9px; border-radius:20px; font-weight:bold;">Lớp ${q.grade}</span>`:''}
                                 ${q.image?`<span style="font-size:12px; color:#94a3b8;">🖼 có ảnh</span>`:''}
+                                ${(()=>{ const n=timDeDungCau(k).length; return n?`<span onclick="event.stopPropagation(); dongBoCauSangDe('${k}')" title="Bấm để đồng bộ nội dung mới sang các đề" style="font-size:12px; background:#fef3c7; color:#92400e; padding:3px 9px; border-radius:20px; font-weight:bold; cursor:pointer;">📎 Dùng ở ${n} đề</span>`:''; })()}
                             </div>
                             <div style="color:#0f172a; font-size:15px; line-height:1.5;">${xuLyCongThucDai(q.q || "")}</div>
                         </div>
@@ -1366,6 +1754,7 @@ DAP AN: 0,5`;
                 khung.innerHTML = h;
             }
             document.getElementById("bankDemChon").innerText = `Đang chọn: ${bankDaChon.size} câu / hiện ${ds.length} trong ${tong}`;
+            veTongQuanBank();
             if(window.MathJax) MathJax.typesetPromise();
         };
 
@@ -1416,6 +1805,7 @@ DAP AN: 0,5`;
             const ds = [...bankDaChon].map(k => {
                 const q = JSON.parse(JSON.stringify(dbBank[k]));
                 delete q.grade; delete q.addedAt;
+                q.bankId = k;          // ghi nhớ câu gốc trong ngân hàng để truy vết
                 q._qid = newQid();
                 return q;
             });
@@ -1446,16 +1836,32 @@ DAP AN: 0,5`;
             }
 
             const lop = document.getElementById("examClassInput").value;
+            let themMoi = 0, capNhat = 0;
             const viec = ds.map(q => {
                 const c = JSON.parse(JSON.stringify(q));
                 delete c._qid;
                 c.grade = (lop && lop !== 'all') ? lop : "";
+                if(c.bankId && dbBank[c.bankId]) {
+                    // Câu này vốn lấy từ ngân hàng -> cập nhật lại câu gốc
+                    const id = c.bankId; delete c.bankId;
+                    c.addedAt = dbBank[id].addedAt || Date.now();
+                    c.updatedAt = Date.now();
+                    capNhat++;
+                    return update(ref(db, 'bank/' + id), c);
+                }
+                delete c.bankId;
                 c.addedAt = Date.now();
+                themMoi++;
                 return push(ref(db, 'bank'), c);
             });
 
             Promise.all(viec)
-                .then(() => alert(`✅ Đã lưu ${ds.length} câu vào ngân hàng!`))
+                .then(() => {
+                    let tb = "✅ Xong!";
+                    if(themMoi) tb += `\n• Thêm mới: ${themMoi} câu`;
+                    if(capNhat) tb += `\n• Cập nhật câu gốc: ${capNhat} câu`;
+                    alert(tb);
+                })
                 .catch(e => alert("Lỗi khi lưu: " + e.message));
         };
 
