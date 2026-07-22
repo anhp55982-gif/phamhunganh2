@@ -373,20 +373,16 @@
 
             <div id="bankMaTranBox" style="display:none; background:#fff7ed; border:2px solid #fdba74; border-radius:16px; padding:22px; margin-bottom:20px;">
                 <h3 style="margin-top:0; color:#c2410c;">🎯 Tạo đề theo ma trận</h3>
-                <p style="color:#7c2d12; font-size:14px; margin-top:-6px;">Khai báo số câu cần cho từng chủ đề và mức độ. Hệ thống sẽ tự bốc ngẫu nhiên từ ngân hàng.</p>
+                <p style="color:#7c2d12; font-size:14px; margin-top:-6px;">Khai báo số câu cần theo chủ đề × mức độ × dạng câu. Bấm tên bài để chọn riêng từng dạng (trắc nghiệm, đúng/sai...). Hệ thống tự bốc ngẫu nhiên.</p>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
-                    <div><label style="font-size:13px; font-weight:bold; color:#7c2d12;">Lọc theo lớp (không bắt buộc):</label>
-                        <select id="mtLop" style="margin:4px 0 0 0; padding:11px;" onchange="veMaTran()">
+                <div style="display:flex; gap:12px; margin-bottom:14px; flex-wrap:wrap; align-items:flex-end;">
+                    <div style="flex:1; min-width:150px;"><label style="font-size:13px; font-weight:bold; color:#7c2d12;">Lọc theo lớp (không bắt buộc):</label>
+                        <select id="mtLop" style="margin:4px 0 0 0; padding:11px;" onchange="mtBaiMoRong.clear(); veMaTran()">
                             <option value="">Mọi lớp</option><option value="10">Lớp 10</option>
                             <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
                         </select></div>
-                    <div><label style="font-size:13px; font-weight:bold; color:#7c2d12;">Lọc theo dạng câu (không bắt buộc):</label>
-                        <select id="mtLoai" style="margin:4px 0 0 0; padding:11px;" onchange="veMaTran()">
-                            <option value="">Mọi dạng</option><option value="mcq">Trắc nghiệm</option>
-                            <option value="tf">Đúng/Sai</option><option value="short">Trả lời ngắn</option>
-                            <option value="essay">Tự luận</option>
-                        </select></div>
+                    <button onclick="xoBaiMaTran(true)" style="padding:11px 15px; margin:0; border:1px solid #fdba74; border-radius:8px; background:white; color:#c2410c; cursor:pointer; font-size:13px; font-weight:bold;">▼ Xổ hết dạng</button>
+                    <button onclick="xoBaiMaTran(false)" style="padding:11px 15px; margin:0; border:1px solid #fdba74; border-radius:8px; background:white; color:#c2410c; cursor:pointer; font-size:13px; font-weight:bold;">▲ Gập hết</button>
                 </div>
 
                 <div id="mtBangKhaiBao" style="overflow-x:auto;"></div>
@@ -1802,6 +1798,9 @@ DAP AN: 0,5`;
 
         // ================= BẢNG TỔNG QUAN NGÂN HÀNG =================
         const CAC_MUC = ['NB','TH','VD','VDC'];
+        const CAC_DANG = ['mcq','tf','short','essay'];   // thứ tự dạng câu trong ma trận
+        const TEN_DANG_NGAN = { mcq:'TN', tf:'Đ/S', short:'TLN', essay:'TL' };
+        const TEN_DANG_DAY = { mcq:'Trắc nghiệm', tf:'Đúng/Sai', short:'Trả lời ngắn', essay:'Tự luận' };
 
         // Đếm số câu theo chủ đề × mức độ, có thể lọc thêm theo lớp/dạng
         // Gom theo "Chủ đề › Bài". Khoá có dạng "Chủ đề\u0000Bài" để tách lại được.
@@ -1824,6 +1823,27 @@ DAP AN: 0,5`;
         function tachKhoa(k) {
             const i = k.indexOf(NGAN);
             return i < 0 ? { cd: k, bai: "" } : { cd: k.slice(0, i), bai: k.slice(i + 1) };
+        }
+
+        // Thống kê 3 chiều: khoá (chủ đề›bài) -> mức độ -> dạng câu -> [danh sách key]
+        // Phục vụ ma trận đề cho phép chọn số câu theo từng dạng riêng.
+        function thongKeBank3Chieu(lop) {
+            const bang = {};
+            Object.keys(dbBank).forEach(k => {
+                const q = dbBank[k];
+                if(lop && (q.grade || "") !== lop) return;
+                const cd = q.topic || "(chưa gắn chủ đề)";
+                const bai = q.lesson || "(chưa gắn bài)";
+                const khoa = cd + NGAN + bai;
+                const mc = CAC_MUC.includes(q.level) ? q.level : 'TH';
+                const dg = CAC_DANG.includes(q.type) ? q.type : 'mcq';
+                if(!bang[khoa]) {
+                    bang[khoa] = {};
+                    CAC_MUC.forEach(m => { bang[khoa][m] = {}; CAC_DANG.forEach(d => bang[khoa][m][d] = []); });
+                }
+                bang[khoa][mc][dg].push(k);
+            });
+            return bang;
         }
 
         let cdMoRong = new Set();   // các chủ đề đang xổ danh sách bài
@@ -1955,75 +1975,167 @@ DAP AN: 0,5`;
             b.style.display = hien ? 'block' : 'none';
             document.getElementById("bankThemCauBox").style.display = 'none';
             document.getElementById("bankBulkBox").style.display = 'none';
-            if(hien) { veMaTran(); b.scrollIntoView({behavior:'smooth', block:'center'}); }
+            if(hien) { mtBaiMoRong.clear(); veMaTran(); b.scrollIntoView({behavior:'smooth', block:'center'}); }
         };
 
-        window.veMaTran = () => {
-            const lop  = document.getElementById("mtLop").value;
-            const loai = document.getElementById("mtLoai").value;
-            const bang = thongKeBank(lop, loai, true);
-            const chuDe = Object.keys(bang).sort((a,b) => {
+        let mtBaiMoRong = new Set();   // các bài đang xổ chi tiết theo dạng câu
+
+        window.toggleBaiMaTran = (khoa) => {
+            if(mtBaiMoRong.has(khoa)) mtBaiMoRong.delete(khoa); else mtBaiMoRong.add(khoa);
+            veMaTran(true);   // giữ nguyên số đã nhập
+        };
+
+        // Xổ hoặc gập tất cả các bài (chỉ những bài có nhiều hơn 1 dạng câu)
+        window.xoBaiMaTran = (bat) => {
+            if(bat) {
+                const lop = document.getElementById("mtLop").value;
+                const bang = thongKeBank3Chieu(lop);
+                Object.keys(bang).forEach(khoa => {
+                    const dangCo = CAC_DANG.filter(d => CAC_MUC.some(m => bang[khoa][m][d].length > 0));
+                    if(dangCo.length > 1) mtBaiMoRong.add(khoa);
+                });
+            } else mtBaiMoRong.clear();
+            veMaTran(true);
+        };
+
+        // Đọc các số đang nhập để không mất khi vẽ lại bảng
+        function docSoMaTran() {
+            const luu = {};
+            document.querySelectorAll('#mtBangKhaiBao input[type="number"]').forEach(el => {
+                const n = parseInt(el.value) || 0;
+                if(n > 0) luu[el.id] = n;
+            });
+            return luu;
+        }
+
+        window.veMaTran = (giuSo) => {
+            const lop = document.getElementById("mtLop").value;
+            const bang = thongKeBank3Chieu(lop);
+            const khoas = Object.keys(bang).sort((a,b) => {
                 const A = tachKhoa(a), B = tachKhoa(b);
                 return A.cd.localeCompare(B.cd,'vi') || A.bai.localeCompare(B.bai,'vi',{numeric:true});
             });
             const khung = document.getElementById("mtBangKhaiBao");
+            const soCu = giuSo ? docSoMaTran() : {};
 
-            if(chuDe.length === 0) {
-                khung.innerHTML = `<div style="padding:24px; text-align:center; color:#7c2d12; background:white; border-radius:10px;">Không có câu nào khớp bộ lọc này.</div>`;
+            if(khoas.length === 0) {
+                khung.innerHTML = `<div style="padding:24px; text-align:center; color:#7c2d12; background:white; border-radius:10px;">Không có câu nào ${lop?'ở lớp '+lop:''} trong ngân hàng.</div>`;
                 document.getElementById("mtTomTat").innerHTML = "";
                 return;
             }
 
-            let h = `<div style="max-height:380px; overflow:auto; border-radius:10px;">
+            // Tổng số câu mỗi ô (gộp mọi dạng) để hiện ở dòng bài
+            const tongMuc = (khoa, m) => CAC_DANG.reduce((s,d)=>s+bang[khoa][m][d].length, 0);
+
+            let h = `<div style="max-height:420px; overflow:auto; border-radius:10px;">
                 <table style="width:100%; font-size:14px; background:white;">
                 <thead style="position:sticky; top:0; z-index:1;"><tr style="background:#ffedd5;">
-                    <th style="text-align:left; padding:10px; background:#ffedd5;">Chủ đề / Bài</th>
-                    ${CAC_MUC.map(m=>`<th style="padding:10px; width:110px; color:${MAU_MUC[m]}; background:#ffedd5;">${TEN_MUC[m]}</th>`).join('')}
+                    <th style="text-align:left; padding:10px; background:#ffedd5;">Chủ đề / Bài / Dạng</th>
+                    ${CAC_MUC.map(m=>`<th style="padding:10px; width:96px; color:${MAU_MUC[m]}; background:#ffedd5;">${TEN_MUC[m]}</th>`).join('')}
                 </tr></thead><tbody>`;
 
             let cdTruoc = "";
-            chuDe.forEach((khoa, ci) => {
+            khoas.forEach((khoa, ci) => {
                 const { cd, bai } = tachKhoa(khoa);
-                // Chèn dòng tiêu đề chủ đề khi sang chủ đề mới
                 if(cd !== cdTruoc) {
                     h += `<tr style="background:#fff7ed;"><td colspan="5" style="text-align:left; padding:9px; font-weight:bold; color:#c2410c;">🏷 ${cd}</td></tr>`;
                     cdTruoc = cd;
                 }
-                h += `<tr><td style="text-align:left; padding:9px 9px 9px 26px; font-size:13px; color:#475569;">📕 ${bai}</td>`;
-                CAC_MUC.forEach(m => {
-                    const co = bang[khoa][m].length;
-                    h += `<td style="padding:7px;">
-                        <input type="number" min="0" max="${co}" value="0" id="mt_${ci}_${m}"
-                            data-key="${khoa.replace(/"/g,'&quot;').replace(/\u0000/g,'&#0;')}" data-topic="${cd.replace(/"/g,'&quot;')}" data-lesson="${bai.replace(/"/g,'&quot;')}" data-level="${m}"
-                            oninput="tomTatMaTran()" ${co===0?'disabled':''}
-                            style="margin:0; padding:8px; text-align:center; font-weight:bold; ${co===0?'background:#f1f5f9; color:#cbd5e1;':''}">
-                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">có ${co}</div></td>`;
-                });
-                h += `</tr>`;
+
+                const dangMo = mtBaiMoRong.has(khoa);
+                // Đếm số dạng câu thực sự có trong bài này
+                const dangCo = CAC_DANG.filter(d => CAC_MUC.some(m => bang[khoa][m][d].length > 0));
+                const nhieuDang = dangCo.length > 1;
+
+                // Dòng BÀI: nếu chỉ có 1 dạng thì cho nhập luôn tại đây (khỏi xổ)
+                h += `<tr style="background:#fffdf9;">
+                    <td style="text-align:left; padding:8px 8px 8px 24px; font-size:13px;">
+                        <span ${nhieuDang?`onclick="toggleBaiMaTran('${khoa.replace(/'/g,"\\'").replace(/\u0000/g,'\\u0000')}')" style="cursor:pointer;"`:''} style="color:#475569; font-weight:bold;">
+                            ${nhieuDang ? (dangMo?'▼':'▶') : '　'} 📕 ${bai}
+                            ${nhieuDang ? `<span style="font-weight:normal; color:#94a3b8; font-size:11px;">(${dangCo.length} dạng)</span>` : (dangCo.length===1?`<span style="font-weight:normal; color:#94a3b8; font-size:11px;">(${TEN_DANG_DAY[dangCo[0]]})</span>`:'')}
+                        </span></td>`;
+
+                if(nhieuDang && !dangMo) {
+                    // Thu gọn: chỉ hiện tổng mỗi mức, không cho nhập (phải xổ ra chọn dạng)
+                    CAC_MUC.forEach(m => {
+                        const t = tongMuc(khoa, m);
+                        h += `<td style="padding:7px; color:${t?MAU_MUC[m]:'#e2e8f0'}; font-size:13px;">${t||'·'}</td>`;
+                    });
+                    h += `</tr>`;
+                } else if(!nhieuDang) {
+                    // Chỉ 1 dạng: nhập trực tiếp ở dòng bài
+                    const dg = dangCo[0] || 'mcq';
+                    CAC_MUC.forEach(m => {
+                        const co = bang[khoa][m][dg].length;
+                        const id = `mt_${ci}_${m}_${dg}`;
+                        h += oInputMaTran(id, co, cd, bai, m, dg, soCu[id]);
+                    });
+                    h += `</tr>`;
+                } else {
+                    // Nhiều dạng, đang xổ: dòng bài chỉ hiện tổng
+                    CAC_MUC.forEach(m => {
+                        const t = tongMuc(khoa, m);
+                        h += `<td style="padding:7px; color:${t?'#94a3b8':'#e2e8f0'}; font-size:12px;">${t||'·'}</td>`;
+                    });
+                    h += `</tr>`;
+                    // Các dòng con theo dạng
+                    dangCo.forEach(dg => {
+                        h += `<tr><td style="text-align:left; padding:5px 5px 5px 46px; font-size:12px; color:#64748b;">${TEN_DANG_DAY[dg]}</td>`;
+                        CAC_MUC.forEach(m => {
+                            const co = bang[khoa][m][dg].length;
+                            const id = `mt_${ci}_${m}_${dg}`;
+                            h += oInputMaTran(id, co, cd, bai, m, dg, soCu[id], true);
+                        });
+                        h += `</tr>`;
+                    });
+                }
             });
             h += `</tbody></table></div>`;
             khung.innerHTML = h;
             tomTatMaTran();
         };
 
+        // Ô nhập số trong ma trận
+        function oInputMaTran(id, co, cd, bai, m, dg, giaTri, nho) {
+            const v = giaTri || 0;
+            const pad = nho ? '5px' : '7px';
+            if(co === 0) {
+                return `<td style="padding:${pad};"><input type="number" disabled value="0"
+                    style="margin:0; padding:${nho?'6px':'8px'}; text-align:center; background:#f1f5f9; color:#cbd5e1;"></td>`;
+            }
+            return `<td style="padding:${pad};">
+                <input type="number" min="0" max="${co}" value="${v}" id="${id}"
+                    data-topic="${cd.replace(/"/g,'&quot;')}" data-lesson="${bai.replace(/"/g,'&quot;')}" data-level="${m}" data-type="${dg}"
+                    oninput="tomTatMaTran()"
+                    style="margin:0; padding:${nho?'6px':'8px'}; text-align:center; font-weight:bold;">
+                <div style="font-size:10px; color:#94a3b8; margin-top:1px;">có ${co}</div></td>`;
+        }
+
         window.tomTatMaTran = () => {
-            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]');
+            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]:not([disabled])');
             let tong = 0; let loi = [];
             const theoMuc = { NB:0, TH:0, VD:0, VDC:0 };
+            const theoDang = { mcq:0, tf:0, short:0, essay:0 };
 
             o.forEach(el => {
                 const n = parseInt(el.value) || 0;
                 const max = parseInt(el.max) || 0;
-                if(n > max) { loi.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[el.dataset.level]}: cần ${n} nhưng chỉ có ${max}`); el.style.borderColor = '#dc2626'; }
-                else el.style.borderColor = '';
+                if(n > max) {
+                    loi.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[el.dataset.level]} (${TEN_DANG_DAY[el.dataset.type]}): cần ${n} nhưng chỉ có ${max}`);
+                    el.style.borderColor = '#dc2626';
+                } else el.style.borderColor = '';
                 tong += n;
-                theoMuc[el.dataset.level] += n;
+                if(el.dataset.level) theoMuc[el.dataset.level] += n;
+                if(el.dataset.type) theoDang[el.dataset.type] += n;
             });
 
             let h = `<div style="background:white; border-radius:10px; padding:14px;">
-                <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+                <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
                     <b style="font-size:16px; color:#c2410c;">Tổng: ${tong} câu</b>
                     ${CAC_MUC.filter(m=>theoMuc[m]>0).map(m=>`<span style="font-size:13px; color:${MAU_MUC[m]}; font-weight:bold;">${TEN_MUC[m]}: ${theoMuc[m]}</span>`).join('')}
+                </div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; font-size:13px; color:#475569;">
+                    ${CAC_DANG.filter(d=>theoDang[d]>0).map(d=>`<span>${TEN_LOAI[d]}: <b>${theoDang[d]}</b></span>`).join('')}
                 </div>`;
             if(loi.length) {
                 h += `<div style="margin-top:10px; background:#fef2f2; border-radius:8px; padding:10px; font-size:13px; color:#b91c1c;">
@@ -2039,10 +2151,9 @@ DAP AN: 0,5`;
         };
 
         window.bocTheoMaTran = () => {
-            const lop  = document.getElementById("mtLop").value;
-            const loai = document.getElementById("mtLoai").value;
-            const bang = thongKeBank(lop, loai, true);
-            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]');
+            const lop = document.getElementById("mtLop").value;
+            const bang = thongKeBank3Chieu(lop);
+            const o = document.querySelectorAll('#mtBangKhaiBao input[type="number"]:not([disabled])');
 
             const chon = [];
             let thieu = [];
@@ -2050,10 +2161,12 @@ DAP AN: 0,5`;
                 const n = parseInt(el.value) || 0;
                 if(n <= 0) return;
                 const khoa = el.dataset.topic + NGAN + el.dataset.lesson;
-                const m = el.dataset.level;
-                const kho = (bang[khoa] && bang[khoa][m]) ? bang[khoa][m].slice() : [];
-                if(kho.length < n) { thieu.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[m]}: cần ${n}, có ${kho.length}`); return; }
-                // Trộn rồi lấy n câu đầu
+                const m = el.dataset.level, dg = el.dataset.type;
+                const kho = (bang[khoa] && bang[khoa][m] && bang[khoa][m][dg]) ? bang[khoa][m][dg].slice() : [];
+                if(kho.length < n) {
+                    thieu.push(`${el.dataset.topic} › ${el.dataset.lesson} – ${TEN_MUC[m]} (${TEN_DANG_DAY[dg]}): cần ${n}, có ${kho.length}`);
+                    return;
+                }
                 for(let i = kho.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [kho[i], kho[j]] = [kho[j], kho[i]];
