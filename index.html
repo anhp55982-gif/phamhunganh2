@@ -434,7 +434,7 @@
                 </div>
 
                 <label style="font-size:14px; font-weight:bold; color:#475569;">Nội dung câu hỏi (công thức đặt trong $...$):</label>
-                <textarea id="ncNoiDung" rows="3" style="margin:5px 0 10px 0; font-family:monospace;" placeholder="VD: Rút gọn biểu thức $A = \cos(\pi - \alpha)$" onpaste="ncDanAnh(event)"></textarea>
+                <textarea id="ncNoiDung" rows="3" style="margin:5px 0 10px 0; font-family:monospace;" placeholder="VD: Rút gọn biểu thức $A = \cos(\pi - \alpha)$" onpaste="ncDanAnh(event)" oninput="veXemTruocCau()"></textarea>
 
                 <label style="font-size:14px; font-weight:bold; color:#475569;">🖼 Hình ảnh minh hoạ (không bắt buộc):</label>
                 <div id="ncKhungAnh" style="margin-bottom:14px;"></div>
@@ -442,7 +442,16 @@
                 <div id="ncPhanDapAn"></div>
 
                 <label style="font-size:14px; font-weight:bold; color:#059669;">📖 Lời giải (không bắt buộc):</label>
-                <textarea id="ncLoiGiai" rows="2" style="margin:5px 0 14px 0; font-family:monospace; background:#f0fdf4; border-color:#6ee7b7;"></textarea>
+                <textarea id="ncLoiGiai" rows="2" style="margin:5px 0 10px 0; font-family:monospace; background:#f0fdf4; border-color:#6ee7b7;" oninput="veXemTruocCau()" onpaste="ncDanAnh(event, 'giai')"></textarea>
+
+                <label style="font-size:13px; font-weight:bold; color:#0369a1;">🖼 Hình vẽ cho lời giải (không bắt buộc):</label>
+                <div id="ncKhungAnhGiai" style="margin-bottom:14px;"></div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <label style="font-size:14px; font-weight:bold; color:#0369a1;">👁 Xem trước (giống hệt học sinh sẽ thấy):</label>
+                    <button onclick="veXemTruocCau()" style="padding:6px 13px; margin:0; border:1px solid #bae6fd; border-radius:8px; background:white; color:#0369a1; cursor:pointer; font-size:13px; font-weight:bold;">↻ Vẽ lại</button>
+                </div>
+                <div id="ncXemTruoc" style="background:white; border:2px solid #bae6fd; border-radius:12px; padding:18px; margin-bottom:16px; min-height:70px;"></div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-green" style="margin:0; width:auto; padding:13px 22px;" id="ncNutLuu" onclick="luuCauMoiVaoBank()">💾 LƯU VÀO NGÂN HÀNG</button>
@@ -617,10 +626,25 @@
             <div id="scorePreviewBox" style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:15px; margin-bottom:20px; font-size:14px; color:#1e3a8a;"></div>
             
             <div style="background: #f1f5f9; padding: 20px; border-radius: 16px; border: 1px solid #cbd5e1; margin-bottom: 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; flex-wrap:wrap; gap:10px;">
                     <h3 style="margin:0; color:#0369a1;">Nội dung câu hỏi:</h3>
+                    <button onclick="toggleThanhMucDo()" id="nutThanhMucDo" style="padding:8px 15px; margin:0; border:1px solid #cbd5e1; border-radius:8px; background:white; color:#0369a1; cursor:pointer; font-size:13px; font-weight:bold;">📊 Gán mức độ hàng loạt</button>
                 </div>
-                
+
+                <div id="thanhMucDo" style="display:none; background:white; border:2px solid #bae6fd; border-radius:12px; padding:16px; margin-bottom:16px;">
+                    <div style="font-size:13px; color:#475569; margin-bottom:10px;">Tích chọn các câu bên dưới, rồi bấm mức độ để gán cho tất cả câu đã chọn:</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                        <button onclick="chonMucDoHangLoat('NB')" style="padding:9px 16px; margin:0; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer; font-weight:bold; font-size:14px;">Nhận biết</button>
+                        <button onclick="chonMucDoHangLoat('TH')" style="padding:9px 16px; margin:0; border:none; border-radius:8px; background:#0284c7; color:white; cursor:pointer; font-weight:bold; font-size:14px;">Thông hiểu</button>
+                        <button onclick="chonMucDoHangLoat('VD')" style="padding:9px 16px; margin:0; border:none; border-radius:8px; background:#f59e0b; color:white; cursor:pointer; font-weight:bold; font-size:14px;">Vận dụng</button>
+                        <button onclick="chonMucDoHangLoat('VDC')" style="padding:9px 16px; margin:0; border:none; border-radius:8px; background:#dc2626; color:white; cursor:pointer; font-weight:bold; font-size:14px;">Vận dụng cao</button>
+                        <span style="width:1px; height:26px; background:#e2e8f0; margin:0 4px;"></span>
+                        <button onclick="chonHetCauBuilder(true)" style="padding:9px 14px; margin:0; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#475569; cursor:pointer; font-weight:bold; font-size:13px;">☑ Chọn hết</button>
+                        <button onclick="chonHetCauBuilder(false)" style="padding:9px 14px; margin:0; border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc; color:#475569; cursor:pointer; font-weight:bold; font-size:13px;">☐ Bỏ chọn</button>
+                        <span id="demChonBuilder" style="margin-left:auto; font-weight:bold; color:#0369a1; font-size:14px;"></span>
+                    </div>
+                </div>
+
                 <div id="visual-builder-area" style="max-height: 600px; overflow-y: auto; padding-right: 10px;">
                     </div>
 
@@ -1206,6 +1230,7 @@
         let dbBank = {};              // toàn bộ câu trong ngân hàng, key -> câu hỏi
         let bankDaChon = new Set();   // các key đang được chọn
         let ncAnh = "";               // ảnh tạm của câu đang soạn trong ngân hàng
+        let ncAnhGiai = "";           // ảnh minh hoạ cho lời giải
 
         onValue(ref(db, 'bank'), (snap) => {
             dbBank = snap.val() || {};
@@ -1267,7 +1292,7 @@
                 document.getElementById("ncNutLuu").innerHTML = "💾 LƯU VÀO NGÂN HÀNG";
                 document.getElementById("ncNoiDung").value = "";
                 document.getElementById("ncLoiGiai").value = "";
-                ncAnh = "";
+                ncAnh = ""; ncAnhGiai = "";
                 veFormThemCau();
                 veKhungAnhBank();
                 b.scrollIntoView({behavior:'smooth', block:'center'});
@@ -1277,7 +1302,7 @@
         window.dongFormThemCau = () => {
             document.getElementById("bankThemCauBox").style.display = 'none';
             bankDangSua = null;
-            ncAnh = "";
+            ncAnh = ""; ncAnhGiai = "";
         };
 
         window.moNhapHangLoatBank = () => {
@@ -1289,6 +1314,130 @@
         };
 
         // Vẽ phần nhập đáp án tuỳ theo dạng câu đang chọn
+        // ================= XEM TRƯỚC CÂU ĐANG SOẠN =================
+        // Kiểm tra vài lỗi LaTeX hay gặp trước khi render
+        function kiemTraLatex(text) {
+            const canhBao = [];
+            if(!text) return canhBao;
+
+            // Số dấu $ phải chẵn
+            const soDollar = (text.match(/(?<!\\)\$/g) || []).length;
+            if(soDollar % 2 !== 0) canhBao.push("Số dấu $ đang lẻ — có công thức chưa đóng.");
+
+            // Ngoặc nhọn cân bằng
+            const mo = (text.match(/(?<!\\)\{/g) || []).length;
+            const dong = (text.match(/(?<!\\)\}/g) || []).length;
+            if(mo !== dong) canhBao.push(`Ngoặc nhọn không cân: ${mo} dấu { và ${dong} dấu }.`);
+
+            // \left ... \right phải đi cặp
+            const soLeft = (text.match(/\\left/g) || []).length;
+            const soRight = (text.match(/\\right/g) || []).length;
+            if(soLeft !== soRight) canhBao.push(`\\left và \\right không cân: ${soLeft} và ${soRight}.`);
+
+            // \frac phải có đủ 2 tham số
+            const fracThieu = /\\d?frac\s*\{[^{}]*\}\s*(?!\{)/.test(text) || /\\d?frac(?!\s*\{)/.test(text);
+            if(fracThieu) canhBao.push("Có \\frac chưa đủ 2 phần: viết \\frac{tử}{mẫu}.");
+
+            // Công thức nằm ngoài dấu $
+            const ngoai = text.replace(/(?<!\\)\$[^$]*(?<!\\)\$/g, "");
+            if(/\\(frac|sqrt|sum|int|alpha|beta|pi|cos|sin|tan|log|lim)\b/.test(ngoai)) {
+                canhBao.push("Có lệnh LaTeX nằm NGOÀI dấu $ — sẽ hiện ra chữ thô.");
+            }
+            return canhBao;
+        }
+
+        window.veXemTruocCau = () => {
+            const khung = document.getElementById("ncXemTruoc");
+            if(!khung) return;
+
+            const loai = document.getElementById("ncLoai").value;
+            const nd   = document.getElementById("ncNoiDung").value;
+            const giai = document.getElementById("ncLoiGiai").value;
+
+            if(!nd.trim() && !ncAnh) {
+                khung.innerHTML = `<div style="color:#94a3b8; font-size:14px; font-style:italic; text-align:center; padding:12px;">
+                    Gõ nội dung câu hỏi ở trên, phần xem trước sẽ hiện ở đây.</div>`;
+                return;
+            }
+
+            // Gom mọi phần chữ để kiểm tra cú pháp
+            let tatCa = nd + " " + giai;
+            if(loai === 'mcq') [0,1,2,3].forEach(i => { const el=document.getElementById("ncPA"+i); if(el) tatCa += " " + el.value; });
+            else if(loai === 'tf') [0,1,2,3].forEach(i => { const el=document.getElementById("ncMD"+i); if(el) tatCa += " " + el.value; });
+            else if(loai === 'short') { const el=document.getElementById("ncDapAn"); if(el) tatCa += " " + el.value; }
+
+            const canhBao = kiemTraLatex(tatCa);
+
+            let h = "";
+            if(canhBao.length) {
+                h += `<div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:11px; margin-bottom:14px; font-size:13px; color:#b91c1c;">
+                    <b>⚠️ Có thể sai cú pháp:</b><ul style="margin:6px 0 0 0; padding-left:20px; line-height:1.7;">
+                    ${canhBao.map(c=>`<li>${c}</li>`).join('')}</ul></div>`;
+            }
+
+            h += `<div style="text-align:left;">
+                <b style="color:#0284c7;">Câu 1.</b> <span style="font-size:16px; color:#0f172a;">${xuLyCongThucDai(nd)}</span>`;
+
+            if(ncAnh) h += `<div style="margin-top:10px;"><img src="${ncAnh}" style="max-width:100%; max-height:200px; border-radius:8px; border:1px solid #e2e8f0;"></div>`;
+
+            if(loai === 'mcq') {
+                const nhan = ['A','B','C','D'];
+                const chon = document.querySelector('input[name="ncDung"]:checked');
+                const dungIdx = chon ? parseInt(chon.value) : 0;
+                h += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">`;
+                [0,1,2,3].forEach(i => {
+                    const el = document.getElementById("ncPA"+i);
+                    const pa = el ? el.value : "";
+                    const dung = i === dungIdx;
+                    h += `<div style="padding:10px 13px; border-radius:8px; font-size:15px; background:${dung?'#f0fdf4':'#f8fafc'}; border:1px solid ${dung?'#86efac':'#e2e8f0'};">
+                        <b>${nhan[i]}.</b> ${pa ? xuLyCongThucDai(pa) : '<i style="color:#cbd5e1;">(chưa nhập)</i>'}
+                        ${dung?'<b style="color:#16a34a; float:right;">✓</b>':''}</div>`;
+                });
+                h += `</div>`;
+            }
+            else if(loai === 'tf') {
+                const nhan = ['a','b','c','d'];
+                h += `<div style="margin-top:12px;">`;
+                [0,1,2,3].forEach(i => {
+                    const t = document.getElementById("ncMD"+i);
+                    const d = document.getElementById("ncDS"+i);
+                    const txt = t ? t.value : "";
+                    const dung = d ? d.value === 'true' : true;
+                    h += `<div style="padding:9px 13px; margin-bottom:6px; border-radius:8px; font-size:15px; background:#f8fafc; border-left:4px solid ${dung?'#16a34a':'#dc2626'};">
+                        <b>${nhan[i]})</b> ${txt ? xuLyCongThucDai(txt) : '<i style="color:#cbd5e1;">(chưa nhập)</i>'}
+                        <b style="color:${dung?'#16a34a':'#dc2626'}; float:right;">${dung?'ĐÚNG':'SAI'}</b></div>`;
+                });
+                h += `</div>`;
+            }
+            else if(loai === 'short') {
+                const el = document.getElementById("ncDapAn");
+                const da = el ? el.value : "";
+                h += `<div style="margin-top:12px; padding:11px 14px; border-radius:8px; background:#f0fdf4; border:1px solid #86efac; font-size:15px;">
+                    <b style="color:#15803d;">Đáp án:</b> ${da ? xuLyCongThucDai(da) : '<i style="color:#cbd5e1;">(chưa nhập)</i>'}</div>`;
+            }
+            else if(loai === 'essay') {
+                h += `<div style="margin-top:12px; padding:11px 14px; border-radius:8px; background:#fffbeb; border:1px solid #fcd34d; font-size:14px; color:#92400e; font-style:italic;">
+                    Câu tự luận — học sinh làm ra giấy.</div>`;
+            }
+
+            if(giai.trim() || ncAnhGiai) {
+                h += `<div style="margin-top:12px; padding:12px 14px; border-radius:8px; background:#eff6ff; border-left:4px solid #0284c7; font-size:14px; line-height:1.7; white-space:pre-wrap;">
+                    <b style="color:#0284c7;">📖 Lời giải:</b> ${xuLyCongThucDai(giai)}`;
+                if(ncAnhGiai) h += `<div style="margin-top:10px;"><img src="${ncAnhGiai}" style="max-width:100%; max-height:200px; border-radius:8px; border:1px solid #bfdbfe;"></div>`;
+                h += `</div>`;
+            }
+            h += `</div>`;
+
+            khung.innerHTML = h;
+            if(window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([khung]).catch(() => {
+                    khung.insertAdjacentHTML('afterbegin',
+                        `<div style="background:#fef2f2; border-radius:8px; padding:10px; margin-bottom:10px; font-size:13px; color:#b91c1c;">
+                        ⚠️ MathJax không dựng được công thức — kiểm tra lại cú pháp LaTeX.</div>`);
+                });
+            }
+        };
+
         window.veFormThemCau = () => {
             const loai = document.getElementById("ncLoai").value;
             const khung = document.getElementById("ncPhanDapAn");
@@ -1299,9 +1448,9 @@
                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:6px 0 14px 0;">`;
                 ['A','B','C','D'].forEach((n,i) => {
                     h += `<div style="display:flex; align-items:center; gap:10px; background:white; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
-                        <input type="radio" name="ncDung" value="${i}" ${i===0?'checked':''} style="width:20px; height:20px; cursor:pointer; margin:0;">
+                        <input type="radio" name="ncDung" value="${i}" ${i===0?'checked':''} onchange="veXemTruocCau()" style="width:20px; height:20px; cursor:pointer; margin:0;">
                         <div style="flex:1;"><label style="font-size:12px; color:#64748b; font-weight:bold;">Đáp án ${n}</label>
-                        <input type="text" id="ncPA${i}" style="margin:2px 0 0 0; padding:9px; font-family:monospace;" placeholder="Nội dung..."></div>
+                        <input type="text" id="ncPA${i}" style="margin:2px 0 0 0; padding:9px; font-family:monospace;" placeholder="Nội dung..." oninput="veXemTruocCau()"></div>
                     </div>`;
                 });
                 h += `</div>`;
@@ -1311,8 +1460,8 @@
                 ['a','b','c','d'].forEach((n,i) => {
                     h += `<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; background:white; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
                         <b style="width:28px; color:#0f172a;">${n})</b>
-                        <input type="text" id="ncMD${i}" style="margin:0; padding:10px; flex:1; font-family:monospace;" placeholder="Nội dung mệnh đề...">
-                        <select id="ncDS${i}" style="margin:0; padding:10px; width:120px; font-weight:bold;">
+                        <input type="text" id="ncMD${i}" style="margin:0; padding:10px; flex:1; font-family:monospace;" placeholder="Nội dung mệnh đề..." oninput="veXemTruocCau()">
+                        <select id="ncDS${i}" onchange="veXemTruocCau()" style="margin:0; padding:10px; width:120px; font-weight:bold;">
                             <option value="true">✔ ĐÚNG</option><option value="false">✘ SAI</option>
                         </select></div>`;
                 });
@@ -1320,13 +1469,14 @@
             }
             else if(loai === 'short') {
                 h = `<label style="font-size:14px; font-weight:bold; color:#ef4444;">Đáp án chính xác:</label>
-                     <input type="text" id="ncDapAn" style="margin:5px 0 14px 0; padding:12px; font-weight:bold; color:#dc2626; border-color:#fca5a5; font-size:17px;" placeholder="VD: 2 hoặc 0,5">`;
+                     <input type="text" id="ncDapAn" oninput="veXemTruocCau()" style="margin:5px 0 14px 0; padding:12px; font-weight:bold; color:#dc2626; border-color:#fca5a5; font-size:17px;" placeholder="VD: 2 hoặc 0,5">`;
             }
             else {
                 h = `<div style="background:#fffbeb; padding:14px; border-radius:8px; border:1px dashed #fcd34d; margin-bottom:14px; color:#92400e; font-size:14px;">
                      ⚠️ Câu tự luận không có đáp án tự động — học sinh làm ra giấy, thầy/cô chấm tay.</div>`;
             }
             khung.innerHTML = h;
+            veXemTruocCau();
         };
 
         window.luuCauMoiVaoBank = () => {
@@ -1343,6 +1493,7 @@
                 level: document.getElementById("ncMucDo").value,
                 grade: document.getElementById("ncLop").value,
                 image: ncAnh || "",
+                solutionImage: ncAnhGiai || "",
                 addedAt: Date.now()
             };
 
@@ -1372,7 +1523,8 @@
                 const id = bankDangSua;
                 cau.addedAt = (dbBank[id] && dbBank[id].addedAt) || Date.now();
                 cau.updatedAt = Date.now();
-                cau.image = ncAnh || "";   // ảnh trên form (đã nạp sẵn ảnh cũ khi mở sửa)
+                cau.image = ncAnh || "";
+                cau.solutionImage = ncAnhGiai || "";
 
                 set(ref(db, 'bank/' + id), cau)
                     .then(() => {
@@ -1398,7 +1550,7 @@
                     // Xoá nội dung để nhập câu tiếp theo, giữ nguyên chủ đề/mức độ/lớp
                     document.getElementById("ncNoiDung").value = "";
                     document.getElementById("ncLoiGiai").value = "";
-                    ncAnh = "";
+                    ncAnh = ""; ncAnhGiai = "";
                     veFormThemCau();
                     veKhungAnhBank();
                     document.getElementById("ncNoiDung").focus();
@@ -2077,9 +2229,11 @@ DAP AN: 0,5`;
                     Câu tự luận — học sinh làm ra giấy, thầy/cô chấm tay.</div>`;
             }
 
-            if(q.explanation && q.explanation.trim()) {
+            if((q.explanation && q.explanation.trim()) || q.solutionImage) {
                 h += `<div style="margin-top:10px; padding:12px 14px; border-radius:8px; background:#eff6ff; border-left:4px solid #0284c7; font-size:14px; line-height:1.7; white-space:pre-wrap;">
-                    <b style="color:#0284c7;">📖 Lời giải:</b> ${xuLyCongThucDai(q.explanation)}</div>`;
+                    <b style="color:#0284c7;">📖 Lời giải:</b> ${xuLyCongThucDai(q.explanation || "")}`;
+                if(q.solutionImage) h += `<div style="margin-top:10px;"><img src="${q.solutionImage}" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid #bfdbfe;"></div>`;
+                h += `</div>`;
             } else {
                 h += `<div style="margin-top:10px; font-size:13px; color:#94a3b8; font-style:italic;">(Chưa có lời giải)</div>`;
             }
@@ -2112,6 +2266,7 @@ DAP AN: 0,5`;
             document.getElementById("ncNoiDung").value = q.q || "";
             document.getElementById("ncLoiGiai").value = q.explanation || "";
             ncAnh = q.image || "";
+            ncAnhGiai = q.solutionImage || "";
 
             veFormThemCau();
             veKhungAnhBank();
@@ -2361,8 +2516,12 @@ DAP AN: 0,5`;
                     if(!kemDapAn) t += "\\vspace{4cm}\n\n";
                 }
 
-                if(kemDapAn && q.explanation && q.explanation.trim()) {
-                    t += "\\textit{\\textbf{Lời giải:} " + chuanBiNoiDung(q.explanation) + "}\n\n";
+                if(kemDapAn && ((q.explanation && q.explanation.trim()) || q.solutionImage)) {
+                    t += "\\textit{\\textbf{Lời giải:} " + chuanBiNoiDung(q.explanation || "") + "}\n\n";
+                    if(q.solutionImage) {
+                        t += "% Lời giải câu này có hình vẽ - lưu ảnh ra file rồi bỏ chú thích dòng dưới\n";
+                        t += "% \\begin{center}\\includegraphics[width=0.5\\textwidth]{hinh_giai" + stt + ".png}\\end{center}\n\n";
+                    }
                 }
                 t += "\\vspace{10pt}\n\n";
             });
@@ -2516,6 +2675,59 @@ DAP AN: 0,5`;
         function newQid() { return "q" + (Date.now().toString(36)) + "_" + (qidCounter++); }
 
         // Hàm Vẽ Giao diện từ Mảng
+        // ================= GÁN MỨC ĐỘ HÀNG LOẠT TRONG TRÌNH SOẠN ĐỀ =================
+        let thanhMucDoHien = false;
+
+        window.toggleThanhMucDo = () => {
+            thanhMucDoHien = !thanhMucDoHien;
+            const thanh = document.getElementById("thanhMucDo");
+            const nut = document.getElementById("nutThanhMucDo");
+            thanh.style.display = thanhMucDoHien ? 'block' : 'none';
+            nut.style.background = thanhMucDoHien ? '#0369a1' : 'white';
+            nut.style.color = thanhMucDoHien ? 'white' : '#0369a1';
+            // Ẩn/hiện các ô tích trên từng câu
+            document.querySelectorAll('.chon-cau-builder').forEach(cb => {
+                cb.style.display = thanhMucDoHien ? 'inline-block' : 'none';
+                if(!thanhMucDoHien) cb.checked = false;
+            });
+            capNhatDemChonBuilder();
+        };
+
+        window.chonHetCauBuilder = (bat) => {
+            document.querySelectorAll('.chon-cau-builder').forEach(cb => cb.checked = bat);
+            capNhatDemChonBuilder();
+        };
+
+        window.capNhatDemChonBuilder = () => {
+            const n = document.querySelectorAll('.chon-cau-builder:checked').length;
+            const el = document.getElementById("demChonBuilder");
+            if(el) el.innerText = n > 0 ? `Đã chọn ${n} câu` : "Chưa chọn câu nào";
+        };
+
+        window.chonMucDoHangLoat = (muc) => {
+            const daChon = [...document.querySelectorAll('.chon-cau-builder:checked')].map(cb => parseInt(cb.dataset.idx));
+            if(daChon.length === 0) return alert("Chưa chọn câu nào! Hãy tích vào ô vuông ở đầu mỗi câu.");
+
+            syncBuilderData();   // lưu dữ liệu hiện tại trước khi đổi
+            daChon.forEach(i => { if(window.builderQuestions[i]) window.builderQuestions[i].level = muc; });
+            renderBuilder();
+
+            // Giữ thanh mở và chọn lại các câu vừa gán để tiện thao tác tiếp
+            setTimeout(() => {
+                thanhMucDoHien = true;
+                document.getElementById("thanhMucDo").style.display = 'block';
+                document.querySelectorAll('.chon-cau-builder').forEach(cb => {
+                    cb.style.display = 'inline-block';
+                    if(daChon.includes(parseInt(cb.dataset.idx))) cb.checked = true;
+                });
+                capNhatDemChonBuilder();
+            }, 30);
+
+            const tenMuc = { NB:'Nhận biết', TH:'Thông hiểu', VD:'Vận dụng', VDC:'Vận dụng cao' };
+            const el = document.getElementById("demChonBuilder");
+            if(el) el.innerText = `✅ Đã gán "${tenMuc[muc]}" cho ${daChon.length} câu`;
+        };
+
         window.renderBuilder = () => {
             const area = document.getElementById("visual-builder-area");
             // Đề cũ lưu trước đây chưa có _qid → tự gắn bổ sung
@@ -2527,7 +2739,10 @@ DAP AN: 0,5`;
                 const labelType = q.type === 'mcq' ? '📝 Câu Trắc Nghiệm' : (q.type === 'tf' ? '⚖️ Câu Đúng/Sai' : (q.type === 'essay' ? '📄 Câu Tự Luận (chấm tay)' : '✍️ Câu Trả Lời Ngắn'));
                 html += `<div class="q-block" data-type="${q.type}" data-qid="${q._qid}" style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
-                        <b style="color: #0369a1; font-size: 18px;">Câu ${i+1} <span style="font-size:14px; color:#64748b; font-weight:normal;">- ${labelType}</span></b>
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <input type="checkbox" class="chon-cau-builder" data-idx="${i}" onchange="capNhatDemChonBuilder()" style="width:20px; height:20px; cursor:pointer; margin:0;">
+                            <b style="color: #0369a1; font-size: 18px;">Câu ${i+1} <span style="font-size:14px; color:#64748b; font-weight:normal;">- ${labelType}</span></b>
+                        </div>
                         <div style="display:flex; gap:6px; align-items:center;">
                             <button title="Chuyển lên trên" ${i===0?'disabled':''} onclick="moveVisualQ(${i}, -1)" style="padding:6px 11px; width:auto; font-size:15px; margin:0; border:none; border-radius:8px; cursor:${i===0?'not-allowed':'pointer'}; background:${i===0?'#e2e8f0':'#0284c7'}; color:${i===0?'#94a3b8':'white'}; font-weight:bold;">⬆</button>
                             <button title="Chuyển xuống dưới" ${i===window.builderQuestions.length-1?'disabled':''} onclick="moveVisualQ(${i}, 1)" style="padding:6px 11px; width:auto; font-size:15px; margin:0; border:none; border-radius:8px; cursor:${i===window.builderQuestions.length-1?'not-allowed':'pointer'}; background:${i===window.builderQuestions.length-1?'#e2e8f0':'#0284c7'}; color:${i===window.builderQuestions.length-1?'#94a3b8':'white'}; font-weight:bold;">⬇</button>
@@ -2621,6 +2836,10 @@ DAP AN: 0,5`;
                 </div>`;
             });
             area.innerHTML = html;
+            // Giữ trạng thái ẩn/hiện ô tích theo thanh mức độ
+            if(!thanhMucDoHien) {
+                area.querySelectorAll('.chon-cau-builder').forEach(cb => cb.style.display = 'none');
+            }
         };
 
         // ================= ĐIỀU KHIỂN GIAO DIỆN CHẤM ĐIỂM =================
@@ -3979,18 +4198,26 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
         };
 
         // ================= XỬ LÝ ẢNH CHO NGÂN HÀNG CÂU HỎI =================
+        // Dùng chung cho 2 loại ảnh: 'de' = ảnh đề bài, 'giai' = ảnh lời giải
 
-        function docAnhVaoBank(file) {
+        function docAnhVaoBank(file, dich) {
             if(!file) return;
             if(!file.type || !file.type.startsWith('image/')) return alert("Vui lòng chọn tệp ảnh!");
             if(file.size > 2 * 1024 * 1024) return alert("Dung lượng ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
             const reader = new FileReader();
-            reader.onload = (e) => { ncAnh = e.target.result; veKhungAnhBank(); };
+            reader.onload = (e) => {
+                if(dich === 'giai') ncAnhGiai = e.target.result;
+                else ncAnh = e.target.result;
+                veKhungAnhBank(); veXemTruocCau();
+            };
             reader.readAsDataURL(file);
         }
 
-        window.ncChonAnh = (input) => { docAnhVaoBank(input.files[0]); input.value = ""; };
-        window.ncXoaAnh = () => { ncAnh = ""; veKhungAnhBank(); };
+        window.ncChonAnh = (input, dich) => { docAnhVaoBank(input.files[0], dich || 'de'); input.value = ""; };
+        window.ncXoaAnh = (dich) => {
+            if(dich === 'giai') ncAnhGiai = ""; else ncAnh = "";
+            veKhungAnhBank(); veXemTruocCau();
+        };
 
         window.ncKeoVao = (e) => {
             e.preventDefault();
@@ -4002,44 +4229,52 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             e.currentTarget.style.borderColor = '#cbd5e1';
             e.currentTarget.style.backgroundColor = '#f8fafc';
         };
-        window.ncThaAnh = (e) => {
+        window.ncThaAnh = (e, dich) => {
             e.preventDefault();
             e.currentTarget.style.borderColor = '#cbd5e1';
             e.currentTarget.style.backgroundColor = '#f8fafc';
-            if(e.dataTransfer.files && e.dataTransfer.files.length > 0) docAnhVaoBank(e.dataTransfer.files[0]);
+            if(e.dataTransfer.files && e.dataTransfer.files.length > 0) docAnhVaoBank(e.dataTransfer.files[0], dich || 'de');
         };
 
-        // Dán ảnh trực tiếp từ clipboard (Ctrl+V) - tiện khi chụp màn hình hình vẽ
-        window.ncDanAnh = (e) => {
+        // Dán ảnh trực tiếp từ clipboard (Ctrl+V)
+        window.ncDanAnh = (e, dich) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData || {}).items || [];
             for(const it of items) {
                 if(it.type && it.type.indexOf('image') !== -1) {
                     e.preventDefault();
-                    docAnhVaoBank(it.getAsFile());
+                    docAnhVaoBank(it.getAsFile(), dich || 'de');
                     return;
                 }
             }
         };
 
-        function veKhungAnhBank() {
-            const khung = document.getElementById("ncKhungAnh");
+        // Vẽ một khung ảnh (dùng cho cả đề bài lẫn lời giải)
+        function veMotKhungAnh(idKhung, anh, dich, mauVien, ghiChu) {
+            const khung = document.getElementById(idKhung);
             if(!khung) return;
-            if(ncAnh) {
+            if(anh) {
                 khung.innerHTML = `<div style="position:relative; display:inline-block; margin-top:6px;">
-                    <img src="${ncAnh}" style="max-width:100%; max-height:220px; border-radius:10px; border:2px solid #86efac;">
-                    <button class="btn-red" onclick="ncXoaAnh()" style="position:absolute; top:-12px; right:-12px; width:28px; height:28px; padding:0; border-radius:50%; font-size:14px; margin:0; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2);">X</button>
+                    <img src="${anh}" style="max-width:100%; max-height:220px; border-radius:10px; border:2px solid ${mauVien};">
+                    <button class="btn-red" onclick="ncXoaAnh('${dich}')" style="position:absolute; top:-12px; right:-12px; width:28px; height:28px; padding:0; border-radius:50%; font-size:14px; margin:0; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2);">X</button>
                 </div>`;
             } else {
-                khung.innerHTML = `<div style="border:2px dashed #cbd5e1; background:#f8fafc; border-radius:10px; padding:20px; text-align:center; margin-top:6px; transition:0.2s;"
-                        ondragover="ncKeoVao(event)" ondragleave="ncKeoRa(event)" ondrop="ncThaAnh(event)">
-                    <div style="color:#64748b; font-size:14px; margin-bottom:8px;">🖼 Kéo thả ảnh vào đây, hoặc dán bằng Ctrl+V khi đang gõ đề bài</div>
-                    <label style="display:inline-block; background:#0284c7; color:white; padding:9px 18px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:bold;">
+                khung.innerHTML = `<div style="border:2px dashed #cbd5e1; background:#f8fafc; border-radius:10px; padding:18px; text-align:center; margin-top:6px; transition:0.2s;"
+                        ondragover="ncKeoVao(event)" ondragleave="ncKeoRa(event)" ondrop="ncThaAnh(event, '${dich}')">
+                    <div style="color:#64748b; font-size:13px; margin-bottom:8px;">🖼 ${ghiChu}</div>
+                    <label style="display:inline-block; background:#0284c7; color:white; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold;">
                         📁 Chọn ảnh từ máy
-                        <input type="file" accept="image/*" onchange="ncChonAnh(this)" style="display:none;">
+                        <input type="file" accept="image/*" onchange="ncChonAnh(this, '${dich}')" style="display:none;">
                     </label>
-                    <div style="color:#94a3b8; font-size:12px; margin-top:8px;">Ảnh dưới 2MB</div>
+                    <div style="color:#94a3b8; font-size:12px; margin-top:6px;">Ảnh dưới 2MB</div>
                 </div>`;
             }
+        }
+
+        function veKhungAnhBank() {
+            veMotKhungAnh("ncKhungAnh", ncAnh, 'de', '#86efac',
+                'Kéo thả ảnh vào đây, hoặc dán bằng Ctrl+V khi đang gõ đề bài');
+            veMotKhungAnh("ncKhungAnhGiai", ncAnhGiai, 'giai', '#93c5fd',
+                'Hình vẽ cho lời giải — kéo thả hoặc dán Ctrl+V khi đang gõ lời giải');
         }
     </script>
 </body>
