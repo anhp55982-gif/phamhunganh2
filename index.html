@@ -507,6 +507,24 @@
                 <div id="bankDemChon" style="margin-left:auto; font-weight:bold; color:#7c3aed; font-size:15px;"></div>
             </div>
 
+            <div style="background:#f0f9ff; border:2px solid #bae6fd; border-radius:12px; padding:14px; margin-bottom:18px;">
+                <div style="font-size:13px; color:#475569; margin-bottom:10px;">Chọn các câu ở dưới (tích ô vuông), rồi gán nhanh cho tất cả câu đã chọn:</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                    <span style="font-size:13px; font-weight:bold; color:#0891b2;">📊 Mức độ:</span>
+                    <button onclick="ganMucDoBankHangLoat('NB')" style="padding:8px 14px; margin:0; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer; font-weight:bold; font-size:13px;">Nhận biết</button>
+                    <button onclick="ganMucDoBankHangLoat('TH')" style="padding:8px 14px; margin:0; border:none; border-radius:8px; background:#0284c7; color:white; cursor:pointer; font-weight:bold; font-size:13px;">Thông hiểu</button>
+                    <button onclick="ganMucDoBankHangLoat('VD')" style="padding:8px 14px; margin:0; border:none; border-radius:8px; background:#f59e0b; color:white; cursor:pointer; font-weight:bold; font-size:13px;">Vận dụng</button>
+                    <button onclick="ganMucDoBankHangLoat('VDC')" style="padding:8px 14px; margin:0; border:none; border-radius:8px; background:#dc2626; color:white; cursor:pointer; font-weight:bold; font-size:13px;">Vận dụng cao</button>
+                    <span style="width:1px; height:24px; background:#cbd5e1; margin:0 6px;"></span>
+                    <span style="font-size:13px; font-weight:bold; color:#0369a1;">Lớp:</span>
+                    <button onclick="ganLopBankHangLoat('10')" style="padding:8px 12px; margin:0; border:1px solid #7dd3fc; border-radius:8px; background:white; color:#0369a1; cursor:pointer; font-weight:bold; font-size:13px;">10</button>
+                    <button onclick="ganLopBankHangLoat('11')" style="padding:8px 12px; margin:0; border:1px solid #7dd3fc; border-radius:8px; background:white; color:#0369a1; cursor:pointer; font-weight:bold; font-size:13px;">11</button>
+                    <button onclick="ganLopBankHangLoat('12')" style="padding:8px 12px; margin:0; border:1px solid #7dd3fc; border-radius:8px; background:white; color:#0369a1; cursor:pointer; font-weight:bold; font-size:13px;">12</button>
+                    <span style="width:1px; height:24px; background:#cbd5e1; margin:0 6px;"></span>
+                    <button onclick="ganChuDeBaiHangLoat()" style="padding:8px 14px; margin:0; border:1px solid #c4b5fd; border-radius:8px; background:white; color:#6d28d9; cursor:pointer; font-weight:bold; font-size:13px;">🏷 Đặt chủ đề / bài...</button>
+                </div>
+            </div>
+
             <div id="bankDanhSach" style="max-height:480px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:12px; padding:12px; background:#f8fafc;"></div>
 
             <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
@@ -2315,6 +2333,51 @@ DAP AN: 0,5`;
             remove(ref(db, 'bank/' + k))
                 .then(() => { bankDaChon.delete(k); bankMoRong.delete(k); renderBank(); })
                 .catch(e => alert("Lỗi: " + e.message));
+        };
+
+        // ================= GÁN HÀNG LOẠT TRONG NGÂN HÀNG =================
+        // Cập nhật một thuộc tính cho mọi câu đang được chọn, lưu thẳng lên Firebase
+        function ganThuocTinhHangLoat(thayDoi, moTa) {
+            if(bankDaChon.size === 0) { alert("Chưa chọn câu nào! Hãy tích vào ô vuông ở đầu mỗi câu."); return; }
+            const keys = [...bankDaChon];
+            const viec = keys.map(k => {
+                if(!dbBank[k]) return Promise.resolve();
+                return update(ref(db, 'bank/' + k), thayDoi);
+            });
+            Promise.all(viec)
+                .then(() => {
+                    // dbBank sẽ tự cập nhật qua onValue, nhưng cập nhật ngay để hiển thị mượt
+                    keys.forEach(k => { if(dbBank[k]) Object.assign(dbBank[k], thayDoi); });
+                    renderBank();
+                    const el = document.getElementById("bankDemChon");
+                    if(el) el.innerText = `✅ Đã ${moTa} cho ${keys.length} câu`;
+                })
+                .catch(e => alert("Lỗi khi cập nhật: " + e.message));
+        }
+
+        window.ganMucDoBankHangLoat = (muc) => {
+            const ten = { NB:'Nhận biết', TH:'Thông hiểu', VD:'Vận dụng', VDC:'Vận dụng cao' };
+            ganThuocTinhHangLoat({ level: muc }, `đặt mức "${ten[muc]}"`);
+        };
+
+        window.ganLopBankHangLoat = (lop) => {
+            ganThuocTinhHangLoat({ grade: lop }, `đặt Lớp ${lop}`);
+        };
+
+        window.ganChuDeBaiHangLoat = () => {
+            if(bankDaChon.size === 0) return alert("Chưa chọn câu nào!");
+            const cd = prompt(`Đặt CHỦ ĐỀ cho ${bankDaChon.size} câu đã chọn:\n(để trống nếu không muốn đổi chủ đề)`, "");
+            if(cd === null) return;   // bấm Huỷ
+            const bai = prompt(`Đặt BÀI cho ${bankDaChon.size} câu đã chọn:\n(để trống nếu không muốn đổi bài)`, "");
+            if(bai === null) return;
+
+            const thayDoi = {};
+            if(cd.trim() !== "") thayDoi.topic = cd.trim();
+            if(bai.trim() !== "") thayDoi.lesson = bai.trim();
+            if(Object.keys(thayDoi).length === 0) return alert("Không có gì thay đổi.");
+
+            const moTa = [thayDoi.topic ? `chủ đề "${thayDoi.topic}"` : "", thayDoi.lesson ? `bài "${thayDoi.lesson}"` : ""].filter(Boolean).join(" và ");
+            ganThuocTinhHangLoat(thayDoi, `đặt ${moTa}`);
         };
 
         window.toggleChonCau = (k) => {
