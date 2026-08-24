@@ -280,6 +280,13 @@
                 <button class="btn btn-green" onclick="startStudentMode('practice')" style="padding: 14px; margin-top: 10px;">TỰ LUYỆN TẬP</button>
             </div>
 
+            <div id="student-homework-box" style="display:none; text-align: left; margin-bottom: 25px; background: #fef9c3; padding: 15px; border-radius: 12px; border: 2px solid #fde047;">
+                <label style="font-weight: bold; color: #a16207; font-size: 15px; margin-bottom: 5px; display: block;">🏠 BÀI TẬP VỀ NHÀ</label>
+                <select id="studentHomeworkPicker" onchange="hienThongTinBTVN()" style="border-color: #fde047; font-weight: 600; color: #854d0e;"></select>
+                <div id="btvnInfo" style="font-size: 13px; color: #713f12; margin: 8px 0;"></div>
+                <button class="btn" onclick="startStudentMode('homework')" style="padding: 14px; margin-top: 6px; background: linear-gradient(to right,#eab308,#ca8a04); color:white;">📝 LÀM BÀI VỀ NHÀ</button>
+            </div>
+
             <button class="btn btn-gray" onclick="viewStudentHistory()" style="margin-top: 10px;">🕒 XEM LỊCH SỬ BÀI LÀM</button>
             <button class="btn btn-red" onclick="location.reload()" style="margin-top: 15px;">🚪 ĐĂNG XUẤT</button>
         </div>
@@ -287,7 +294,7 @@
         <div id="screen-quiz" class="screen">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px;">
                 <strong id="quiz-title" style="font-size: 20px; color: #1e3a8a; background: #eff6ff; padding: 8px 15px; border-radius: 10px;"></strong>
-                <div style="background: #fee2e2; padding: 8px 15px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
+                <div id="timerBox" style="background: #fee2e2; padding: 8px 15px; border-radius: 10px; display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 20px;">⏱</span>
                     <strong style="color:#ef4444; font-size:22px; font-family: monospace;" id="timer">00:00</strong>
                 </div>
@@ -324,12 +331,22 @@
                 <button class="btn" onclick="openBank()" style="padding: 20px; background:linear-gradient(to right,#8b5cf6,#7c3aed);">🏦 NGÂN HÀNG CÂU HỎI</button>
                 <button class="btn btn-green" onclick="openSolutions()" style="padding: 20px;">📖 KHO ĐÁP ÁN CHI TIẾT</button>
                 <button class="btn btn-gray" onclick="openAccountManager()" style="padding: 20px;">🔑 QUẢN LÝ TÀI KHOẢN</button>
+                <button class="btn" onclick="openBTVN()" style="padding: 20px; background:linear-gradient(to right,#eab308,#ca8a04);">🏠 BÀI TẬP VỀ NHÀ</button>
             </div>
             <button class="btn btn-red" style="margin-top:30px;" onclick="location.reload()">🚪 ĐĂNG XUẤT</button>
         </div>
 
         <div id="screen-bank" class="screen">
             <h2>🏦 Ngân Hàng Câu Hỏi</h2>
+
+            <div id="bankThanhBTVN" style="display:none; background:#fef9c3; border:2px solid #fde047; border-radius:12px; padding:14px; margin-bottom:16px; align-items:center; gap:12px; flex-wrap:wrap;">
+                <b style="color:#a16207; font-size:15px;">🏠 Đang chọn câu cho bài về nhà</b>
+                <span style="color:#78716c; font-size:13px;">Tích chọn các câu cần giao, hoặc dùng 🎯 ma trận để bốc tự động.</span>
+                <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="xacNhanCauChoBTVN()">✅ Dùng các câu đã chọn</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="huyChonCauChoBTVN()">✖ Huỷ</button>
+                </div>
+            </div>
             <p style="color:#64748b; font-size:15px; margin-top:-8px;">Kho câu hỏi dùng chung. Soạn một lần, rút ra ghép đề nhiều lần.</p>
 
             <div style="background:#faf5ff; border:2px solid #ddd6fe; border-radius:14px; padding:18px; margin-bottom:20px;">
@@ -566,7 +583,7 @@
                         </select></div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
                     <div><label style="font-size:14px; font-weight:bold; color:#475569;">Trộn đề:</label>
                         <select id="tdTron" style="margin:5px 0 0 0; padding:13px;">
                             <option value="on">🔀 Có trộn</option><option value="off">➡️ Không trộn</option>
@@ -620,6 +637,7 @@
                     <option value="off">➡️ KHÔNG TRỘN (giữ nguyên)</option>
                 </select>
             </div>
+
 
             <div id="customScoreBox" style="display:none; background:#fefce8; border:2px dashed #facc15; border-radius:12px; padding:18px; margin-bottom:20px;">
                 <b style="color:#a16207; font-size:15px;">✏️ Đặt điểm tối đa cho từng phần (tổng nên bằng 10):</b>
@@ -748,6 +766,93 @@
             <button class="btn btn-gray" style="margin-top:25px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
         </div>
 
+        <div id="screen-btvn" class="screen">
+            <h2>🏠 Bài Tập Về Nhà</h2>
+            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Giao bài cho HS làm ở nhà. Câu hỏi lấy từ ngân hàng, HS làm nhiều lần được, thầy/cô xem được điểm từng lần.</p>
+
+            <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+                <button id="tabBtvnSoan" class="btn" style="margin:0; width:auto; padding:13px 22px; background:linear-gradient(to right,#eab308,#ca8a04); color:white;" onclick="chuyenTabBTVN('soan')">✏️ Soạn / Sửa bài</button>
+                <button id="tabBtvnDs" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('ds')">📋 Danh sách bài đã giao</button>
+                <button id="tabBtvnKq" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('kq')">📊 Kết quả học sinh</button>
+            </div>
+
+            <!-- ===== TAB SOẠN BÀI ===== -->
+            <div id="btvnTabSoan">
+                <div style="background:#fefce8; border:2px solid #fde047; border-radius:14px; padding:18px; margin-bottom:18px;">
+                    <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Tên bài tập:</label>
+                            <input type="text" id="btvnTen" placeholder="VD: BTVN tuần 3 - Lượng giác" style="margin:5px 0 0 0; padding:12px;">
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Giao cho lớp:</label>
+                            <select id="btvnLop" style="margin:5px 0 0 0; padding:12px;">
+                                <option value="all">Mọi lớp</option><option value="10">Lớp 10</option>
+                                <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+                        <div>
+                            <label style="font-size:13px; font-weight:bold; color:#a16207;">⏰ Hạn nộp:</label>
+                            <input type="datetime-local" id="btvnHan" style="margin:5px 0 0 0; padding:12px;">
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Cách chấm điểm:</label>
+                            <select id="btvnChamDiem" style="margin:5px 0 0 0; padding:12px;">
+                                <option value="free">Chia đều 10 điểm</option>
+                                <option value="ratio">⚖️ Tỉ lệ 3:2:2:3</option>
+                                <option value="mixed73">TN:3 ĐS:2 TLN:2 TL:3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Trộn câu hỏi:</label>
+                            <select id="btvnTron" style="margin:5px 0 0 0; padding:12px;">
+                                <option value="on">🔀 Có trộn</option><option value="off">➡️ Không trộn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:#78716c; margin-top:10px;">Để trống hạn nộp nếu không giới hạn. Quá hạn HS vẫn làm được nhưng bài ghi "nộp muộn".</div>
+                </div>
+
+                <div style="background:white; border:2px solid #e2e8f0; border-radius:14px; padding:18px; margin-bottom:18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                        <b style="color:#0369a1; font-size:16px;">📚 Câu hỏi trong bài <span id="btvnDemCau" style="color:#94a3b8; font-weight:normal;"></span></b>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn" style="margin:0; width:auto; padding:11px 18px; font-size:14px; background:linear-gradient(to right,#8b5cf6,#7c3aed); color:white;" onclick="chonCauChoBTVN()">🏦 Lấy câu từ ngân hàng</button>
+                            <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="xoaHetCauBTVN()">🗑 Bỏ hết câu</button>
+                        </div>
+                    </div>
+                    <div id="btvnDsCau" style="max-height:340px; overflow-y:auto;"></div>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:14px 24px;" onclick="luuBTVN()">💾 GIAO BÀI CHO HỌC SINH</button>
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:14px 24px;" onclick="soanBTVNMoi()">➕ Soạn bài mới</button>
+                </div>
+            </div>
+
+            <!-- ===== TAB DANH SÁCH ===== -->
+            <div id="btvnTabDs" style="display:none;">
+                <div id="btvnDanhSach"></div>
+            </div>
+
+            <!-- ===== TAB KẾT QUẢ ===== -->
+            <div id="btvnTabKq" style="display:none;">
+                <div style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:flex-end;">
+                    <div style="flex:1; min-width:180px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Chọn bài để xem kết quả:</label>
+                        <select id="btvnResultPicker" onchange="veBangKetQuaBTVN()" style="margin:5px 0 0 0; padding:12px;"><option value="">-- Chọn bài --</option></select>
+                    </div>
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="taiLaiKetQuaBTVN()">🔄 Tải lại</button>
+                </div>
+                <div id="btvnResultArea"></div>
+            </div>
+
+            <button class="btn btn-gray" style="margin-top:25px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
+        </div>
+
         <div id="screen-teacher-accounts" class="screen">
             <h2>🔑 Quản lý Tài Khoản Hệ Thống</h2>
             
@@ -798,6 +903,7 @@
         // Biến toàn cục
         let currentUser = null, currentMode = "", questions = [], currentIdx = 0, userAnswers = {};
         let timeLeft = 0, timerInterval = null, cheatCount = 0;
+        let btvnThoiDiemBatDau = 0, btvnHanNop = null;   // dành cho bài về nhà
         let dbExams = {}; 
         // Ghi nhớ đề đang làm - không đọc lại từ dropdown nữa (HS đổi lựa chọn giữa chừng sẽ gây sai điểm)
         let activeExamName = "", activeScoring = "free", activeCustom = null;
@@ -1146,6 +1252,45 @@
         };
 
         // BỘ LỌC DANH SÁCH ĐỀ THI
+        // ================= HẠN NỘP BÀI TẬP VỀ NHÀ =================
+        // Đổi mốc mili-giây sang chuỗi cho ô datetime-local (theo giờ địa phương)
+        function mocSangDatetimeLocal(ms) {
+            const d = new Date(ms);
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+        }
+
+        // Mô tả hạn nộp dưới dạng dễ đọc + còn bao lâu
+        function moTaHanNop(deadline) {
+            if(!deadline) return null;
+            const con = deadline - Date.now();
+            const d = new Date(deadline);
+            const p = n => String(n).padStart(2, '0');
+            const ngayGio = `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} lúc ${p(d.getHours())}:${p(d.getMinutes())}`;
+
+            if(con <= 0) return { quaHan: true, text: `Đã quá hạn (${ngayGio})`, ngayGio };
+
+            const phut = Math.floor(con / 60000);
+            const gio = Math.floor(phut / 60);
+            const ngay = Math.floor(gio / 24);
+            let conLai;
+            if(ngay > 0) conLai = `Còn ${ngay} ngày ${gio % 24} giờ`;
+            else if(gio > 0) conLai = `Còn ${gio} giờ ${phut % 60} phút`;
+            else conLai = `Còn ${phut} phút`;
+            return { quaHan: false, text: `Hạn nộp: ${ngayGio}`, conLai, ngayGio };
+        }
+
+        // Đổi số mili-giây thành "2 phút 30 giây" để hiện thời gian HS đã làm
+        function moTaThoiLuong(ms) {
+            if(!ms || ms < 0) return "—";
+            const giay = Math.round(ms / 1000);
+            const phut = Math.floor(giay / 60);
+            if(phut === 0) return `${giay} giây`;
+            const gio = Math.floor(phut / 60);
+            if(gio === 0) return `${phut} phút ${giay % 60} giây`;
+            return `${gio} giờ ${phut % 60} phút`;
+        }
+
         function veLaiDanhSachDe() {
             const picker1 = document.getElementById("studentExamPicker_exam");
             const picker2 = document.getElementById("studentExamPicker_practice");
@@ -1156,6 +1301,8 @@
             let h1 = '<option value="">-- Chọn đề thi --</option>';
             let h2 = '<option value="">-- Chọn bài tự luyện --</option>';
             let h3 = '<option value="">-- Chọn đề để sửa --</option>';
+            let hBTVN = '<option value="">-- Chọn bài về nhà --</option>';
+            let soBTVN = 0;
             
             for(let key in dbExams) {
                 const ex = dbExams[key];
@@ -1164,7 +1311,8 @@
                 const clsLabel = ex.targetClass && ex.targetClass !== 'all' ? `[Lớp ${ex.targetClass}] ` : "";
                 
                 // 1. Phân quyền Giáo viên: Luôn thấy TẤT CẢ đề. Đề nào ẩn sẽ có icon 🙈
-                h3 += `<option value="${key}">${ex.visibility === 'hide' ? '🙈 (ĐANG ẨN) ' : ''}${clsLabel}${key}</option>`;
+                const nhanBTVN = ex.homework ? '🏠 ' : '';
+                h3 += `<option value="${key}">${ex.visibility === 'hide' ? '🙈 (ĐANG ẨN) ' : ''}${nhanBTVN}${clsLabel}${key}</option>`;
                 
                 // 2. Phân quyền Học sinh: chỉ thấy đề đang HIỆN và ĐÚNG LỚP của mình
                 const lopHS = (currentUser && currentUser.targetClass) ? currentUser.targetClass : 'all';
@@ -1172,13 +1320,29 @@
                 const dungLop = (lopHS === 'all') || (lopDe === 'all') || (lopHS === lopDe);
 
                 if(ex.visibility !== 'hide' && dungLop) {
-                    if(ex.type === 'practice') h2 += `<option value="${key}">${clsLabel}${key}</option>`;
-                    else h1 += `<option value="${key}">${clsLabel}${key}</option>`;
+                    if(ex.homework) {
+                        // Bài về nhà: hiện kèm trạng thái hạn nộp
+                        const mt = moTaHanNop(ex.deadline);
+                        let nhan = "";
+                        if(mt) nhan = mt.quaHan ? " ⏰ (quá hạn)" : ` — ${mt.conLai}`;
+                        hBTVN += `<option value="${key}">${clsLabel}${key}${nhan}</option>`;
+                        soBTVN++;
+                    } else if(ex.type === 'practice') {
+                        h2 += `<option value="${key}">${clsLabel}${key}</option>`;
+                    } else {
+                        h1 += `<option value="${key}">${clsLabel}${key}</option>`;
+                    }
                 }
             }
             picker1.innerHTML = h1;
             picker2.innerHTML = h2;
             picker3.innerHTML = h3;
+
+            // Đổ danh sách bài về nhà (nếu khu vực đó tồn tại) + ẩn/hiện cả mục
+            const pBTVN = document.getElementById("studentHomeworkPicker");
+            const khuBTVN = document.getElementById("student-homework-box");
+            if(pBTVN) pBTVN.innerHTML = hBTVN;
+            if(khuBTVN) khuBTVN.style.display = soBTVN > 0 ? 'block' : 'none';
 
             // Đổ danh sách cho 2 dropdown của Giáo viên (trước đây bị bỏ sót nên luôn trống)
             const dsDe = Object.keys(dbExams);
@@ -1196,12 +1360,57 @@
         }
         window.veLaiDanhSachDe = veLaiDanhSachDe;
 
-        onValue(ref(db, 'exams'), (snapshot) => {
-            dbExams = snapshot.val() || {};
-            // Lưu ý: biến `questions` của HS đang thi là bản deep-copy riêng,
-            // nên thầy sửa đề lúc HS đang làm cũng không làm đổi bài của em đó.
-            veLaiDanhSachDe();
-        });
+        // ================= TẢI DỮ LIỆU THEO VAI TRÒ =================
+        // Học sinh chỉ cần DANH MỤC đề (tên, lớp, thời gian...), KHÔNG cần nội dung câu hỏi.
+        // Nhờ vậy máy HS không phải tải cả kho đề + ngân hàng, tránh giật lag khi đang thi.
+        let cacListener = [];   // các listener đang bật, để tắt khi đăng xuất
+
+        function batListener(duongDan, xuLy) {
+            const huy = onValue(ref(db, duongDan), xuLy);
+            cacListener.push(huy);
+            return huy;
+        }
+
+        function tatHetListener() {
+            cacListener.forEach(huy => { try { huy(); } catch(e) {} });
+            cacListener = [];
+        }
+
+        // Lọc bỏ phần nặng (câu hỏi + ảnh) khỏi dữ liệu đề
+        function rutGonDanhMuc(data) {
+            const gon = {};
+            Object.keys(data || {}).forEach(k => {
+                const ex = data[k] || {};
+                gon[k] = {
+                    time: ex.time, type: ex.type, scoring: ex.scoring,
+                    targetClass: ex.targetClass, visibility: ex.visibility,
+                    shuffle: ex.shuffle, customScore: ex.customScore,
+                    homework: ex.homework, deadline: ex.deadline,
+                    soCau: (ex.questions || []).length
+                };
+            });
+            return gon;
+        }
+
+        // Giáo viên: tải đầy đủ để soạn/sửa/xuất đề
+        function batListenerGiaoVien() {
+            batListener('exams', (snapshot) => {
+                dbExams = snapshot.val() || {};
+                veLaiDanhSachDe();
+            });
+        }
+
+        // Học sinh: chỉ tải danh mục rút gọn, đọc một lần (không theo dõi liên tục)
+        async function taiDanhMucChoHocSinh() {
+            try {
+                const snap = await get(ref(db, 'exams'));
+                dbExams = rutGonDanhMuc(snap.val() || {});
+                veLaiDanhSachDe();
+            } catch(e) {
+                console.error("Lỗi tải danh sách đề:", e);
+                alert("Không tải được danh sách đề. Kiểm tra kết nối mạng rồi thử lại.");
+            }
+        }
 
         window.handleLogin = async () => {
             const role = document.getElementById("role-gv").checked ? "teacher" : "student";
@@ -1212,6 +1421,7 @@
             if(role === 'teacher' && u === 'admin' && p === 'admin') {
                 currentUser = { username: 'admin', fullName: 'Quản Trị Viên', role: 'teacher' };
                 document.getElementById("main-brand").style.display = "none";
+                batListenerGiaoVien();
                 showScreen('screen-teacher-dash');
                 return;
             }
@@ -1225,12 +1435,13 @@
                 
                 if (accRole === 'teacher') {
                     document.getElementById("main-brand").style.display = "none";
+                    batListenerGiaoVien();
                     showScreen('screen-teacher-dash');
                 } else {
                     document.getElementById("main-brand").style.display = "none";
                     const nhanLop = currentUser.targetClass && currentUser.targetClass !== 'all' ? ` (Lớp ${currentUser.targetClass})` : "";
                     document.getElementById("student-welcome").innerText = `Chào em, ${currentUser.fullName}!${nhanLop} 👋`;
-                    veLaiDanhSachDe();   // Vẽ lại danh sách đề đã lọc theo đúng lớp của em
+                    await taiDanhMucChoHocSinh();   // chỉ tải danh mục, không tải nội dung câu hỏi
                     showScreen('screen-student-dash');
                     update(ref(db, 'students/' + studentKey()), { fullName: currentUser.fullName, status_online: "Trực tuyến" });
                     onDisconnect(ref(db, 'students/' + studentKey())).update({ status_online: "Ngoại tuyến" });
@@ -1246,11 +1457,18 @@
         let ncAnh = "";               // ảnh tạm của câu đang soạn trong ngân hàng
         let ncAnhGiai = "";           // ảnh minh hoạ cho lời giải
 
-        onValue(ref(db, 'bank'), (snap) => {
-            dbBank = snap.val() || {};
-            if(document.getElementById("screen-bank").classList.contains("active")) renderBank();
-            capNhatDanhSachChuDe();
-        });
+        // Ngân hàng câu hỏi là nhánh NẶNG nhất (có ảnh base64).
+        // Chỉ bật khi giáo viên thực sự mở màn hình ngân hàng hoặc trình soạn đề.
+        let listenerBank = null;
+        function batListenerBank() {
+            if(listenerBank) return;   // đã bật rồi thì thôi
+            listenerBank = onValue(ref(db, 'bank'), (snap) => {
+                dbBank = snap.val() || {};
+                if(document.getElementById("screen-bank").classList.contains("active")) renderBank();
+                capNhatDanhSachChuDe();
+            });
+            cacListener.push(listenerBank);
+        }
 
         // Gom các chủ đề đã dùng để gợi ý khi soạn đề
         function capNhatDanhSachChuDe() {
@@ -1716,6 +1934,9 @@ DAP AN: 0,5`;
         };
 
         window.openBank = () => {
+            batListenerBank();
+            dangChonCauChoBTVN = false;       // vào ngân hàng theo đường thường thì không ở chế độ nhặt câu
+            capNhatThanhBTVNTrongBank();
             showScreen('screen-bank');
             bankDaChon.clear();
             capNhatDanhSachChuDe();
@@ -2181,6 +2402,12 @@ DAP AN: 0,5`;
             chon.forEach(k => bankDaChon.add(k));
             renderBank();
             document.getElementById("bankMaTranBox").style.display = 'none';
+
+            // Đang nhặt câu cho bài về nhà thì chỉ chọn sẵn, không tạo đề thi
+            if(dangChonCauChoBTVN) {
+                alert(`✅ Đã bốc ${chon.length} câu theo ma trận.\n\nBấm "✅ Dùng các câu đã chọn" ở trên để đưa vào bài về nhà.`);
+                return;
+            }
 
             if(confirm(`✅ Đã bốc ${chon.length} câu theo ma trận.\n\nTạo đề ngay bây giờ?\n\nOK = Tạo đề luôn\nCancel = Xem lại danh sách câu trước`)) {
                 taoDeNhanh();
@@ -2751,7 +2978,8 @@ DAP AN: 0,5`;
             taiFileTex(nd, `NganHang_${keys.length}cau${kem ? "_CoDapAn" : ""}.tex`);
         };
 
-        window.openCreateExam = () => { 
+        window.openCreateExam = () => {
+            batListenerBank(); 
             showScreen('screen-teacher-create'); 
             
             // 1. Tự động gạt danh sách chọn về chữ "-- [ ✨ Tạo đề mới tinh ] --"
@@ -3336,6 +3564,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 targetClass: targetClass, // Lưu thông tin Lớp
                 visibility: visibility,   // Lưu trạng thái Ẩn/Hiện
                 shuffle: shuffle,         // Lưu trạng thái Trộn đề
+                homework: (dbExams[name] && dbExams[name].homework) || false,
+                deadline: (dbExams[name] && dbExams[name].deadline) || null,
                 customScore: docCustomScore(),  // Điểm từng phần do thầy đặt
                 questions: cleanQuestions 
             })
@@ -3376,17 +3606,25 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(window.MathJax) MathJax.typesetPromise();
         };
 
-        window.openMonitor = () => { showScreen('screen-teacher-monitor'); renderMonitorTable(); };
-        
         let currentMonitorData = {};
-        onValue(ref(db, 'students'), (snap) => {
-            if(snap.exists()){
-                currentMonitorData = snap.val();
-                if(document.getElementById("screen-teacher-monitor").classList.contains('active')) {
-                    renderMonitorTable();
+        let listenerStudents = null;
+
+        // Nhánh 'students' cập nhật liên tục khi HS đang làm bài.
+        // Chỉ theo dõi khi giáo viên đang mở màn hình giám sát.
+        function batListenerStudents() {
+            if(listenerStudents) return;
+            listenerStudents = onValue(ref(db, 'students'), (snap) => {
+                if(snap.exists()){
+                    currentMonitorData = snap.val();
+                    if(document.getElementById("screen-teacher-monitor").classList.contains('active')) {
+                        renderMonitorTable();
+                    }
                 }
-            }
-        });
+            });
+            cacListener.push(listenerStudents);
+        }
+
+        window.openMonitor = () => { batListenerStudents(); showScreen('screen-teacher-monitor'); renderMonitorTable(); };
 
         window.renderMonitorTable = () => {
             const selectedExam = document.getElementById("monitorExamPicker").value;
@@ -3617,8 +3855,12 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(window.MathJax) MathJax.typesetPromise();
         };
 
-        window.openAccountManager = () => { showScreen('screen-teacher-accounts'); };
-        onValue(ref(db, 'accounts'), (snap) => {
+        let listenerAccounts = null;
+        window.openAccountManager = () => { batListenerAccounts(); showScreen('screen-teacher-accounts'); };
+
+        function batListenerAccounts() {
+            if(listenerAccounts) return;
+            listenerAccounts = onValue(ref(db, 'accounts'), (snap) => {
             let html = "";
             if(snap.exists()) {
                 const data = snap.val();
@@ -3634,7 +3876,9 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 });
             }
             document.getElementById("accBody").innerHTML = html;
-        });
+            });
+            cacListener.push(listenerAccounts);
+        }
 
         // Các hàm xoá đặt ở global scope để nút onclick gọi được (trước đây bị lỗi getDatabase không tồn tại)
         window.deleteStudentRecord = (name) => {
@@ -3675,29 +3919,48 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             }
         });
 
+        // Mốc thời gian lần ghi nhận gần nhất.
+        // Trình duyệt bắn 'blur' TRƯỚC 'visibilitychange', và lúc 'blur' chạy thì
+        // document.hidden vẫn còn false — nên nếu không có mốc này, một lần thoát tab
+        // sẽ bị hai cơ chế đếm thành hai lần.
+        let mocThoatGanNhat = -Infinity;   // chưa từng ghi nhận -> lần đầu luôn được tính
+        const KHOANG_GOP = 3000;   // hai lần cách nhau dưới 3 giây = cùng một lần thoát
+        let henGioBlur = null;
+
         function ghiNhanThoatTab() {
             const isQuizScreen = document.getElementById("screen-quiz").classList.contains("active");
-            if (currentMode === 'exam' && isQuizScreen) {
-                cheatCount++;
-                if (cheatCount >= 2) {
-                    alert("⛔ Em đã thoát tab 2 lần. Hệ thống TỰ ĐỘNG nộp bài!");
-                    confirmFinish(true); 
-                } else {
-                    alert("⚠️ CẢNH BÁO: Không được rời trang khi đang thi! Thoát tab lần nữa hệ thống sẽ tự nộp bài.");
-                    update(ref(db, `students/${studentKey()}`), { cheats: cheatCount });
-                }
+            if (currentMode !== 'exam' || !isQuizScreen) return;
+
+            const bayGio = Date.now();
+            if (bayGio - mocThoatGanNhat < KHOANG_GOP) return;   // đã đếm rồi, bỏ qua
+            mocThoatGanNhat = bayGio;
+
+            // Huỷ hẹn giờ blur đang chờ (nếu có) để nó không đếm thêm lần nữa
+            if (henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }
+
+            cheatCount++;
+            danhDauHopThoai(true);   // alert bên dưới cũng gây blur, đánh dấu để không tự đếm thêm
+            if (cheatCount >= 2) {
+                alert("⛔ Em đã thoát tab 2 lần. Hệ thống TỰ ĐỘNG nộp bài!");
+                setTimeout(() => danhDauHopThoai(false), 500);
+                confirmFinish(true);
+            } else {
+                alert("⚠️ CẢNH BÁO: Không được rời trang khi đang thi! Thoát tab lần nữa hệ thống sẽ tự nộp bài.");
+                setTimeout(() => danhDauHopThoai(false), 500);
+                update(ref(db, `students/${studentKey()}`), { cheats: cheatCount });
             }
         }
+
         document.addEventListener("visibilitychange", () => {
             if(document.hidden) ghiNhanThoatTab();
         });
 
-        // Alt-Tab: chỉ tính khi cửa sổ mất focus THẬT SỰ trong một khoảng đủ lâu
-        let henGioBlur = null;
+        // Alt-Tab sang cửa sổ khác (tab vẫn hiện, không kích hoạt visibilitychange)
         window.addEventListener("blur", () => {
             if(dangMoHopThoai) return;                    // đang mở confirm/alert thì bỏ qua
-            if(document.hidden) return;                   // đã có visibilitychange lo rồi, tránh đếm 2 lần
+            if(henGioBlur) return;                        // đã hẹn rồi, không hẹn chồng
             henGioBlur = setTimeout(() => {
+                henGioBlur = null;
                 // Sau 1.5 giây mà vẫn chưa quay lại thì mới coi là thoát thật
                 if(!document.hasFocus()) ghiNhanThoatTab();
             }, 1500);
@@ -3707,9 +3970,30 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }   // quay lại kịp thì huỷ, không tính
         });
 
-        window.startStudentMode = (mode) => {
-            // Xác định xem lấy tên đề ở hộp Đỏ (Thi) hay hộp Xanh (Tự luyện)
-            const pickerId = mode === 'exam' ? "studentExamPicker_exam" : "studentExamPicker_practice";
+        // Hiện hạn nộp khi HS chọn một bài về nhà
+        window.hienThongTinBTVN = () => {
+            const name = document.getElementById("studentHomeworkPicker").value;
+            const box = document.getElementById("btvnInfo");
+            if(!name || !dbExams[name]) { box.innerHTML = ""; return; }
+            const ex = dbExams[name];
+            const soCau = ex.soCau !== undefined ? ex.soCau : (ex.questions || []).length;
+            const mt = moTaHanNop(ex.deadline);
+            let dong = `📝 ${soCau} câu · Làm nhiều lần được`;
+            if(mt) {
+                if(mt.quaHan) dong += `<br><span style="color:#dc2626; font-weight:bold;">⏰ ${mt.text} — vẫn làm được nhưng sẽ ghi "nộp muộn"</span>`;
+                else dong += `<br><span style="color:#15803d; font-weight:bold;">⏳ ${mt.conLai}</span> <span style="color:#78716c;">(${mt.ngayGio})</span>`;
+            } else {
+                dong += `<br><span style="color:#78716c;">Không giới hạn hạn nộp</span>`;
+            }
+            box.innerHTML = dong;
+        };
+
+        window.startStudentMode = async (mode) => {
+            // Chọn đúng ô tuỳ chế độ: thi / tự luyện / bài về nhà
+            let pickerId;
+            if(mode === 'exam') pickerId = "studentExamPicker_exam";
+            else if(mode === 'homework') pickerId = "studentHomeworkPicker";
+            else pickerId = "studentExamPicker_practice";
             const name = document.getElementById(pickerId).value;
             
             if(!name || !dbExams[name]) return alert("Vui lòng chọn đề thi/bài tập!");
@@ -3717,7 +4001,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             // Xác nhận trước khi vào phòng thi
             if(mode === 'exam') {
                 const ex0 = dbExams[name];
-                const soCau = (ex0.questions || []).length;
+                const soCau = ex0.soCau !== undefined ? ex0.soCau : (ex0.questions || []).length;
                 danhDauHopThoai(true);
                 const sanSang = confirm(
                     `📋 ĐỀ: ${name}\n` +
@@ -3730,11 +4014,42 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 if(!sanSang) return;
             }
 
-            const exam = dbExams[name];
+            // Chỉ đến lúc này mới tải nội dung đề (danh mục của HS không chứa câu hỏi)
+            let exam = dbExams[name];
+            if(!exam.questions) {
+                try {
+                    const snapDe = await get(ref(db, 'exams/' + name));
+                    if(!snapDe.exists()) return alert("Không tìm thấy đề này. Có thể thầy/cô đã xoá.");
+                    exam = snapDe.val();
+                    dbExams[name] = exam;   // giữ lại để không phải tải lần nữa
+                } catch(e) {
+                    console.error(e);
+                    return alert("Không tải được đề. Em kiểm tra kết nối mạng rồi thử lại nhé.");
+                }
+            }
             activeExamName = name;
             activeScoring = exam.scoring || 'free';
             activeCustom = exam.customScore || null;
             currentMode = mode;
+
+            // ===== BÀI VỀ NHÀ: luôn làm mới, không dùng nháp, ghi mốc bắt đầu =====
+            if(mode === 'homework') {
+                const doShuffle = (exam.shuffle || 'on') === 'on';
+                // Seed kèm thời điểm để mỗi lần làm là một đề trộn mới
+                questions = buildShuffledExam(exam.questions || [], currentUser.username + "|" + name + "|" + Date.now(), doShuffle);
+                currentIdx = 0;
+                userAnswers = {};
+                cheatCount = 0;
+                btvnThoiDiemBatDau = Date.now();   // để tính HS làm mất bao lâu
+                btvnHanNop = exam.deadline || null;
+
+                if(questions.length === 0) return alert("Bài này chưa có câu hỏi nào!");
+                showScreen('screen-quiz');
+                renderQ();
+                renderGrid();
+                capNhatHienThiBTVN();   // ẩn đồng hồ, hiện nhãn "Bài về nhà"
+                return;
+            }
 
             // Khoá nháp riêng cho từng học sinh + từng đề
             draftKey = `draft_${currentUser.username}_${name}_${mode}`;
@@ -3799,6 +4114,30 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 syncScore(); 
             }
         };
+
+        // Bài về nhà: đổi ô đồng hồ đếm ngược thành đồng hồ đếm xuôi (đã làm bao lâu)
+        let btvnDongHo = null;
+        function capNhatHienThiBTVN() {
+            const box = document.getElementById("timerBox");
+            document.getElementById("quiz-title").innerText = "🏠 " + activeExamName;
+
+            const mt = moTaHanNop(btvnHanNop);
+            const nhanHan = mt
+                ? (mt.quaHan ? `<span style="color:#dc2626;">⏰ Nộp muộn</span>` : `<span style="color:#15803d;">${mt.conLai}</span>`)
+                : `<span style="color:#78716c;">Không giới hạn</span>`;
+
+            box.style.background = "#fef9c3";
+            box.innerHTML = `<div style="text-align:right; line-height:1.35;">
+                <div style="font-size:12px; color:#a16207; font-weight:bold;">🏠 Bài về nhà · ${nhanHan}</div>
+                <div style="font-size:13px; color:#78716c;">Đã làm: <span id="btvnDaLam" style="font-family:monospace; font-weight:bold;">0 giây</span></div>
+            </div>`;
+
+            clearInterval(btvnDongHo);
+            btvnDongHo = setInterval(() => {
+                const el = document.getElementById("btvnDaLam");
+                if(el) el.innerText = moTaThoiLuong(Date.now() - btvnThoiDiemBatDau);
+            }, 1000);
+        }
 
         function startTimer() {
             clearInterval(timerInterval);
@@ -4024,6 +4363,370 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             });
         }
 
+        // ================= BÀI TẬP VỀ NHÀ (mục riêng cho Giáo viên) =================
+        let btvnDuLieuTho = {};      // toàn bộ history_all tải về để xem kết quả
+        let btvnCauDaChon = [];      // các câu đang soạn cho bài hiện tại
+        let btvnDangSuaTen = null;   // đang sửa bài nào (null = soạn bài mới)
+        let dangChonCauChoBTVN = false;   // đang ở ngân hàng để nhặt câu cho BTVN?
+
+        window.openBTVN = () => {
+            batListenerBank();            // cần ngân hàng để lấy câu
+            batListenerGiaoVien();        // cần danh sách đề để biết bài nào là BTVN
+            showScreen('screen-btvn');
+            chuyenTabBTVN('soan');
+        };
+
+        window.chuyenTabBTVN = (tab) => {
+            const cacTab = { soan:'btvnTabSoan', ds:'btvnTabDs', kq:'btvnTabKq' };
+            const cacNut = { soan:'tabBtvnSoan', ds:'tabBtvnDs', kq:'tabBtvnKq' };
+            Object.keys(cacTab).forEach(k => {
+                document.getElementById(cacTab[k]).style.display = (k === tab) ? 'block' : 'none';
+                const nut = document.getElementById(cacNut[k]);
+                if(k === tab) {
+                    nut.className = "btn";
+                    nut.style.background = "linear-gradient(to right,#eab308,#ca8a04)";
+                    nut.style.color = "white";
+                } else {
+                    nut.className = "btn btn-gray";
+                    nut.style.background = "";
+                    nut.style.color = "";
+                }
+            });
+            if(tab === 'soan') veDsCauBTVN();
+            if(tab === 'ds') veDanhSachBTVN();
+            if(tab === 'kq') taiLaiKetQuaBTVN();
+        };
+
+        // ---------- Soạn bài ----------
+        window.soanBTVNMoi = () => {
+            btvnDangSuaTen = null;
+            btvnCauDaChon = [];
+            document.getElementById("btvnTen").value = "";
+            document.getElementById("btvnLop").value = "all";
+            document.getElementById("btvnHan").value = "";
+            document.getElementById("btvnChamDiem").value = "free";
+            document.getElementById("btvnTron").value = "on";
+            veDsCauBTVN();
+            chuyenTabBTVN('soan');
+        };
+
+        window.xoaHetCauBTVN = () => {
+            if(btvnCauDaChon.length === 0) return;
+            if(!confirm(`Bỏ hết ${btvnCauDaChon.length} câu khỏi bài này?`)) return;
+            btvnCauDaChon = [];
+            veDsCauBTVN();
+        };
+
+        window.xoaMotCauBTVN = (i) => {
+            btvnCauDaChon.splice(i, 1);
+            veDsCauBTVN();
+        };
+
+        function veDsCauBTVN() {
+            const khung = document.getElementById("btvnDsCau");
+            const dem = document.getElementById("btvnDemCau");
+            if(!khung) return;
+            dem.innerText = btvnCauDaChon.length ? `(${btvnCauDaChon.length} câu)` : "";
+
+            if(btvnCauDaChon.length === 0) {
+                khung.innerHTML = `<div style="padding:26px; text-align:center; color:#94a3b8; background:#f8fafc; border-radius:10px;">
+                    Chưa có câu nào. Bấm <b>🏦 Lấy câu từ ngân hàng</b> để chọn câu cho bài này.</div>`;
+                return;
+            }
+
+            let h = "";
+            btvnCauDaChon.forEach((q, i) => {
+                const mucMau = MAU_MUC[q.level] || '#64748b';
+                h += `<div style="display:flex; gap:10px; align-items:flex-start; padding:10px; border-bottom:1px solid #f1f5f9;">
+                    <b style="color:#a16207; flex-shrink:0; min-width:26px;">${i+1}.</b>
+                    <div style="flex:1; text-align:left; min-width:0;">
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                            <span style="font-size:11px; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:20px; font-weight:bold;">${TEN_LOAI[q.type]||q.type}</span>
+                            ${q.topic?`<span style="font-size:11px; background:#f3e8ff; color:#6d28d9; padding:2px 8px; border-radius:20px;">${q.topic}</span>`:''}
+                            ${q.lesson?`<span style="font-size:11px; background:#ffedd5; color:#c2410c; padding:2px 8px; border-radius:20px;">${q.lesson}</span>`:''}
+                            <span style="font-size:11px; color:${mucMau}; border:1px solid ${mucMau}; padding:1px 8px; border-radius:20px; font-weight:bold;">${TEN_MUC[q.level]||'TH'}</span>
+                        </div>
+                        <div style="font-size:14px; color:#0f172a;">${xuLyCongThucDai(q.q || "")}</div>
+                    </div>
+                    <button onclick="xoaMotCauBTVN(${i})" title="Bỏ câu này" style="padding:5px 10px; margin:0; border:none; border-radius:6px; background:#fee2e2; color:#dc2626; cursor:pointer; font-weight:bold; flex-shrink:0;">✕</button>
+                </div>`;
+            });
+            khung.innerHTML = h;
+            if(window.MathJax) MathJax.typesetPromise([khung]);
+        }
+
+        // Sang ngân hàng chọn câu, xong quay lại
+        window.chonCauChoBTVN = () => {
+            openBank();                       // openBank tự tắt cờ, nên bật lại ngay sau
+            dangChonCauChoBTVN = true;
+            bankDaChon.clear();
+            // Đánh dấu sẵn các câu đã có trong bài (theo bankId) để thầy/cô thấy
+            btvnCauDaChon.forEach(q => { if(q.bankId && dbBank[q.bankId]) bankDaChon.add(q.bankId); });
+            capNhatThanhBTVNTrongBank();
+            renderBank();
+        };
+
+
+        function capNhatThanhBTVNTrongBank() {
+            const thanh = document.getElementById("bankThanhBTVN");
+            if(!thanh) return;
+            thanh.style.display = dangChonCauChoBTVN ? 'flex' : 'none';
+        }
+
+        window.xacNhanCauChoBTVN = () => {
+            if(bankDaChon.size === 0) return alert("Chưa chọn câu nào!");
+            btvnCauDaChon = [...bankDaChon].map(k => {
+                const q = JSON.parse(JSON.stringify(dbBank[k]));
+                delete q.grade; delete q.addedAt; delete q.updatedAt;
+                q.bankId = k;
+                return q;
+            });
+            dangChonCauChoBTVN = false;
+            bankDaChon.clear();
+            renderBank();
+            showScreen('screen-btvn');
+            chuyenTabBTVN('soan');
+        };
+
+        window.huyChonCauChoBTVN = () => {
+            dangChonCauChoBTVN = false;
+            bankDaChon.clear();
+            renderBank();
+            showScreen('screen-btvn');
+            chuyenTabBTVN('soan');
+        };
+
+        window.luuBTVN = () => {
+            const ten = document.getElementById("btvnTen").value.trim();
+            if(!ten) return alert("Vui lòng đặt tên cho bài tập!");
+            if(/[.#$\[\]\/]/.test(ten)) return alert("Tên bài không được chứa: . # $ [ ] /");
+            if(btvnCauDaChon.length === 0) return alert("Bài chưa có câu hỏi nào! Bấm 🏦 Lấy câu từ ngân hàng.");
+
+            // Nếu đổi tên khi đang sửa, hoặc trùng tên bài khác thì hỏi
+            if(dbExams[ten] && ten !== btvnDangSuaTen) {
+                if(!confirm(`Đã có bài/đề tên "${ten}". Ghi đè lên nó?`)) return;
+            }
+
+            const hanRaw = document.getElementById("btvnHan").value;
+            const duLieu = {
+                time: Math.max(5, Math.round(btvnCauDaChon.length * 1.5)),   // chỉ để tham khảo, BTVN không đếm giờ
+                type: 'exam',
+                scoring: document.getElementById("btvnChamDiem").value,
+                targetClass: document.getElementById("btvnLop").value,
+                visibility: 'show',
+                shuffle: document.getElementById("btvnTron").value,
+                homework: true,
+                deadline: hanRaw ? new Date(hanRaw).getTime() : null,
+                customScore: { mcq:3, tf:2, short:2, essay:3 },
+                questions: btvnCauDaChon
+            };
+
+            set(ref(db, 'exams/' + ten), duLieu)
+                .then(() => {
+                    // Đổi tên khi sửa thì xoá bản cũ
+                    if(btvnDangSuaTen && btvnDangSuaTen !== ten) {
+                        return remove(ref(db, 'exams/' + btvnDangSuaTen));
+                    }
+                })
+                .then(() => {
+                    const mt = moTaHanNop(duLieu.deadline);
+                    alert(`✅ Đã giao bài "${ten}" cho ${duLieu.targetClass === 'all' ? 'mọi lớp' : 'lớp ' + duLieu.targetClass}!\n\n` +
+                          `📝 ${btvnCauDaChon.length} câu\n` +
+                          (mt ? `⏰ ${mt.text}` : `⏰ Không giới hạn hạn nộp`));
+                    btvnDangSuaTen = ten;
+                    chuyenTabBTVN('ds');
+                })
+                .catch(e => alert("Lỗi khi lưu: " + e.message));
+        };
+
+        // ---------- Danh sách bài đã giao ----------
+        function veDanhSachBTVN() {
+            const khung = document.getElementById("btvnDanhSach");
+            const ds = Object.keys(dbExams).filter(k => dbExams[k].homework);
+
+            if(ds.length === 0) {
+                khung.innerHTML = `<div style="padding:30px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
+                    Chưa giao bài về nhà nào. Sang tab <b>✏️ Soạn / Sửa bài</b> để tạo bài đầu tiên.</div>`;
+                return;
+            }
+
+            let h = "";
+            ds.sort((a,b) => {
+                const da = dbExams[a].deadline || Infinity, db_ = dbExams[b].deadline || Infinity;
+                return da - db_;
+            }).forEach(ten => {
+                const ex = dbExams[ten];
+                const mt = moTaHanNop(ex.deadline);
+                const soCau = (ex.questions || []).length;
+                const vien = mt && mt.quaHan ? '#fca5a5' : '#fde047';
+                const nen = mt && mt.quaHan ? '#fef2f2' : '#fefce8';
+                let nhanHan;
+                if(!mt) nhanHan = `<span style="color:#78716c;">⏰ Không giới hạn</span>`;
+                else if(mt.quaHan) nhanHan = `<span style="color:#dc2626; font-weight:bold;">⏰ ${mt.text}</span>`;
+                else nhanHan = `<span style="color:#15803d; font-weight:bold;">⏳ ${mt.conLai}</span> <span style="color:#78716c;">(${mt.ngayGio})</span>`;
+
+                h += `<div style="background:${nen}; border:2px solid ${vien}; border-radius:14px; padding:16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                        <div style="text-align:left; flex:1; min-width:200px;">
+                            <b style="font-size:17px; color:#1e293b;">🏠 ${ten}</b>
+                            ${ex.visibility === 'hide' ? '<span style="font-size:12px; background:#e2e8f0; color:#475569; padding:2px 8px; border-radius:20px; margin-left:8px;">🙈 đang ẩn</span>' : ''}
+                            <div style="font-size:13px; color:#57534e; margin-top:5px;">
+                                📝 ${soCau} câu · ${ex.targetClass === 'all' ? 'Mọi lớp' : 'Lớp ' + ex.targetClass}<br>${nhanHan}
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <button onclick="suaBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#0284c7; color:white; cursor:pointer; font-weight:bold; font-size:13px;">✏️ Sửa</button>
+                            <button onclick="doiHienBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#64748b; color:white; cursor:pointer; font-weight:bold; font-size:13px;">${ex.visibility === 'hide' ? '👁 Hiện' : '🙈 Ẩn'}</button>
+                            <button onclick="xemKqBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer; font-weight:bold; font-size:13px;">📊 Kết quả</button>
+                            <button onclick="xoaBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#dc2626; color:white; cursor:pointer; font-weight:bold; font-size:13px;">🗑</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            khung.innerHTML = h;
+        }
+
+        window.suaBTVN = (ten) => {
+            const ex = dbExams[ten];
+            if(!ex) return alert("Không tìm thấy bài này.");
+            btvnDangSuaTen = ten;
+            btvnCauDaChon = JSON.parse(JSON.stringify(ex.questions || []));
+            document.getElementById("btvnTen").value = ten;
+            document.getElementById("btvnLop").value = ex.targetClass || 'all';
+            document.getElementById("btvnHan").value = ex.deadline ? mocSangDatetimeLocal(ex.deadline) : "";
+            document.getElementById("btvnChamDiem").value = ex.scoring || 'free';
+            document.getElementById("btvnTron").value = ex.shuffle || 'on';
+            chuyenTabBTVN('soan');
+        };
+
+        window.doiHienBTVN = (ten) => {
+            const ex = dbExams[ten];
+            if(!ex) return;
+            const moi = ex.visibility === 'hide' ? 'show' : 'hide';
+            update(ref(db, 'exams/' + ten), { visibility: moi })
+                .then(() => { if(dbExams[ten]) dbExams[ten].visibility = moi; veDanhSachBTVN(); })
+                .catch(e => alert("Lỗi: " + e.message));
+        };
+
+        window.xoaBTVN = (ten) => {
+            if(!confirm(`Xoá bài về nhà "${ten}"?\n\nBài làm HS đã nộp vẫn được giữ trong phần Kết quả.`)) return;
+            remove(ref(db, 'exams/' + ten))
+                .then(() => { delete dbExams[ten]; veDanhSachBTVN(); })
+                .catch(e => alert("Lỗi: " + e.message));
+        };
+
+        window.xemKqBTVN = async (ten) => {
+            chuyenTabBTVN('kq');
+            await taiLaiKetQuaBTVN();
+            const picker = document.getElementById("btvnResultPicker");
+            if([...picker.options].some(o => o.value === ten)) {
+                picker.value = ten;
+                veBangKetQuaBTVN();
+            } else {
+                document.getElementById("btvnResultArea").innerHTML =
+                    `<div style="padding:24px; text-align:center; color:#94a3b8; background:#f8fafc; border-radius:12px;">Chưa có học sinh nào làm bài "${ten}".</div>`;
+            }
+        };
+
+        // ---------- Kết quả học sinh ----------
+        window.taiLaiKetQuaBTVN = async () => {
+            const area = document.getElementById("btvnResultArea");
+            area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b;">Đang tải dữ liệu...</div>`;
+            try {
+                const snap = await get(ref(db, 'history_all'));
+                btvnDuLieuTho = snap.exists() ? snap.val() : {};
+            } catch(e) {
+                area.innerHTML = `<div style="padding:24px; text-align:center; color:#dc2626;">Lỗi tải dữ liệu: ${e.message}</div>`;
+                return;
+            }
+
+            const tenBTVN = new Set();
+            Object.values(btvnDuLieuTho).forEach(cuaHS => {
+                Object.values(cuaHS || {}).forEach(ban => { if(ban.homework) tenBTVN.add(ban.examName); });
+            });
+
+            const picker = document.getElementById("btvnResultPicker");
+            const cu = picker.value;
+            const ds = [...tenBTVN].sort((a,b)=>a.localeCompare(b,'vi'));
+            picker.innerHTML = `<option value="">-- Chọn bài --</option>` +
+                ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
+            if(ds.includes(cu)) picker.value = cu;
+
+            if(ds.length === 0) {
+                area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có học sinh nào làm bài về nhà.</div>`;
+                return;
+            }
+            veBangKetQuaBTVN();
+        };
+
+        window.veBangKetQuaBTVN = () => {
+            const ten = document.getElementById("btvnResultPicker").value;
+            const area = document.getElementById("btvnResultArea");
+            if(!ten) { area.innerHTML = `<div style="padding:20px; text-align:center; color:#94a3b8;">Chọn một bài để xem kết quả.</div>`; return; }
+
+            const theoHS = {};
+            Object.keys(btvnDuLieuTho).forEach(user => {
+                Object.values(btvnDuLieuTho[user] || {}).forEach(ban => {
+                    if(ban.homework && ban.examName === ten) {
+                        if(!theoHS[user]) theoHS[user] = { cacLan: [] };
+                        const tong = (parseFloat(ban.score)||0) + (parseFloat(ban.essayScore)||0);
+                        theoHS[user].cacLan.push({ date: ban.date, score: tong, duration: ban.duration, late: ban.late });
+                    }
+                });
+            });
+
+            const users = Object.keys(theoHS);
+            if(users.length === 0) { area.innerHTML = `<div style="padding:20px; text-align:center; color:#94a3b8;">Chưa có ai làm bài này.</div>`; return; }
+
+            let tongLuot = 0;
+            let h = `<div style="overflow-x:auto; border-radius:12px; border:1px solid #e2e8f0;">
+                <table style="width:100%; font-size:14px;">
+                <thead style="position:sticky; top:0;"><tr style="background:#fef9c3;">
+                    <th style="padding:10px; text-align:left;">Học sinh</th>
+                    <th style="padding:10px;">Số lần</th>
+                    <th style="padding:10px;">Điểm cao nhất</th>
+                    <th style="padding:10px;">Gần nhất</th>
+                    <th style="padding:10px; text-align:left;">Chi tiết các lần</th>
+                </tr></thead><tbody>`;
+
+            users.map(u => {
+                const lan = theoHS[u].cacLan;
+                lan.sort((a,b)=> new Date(a.date) - new Date(b.date));
+                return { u, lan };
+            }).sort((a,b)=> a.u.localeCompare(b.u,'vi')).forEach(({u, lan}) => {
+                tongLuot += lan.length;
+                const diemCao = Math.max(...lan.map(x=>x.score));
+                const ganNhat = lan[lan.length-1];
+                const mauCao = diemCao >= 8 ? "#16a34a" : (diemCao >= 6.5 ? "#0284c7" : (diemCao >= 5 ? "#f59e0b" : "#dc2626"));
+
+                const chips = lan.map((x, idx) => {
+                    const m = x.score >= 8 ? "#16a34a" : (x.score >= 6.5 ? "#0284c7" : (x.score >= 5 ? "#f59e0b" : "#dc2626"));
+                    const tg = x.duration ? moTaThoiLuong(x.duration) : "—";
+                    const muon = x.late ? ` <span style="color:#dc2626;">⏰</span>` : "";
+                    return `<span title="${x.date} · làm trong ${tg}${x.late?' · nộp muộn':''}" style="display:inline-block; margin:2px; padding:3px 9px; border-radius:14px; background:${m}18; color:${m}; font-weight:bold; font-size:13px;">L${idx+1}: ${x.score.toFixed(2)}${muon}</span>`;
+                }).join('');
+
+                h += `<tr style="border-top:1px solid #f1f5f9;">
+                    <td style="padding:10px; text-align:left; font-weight:bold; color:#1e293b;">${u}</td>
+                    <td style="padding:10px; text-align:center;">${lan.length}</td>
+                    <td style="padding:10px; text-align:center;"><b style="color:${mauCao}; font-size:16px;">${diemCao.toFixed(2)}</b></td>
+                    <td style="padding:10px; text-align:center; color:#64748b;">${ganNhat.score.toFixed(2)}</td>
+                    <td style="padding:10px; text-align:left;">${chips}</td>
+                </tr>`;
+            });
+
+            h += `</tbody></table></div>
+                <div style="margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; font-size:14px; color:#475569;">
+                    <span>👥 <b>${users.length}</b> học sinh đã làm</span>
+                    <span>📝 Tổng <b>${tongLuot}</b> lượt</span>
+                    <span style="color:#dc2626;">⏰ = nộp muộn</span>
+                    <span>Rê chuột vào ô điểm để xem thời gian làm</span>
+                </div>`;
+            area.innerHTML = h;
+        };
+
+        // ================= KẾT QUẢ BÀI VỀ NHÀ (kết thúc) =================
+
         window.confirmFinish = (force = false) => {
             try {
                 if(force || confirm("Em đã kiểm tra kỹ bài và chắc chắn muốn nộp?")) {
@@ -4066,6 +4769,24 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     if(savedMode === 'exam') {
                         update(ref(db, `students/${studentKey()}`), { status: "Xong", score: fS, timeLeft: 0, detailAnswers: historyArr, essayMax: essayMax, essayScore: 0 });
                         push(ref(db, `history_all/${safeKey(currentUser.username)}`), { date: new Date().toLocaleString(), score: fS, details: historyArr, examName: currentExamName, essayMax: essayMax, essayScore: 0 });
+                    } else if(savedMode === 'homework') {
+                        clearInterval(btvnDongHo);
+                        const thoiGianLam = Date.now() - btvnThoiDiemBatDau;
+                        const nopMuon = btvnHanNop ? (Date.now() > btvnHanNop) : false;
+                        // Lưu mỗi lần làm thành một bản ghi riêng để thầy xem được tất cả các lần
+                        push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
+                            date: new Date().toLocaleString(),
+                            score: fS, details: historyArr, examName: currentExamName,
+                            essayMax: essayMax, essayScore: 0,
+                            homework: true,
+                            duration: thoiGianLam,      // làm mất bao lâu (mili-giây)
+                            late: nopMuon                // nộp sau hạn?
+                        });
+                        // Báo cho HS biết đã ghi nhận, còn làm lại được
+                        setTimeout(() => {
+                            const tg = moTaThoiLuong(thoiGianLam);
+                            alert(`✅ Đã nộp bài về nhà!\n\n⏱ Em làm trong: ${tg}${nopMuon ? '\n⏰ Bài này nộp sau hạn (đã ghi "nộp muộn")' : ''}\n\nEm có thể làm lại nhiều lần để luyện tập.`);
+                        }, 300);
                     }
                     clearDraft();   // Nộp xong thì xoá bài nháp
                     currentMode = "";
@@ -4295,10 +5016,18 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
                 globalHistoryList.forEach((b, i) => {
                     const mau = b.tong >= 8 ? "#16a34a" : (b.tong >= 6.5 ? "#0284c7" : (b.tong >= 5 ? "#f59e0b" : "#dc2626"));
+                    // Nhãn phụ cho bài về nhà: thời gian làm + nộp muộn
+                    let nhanBTVN = "";
+                    if(b.homework) {
+                        nhanBTVN = `<br><span style="font-size:13px; color:#a16207;">🏠 Bài về nhà`;
+                        if(b.duration) nhanBTVN += ` · ⏱ làm trong ${moTaThoiLuong(b.duration)}`;
+                        if(b.late) nhanBTVN += ` · <span style="color:#dc2626; font-weight:bold;">nộp muộn</span>`;
+                        nhanBTVN += `</span>`;
+                    }
                     h += `<div style="border: 2px solid #e2e8f0; padding: 20px; border-radius: 16px; margin-bottom: 15px; background: white; display: flex; justify-content: space-between; align-items: center; gap:12px; transition: 0.3s;" onmouseover="this.style.borderColor='#93c5fd'" onmouseout="this.style.borderColor='#e2e8f0'">
                         <div style="text-align:left; color:#1e293b; font-size: 15px;">
                             <span style="color: #64748b;">📅 ${b.date}</span><br>
-                            <b style="font-size: 18px; color: #1e3a8a;">${b.examName}</b><br>
+                            <b style="font-size: 18px; color: #1e3a8a;">${b.examName}</b>${nhanBTVN}<br>
                             <span style="font-size: 16px;">Điểm: <b style="color: ${mau};">${b.tong.toFixed(2)}</b>${b.essayMax > 0 ? `<span style="font-size:13px; color:#94a3b8;"> (máy ${b.score} + tự luận ${(parseFloat(b.essayScore)||0).toFixed(2)})</span>` : ''}</span>
                         </div>
                         <button class="btn btn-blue" style="width:auto; padding:12px 20px; margin:0; flex-shrink:0;" onclick="showHDetail(${i})">Xem chi tiết</button>
