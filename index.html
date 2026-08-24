@@ -3929,7 +3929,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
         function ghiNhanThoatTab() {
             const isQuizScreen = document.getElementById("screen-quiz").classList.contains("active");
-            if (currentMode !== 'exam' || !isQuizScreen) return;
+            // Áp dụng cho cả đề thi lẫn bài về nhà (tự luyện thì không tính)
+            if ((currentMode !== 'exam' && currentMode !== 'homework') || !isQuizScreen) return;
 
             const bayGio = Date.now();
             if (bayGio - mocThoatGanNhat < KHOANG_GOP) return;   // đã đếm rồi, bỏ qua
@@ -3939,15 +3940,22 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if (henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }
 
             cheatCount++;
+            const laBTVN = currentMode === 'homework';
             danhDauHopThoai(true);   // alert bên dưới cũng gây blur, đánh dấu để không tự đếm thêm
+
             if (cheatCount >= 2) {
-                alert("⛔ Em đã thoát tab 2 lần. Hệ thống TỰ ĐỘNG nộp bài!");
+                alert(laBTVN
+                    ? "⛔ Em đã rời trang 2 lần. Hệ thống TỰ ĐỘNG nộp bài!\n\nEm có thể làm lại bài này từ đầu."
+                    : "⛔ Em đã thoát tab 2 lần. Hệ thống TỰ ĐỘNG nộp bài!");
                 setTimeout(() => danhDauHopThoai(false), 500);
                 confirmFinish(true);
             } else {
-                alert("⚠️ CẢNH BÁO: Không được rời trang khi đang thi! Thoát tab lần nữa hệ thống sẽ tự nộp bài.");
+                alert(laBTVN
+                    ? "⚠️ CẢNH BÁO: Không được rời trang khi đang làm bài! Rời lần nữa hệ thống sẽ tự nộp bài."
+                    : "⚠️ CẢNH BÁO: Không được rời trang khi đang thi! Thoát tab lần nữa hệ thống sẽ tự nộp bài.");
                 setTimeout(() => danhDauHopThoai(false), 500);
-                update(ref(db, `students/${studentKey()}`), { cheats: cheatCount });
+                // Bảng giám sát chỉ dùng cho đề thi trực tiếp, bài về nhà không ghi danh ở đó
+                if (!laBTVN) update(ref(db, `students/${studentKey()}`), { cheats: cheatCount });
             }
         }
 
@@ -4042,8 +4050,16 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 cheatCount = 0;
                 btvnThoiDiemBatDau = Date.now();   // để tính HS làm mất bao lâu
                 btvnHanNop = exam.deadline || null;
+                mocThoatGanNhat = -Infinity;       // làm lại lần mới thì đếm lại từ đầu
+                if(henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }
 
                 if(questions.length === 0) return alert("Bài này chưa có câu hỏi nào!");
+                danhDauHopThoai(true);
+                alert(`🏠 BÀI VỀ NHÀ: ${name}\n\n` +
+                      `📝 ${questions.length} câu · Không giới hạn thời gian\n\n` +
+                      `⚠️ Lưu ý: rời trang 2 lần hệ thống sẽ tự nộp bài.\n` +
+                      `Nếu bị nộp, em vẫn làm lại được từ đầu.`);
+                setTimeout(() => danhDauHopThoai(false), 300);
                 showScreen('screen-quiz');
                 renderQ();
                 renderGrid();
@@ -4084,6 +4100,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 userAnswers = {};
                 cheatCount  = 0;
                 timeLeft    = exam.time * 60;
+                mocThoatGanNhat = -Infinity;   // vào bài mới thì đếm lại từ đầu
             }
 
             if(questions.length === 0) return alert("Đề này chưa có câu hỏi nào!");
@@ -4130,6 +4147,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             box.innerHTML = `<div style="text-align:right; line-height:1.35;">
                 <div style="font-size:12px; color:#a16207; font-weight:bold;">🏠 Bài về nhà · ${nhanHan}</div>
                 <div style="font-size:13px; color:#78716c;">Đã làm: <span id="btvnDaLam" style="font-family:monospace; font-weight:bold;">0 giây</span></div>
+                <div style="font-size:11px; color:#dc2626;">⚠️ Không rời trang khi đang làm</div>
             </div>`;
 
             clearInterval(btvnDongHo);
@@ -4670,7 +4688,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     if(ban.homework && ban.examName === ten) {
                         if(!theoHS[user]) theoHS[user] = { cacLan: [] };
                         const tong = (parseFloat(ban.score)||0) + (parseFloat(ban.essayScore)||0);
-                        theoHS[user].cacLan.push({ date: ban.date, score: tong, duration: ban.duration, late: ban.late });
+                        theoHS[user].cacLan.push({ date: ban.date, score: tong, duration: ban.duration, late: ban.late, cheats: ban.cheats || 0 });
                     }
                 });
             });
@@ -4703,7 +4721,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     const m = x.score >= 8 ? "#16a34a" : (x.score >= 6.5 ? "#0284c7" : (x.score >= 5 ? "#f59e0b" : "#dc2626"));
                     const tg = x.duration ? moTaThoiLuong(x.duration) : "—";
                     const muon = x.late ? ` <span style="color:#dc2626;">⏰</span>` : "";
-                    return `<span title="${x.date} · làm trong ${tg}${x.late?' · nộp muộn':''}" style="display:inline-block; margin:2px; padding:3px 9px; border-radius:14px; background:${m}18; color:${m}; font-weight:bold; font-size:13px;">L${idx+1}: ${x.score.toFixed(2)}${muon}</span>`;
+                    const thoat = x.cheats > 0 ? ` <span style="color:#b91c1c;">👁${x.cheats}</span>` : "";
+                    return `<span title="${x.date} · làm trong ${tg}${x.late?' · nộp muộn':''}${x.cheats?' · rời trang '+x.cheats+' lần':''}" style="display:inline-block; margin:2px; padding:3px 9px; border-radius:14px; background:${m}18; color:${m}; font-weight:bold; font-size:13px;">L${idx+1}: ${x.score.toFixed(2)}${muon}${thoat}</span>`;
                 }).join('');
 
                 h += `<tr style="border-top:1px solid #f1f5f9;">
@@ -4720,7 +4739,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     <span>👥 <b>${users.length}</b> học sinh đã làm</span>
                     <span>📝 Tổng <b>${tongLuot}</b> lượt</span>
                     <span style="color:#dc2626;">⏰ = nộp muộn</span>
-                    <span>Rê chuột vào ô điểm để xem thời gian làm</span>
+                    <span style="color:#b91c1c;">👁 = số lần rời trang</span>
+                    <span>Rê chuột vào ô điểm để xem chi tiết</span>
                 </div>`;
             area.innerHTML = h;
         };
@@ -4780,7 +4800,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                             essayMax: essayMax, essayScore: 0,
                             homework: true,
                             duration: thoiGianLam,      // làm mất bao lâu (mili-giây)
-                            late: nopMuon                // nộp sau hạn?
+                            late: nopMuon,               // nộp sau hạn?
+                            cheats: cheatCount           // số lần rời trang
                         });
                         // Báo cho HS biết đã ghi nhận, còn làm lại được
                         setTimeout(() => {
@@ -5022,6 +5043,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         nhanBTVN = `<br><span style="font-size:13px; color:#a16207;">🏠 Bài về nhà`;
                         if(b.duration) nhanBTVN += ` · ⏱ làm trong ${moTaThoiLuong(b.duration)}`;
                         if(b.late) nhanBTVN += ` · <span style="color:#dc2626; font-weight:bold;">nộp muộn</span>`;
+                        if(b.cheats > 0) nhanBTVN += ` · <span style="color:#b91c1c;">rời trang ${b.cheats} lần</span>`;
                         nhanBTVN += `</span>`;
                     }
                     h += `<div style="border: 2px solid #e2e8f0; padding: 20px; border-radius: 16px; margin-bottom: 15px; background: white; display: flex; justify-content: space-between; align-items: center; gap:12px; transition: 0.3s;" onmouseover="this.style.borderColor='#93c5fd'" onmouseout="this.style.borderColor='#e2e8f0'">
