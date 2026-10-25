@@ -647,7 +647,7 @@
                 <button class="btn btn-green" onclick="openSolutions()" style="padding: 20px;">📖 KHO ĐÁP ÁN CHI TIẾT</button>
                 <button class="btn btn-gray" onclick="openAccountManager()" style="padding: 20px;">🔑 QUẢN LÝ TÀI KHOẢN</button>
                 <button class="btn" onclick="openQuanLyLop()" style="padding: 20px; background:linear-gradient(to right,#8b5cf6,#7c3aed);">👥 QUẢN LÝ LỚP &amp; HỌC SINH</button>
-                <button class="btn" onclick="openBTVN()" style="padding: 20px; background:linear-gradient(to right,#eab308,#ca8a04);">🏠 BÀI TẬP VỀ NHÀ</button>
+                <button class="btn" onclick="openBTVN()" style="padding: 20px; background:linear-gradient(to right,#eab308,#ca8a04);">📤 GIAO BÀI CHO HS</button>
             </div>
             <button class="btn btn-red" style="margin-top:30px;" onclick="location.reload()">🚪 ĐĂNG XUẤT</button>
         </div>
@@ -655,14 +655,7 @@
         <div id="screen-bank" class="screen">
             <h2>🏦 Ngân Hàng Câu Hỏi</h2>
 
-            <div id="bankThanhBTVN" style="display:none; background:#fef9c3; border:2px solid #fde047; border-radius:12px; padding:14px; margin-bottom:16px; align-items:center; gap:12px; flex-wrap:wrap;">
-                <b style="color:#a16207; font-size:15px;">🏠 Đang chọn câu cho bài về nhà</b>
-                <span style="color:#78716c; font-size:13px;">Tích chọn các câu cần giao, hoặc dùng 🎯 ma trận để bốc tự động.</span>
-                <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
-                    <button class="btn btn-green" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="xacNhanCauChoBTVN()">✅ Dùng các câu đã chọn</button>
-                    <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="huyChonCauChoBTVN()">✖ Huỷ</button>
-                </div>
-            </div>
+
             <p style="color:#64748b; font-size:15px; margin-top:-8px;">Kho câu hỏi dùng chung. Soạn một lần, rút ra ghép đề nhiều lần.</p>
 
             <div style="background:#faf5ff; border:2px solid #ddd6fe; border-radius:14px; padding:18px; margin-bottom:20px;">
@@ -1120,88 +1113,42 @@
         </div>
 
         <div id="screen-btvn" class="screen">
-            <h2>🏠 Bài Tập Về Nhà</h2>
-            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Giao bài cho HS làm ở nhà. Câu hỏi lấy từ ngân hàng, HS làm nhiều lần được, thầy/cô xem được điểm từng lần.</p>
+            <h2>📤 Giao Bài Cho Học Sinh</h2>
+            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Đề tạo một lần, giao nhiều lần. Chọn giao làm bài tự luyện hay bài về nhà, cho cả lớp hay chỉ một số em.</p>
 
             <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
-                <button id="tabBtvnSoan" class="btn" style="margin:0; width:auto; padding:13px 22px; background:linear-gradient(to right,#eab308,#ca8a04); color:white;" onclick="chuyenTabBTVN('soan')">✏️ Soạn / Sửa bài</button>
-                <button id="tabBtvnDs" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('ds')">📋 Danh sách bài đã giao</button>
-                <button id="tabBtvnKq" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('kq')">📊 Kết quả học sinh</button>
+                <button id="tabBtvnSoan" class="btn" style="margin:0; width:auto; padding:13px 22px; background:linear-gradient(to right,#eab308,#ca8a04); color:white;" onclick="chuyenTabBTVN('soan')">📤 Giao bài</button>
+                <button id="tabBtvnDs" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('ds')">📋 Đang giao</button>
+                <button id="tabBtvnKq" class="btn btn-gray" style="margin:0; width:auto; padding:13px 22px;" onclick="chuyenTabBTVN('kq')">📊 Kết quả &amp; thống kê</button>
             </div>
 
             <!-- ===== TAB SOẠN BÀI ===== -->
             <div id="btvnTabSoan">
-                <div style="background:#fefce8; border:2px solid #fde047; border-radius:14px; padding:18px; margin-bottom:18px;">
-                    <div style="display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px;">
-                        <div>
-                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Tên bài tập:</label>
-                            <input type="text" id="btvnTen" placeholder="VD: BTVN tuần 3 - Lượng giác" style="margin:5px 0 0 0; padding:12px;">
-                        </div>
-                        <div>
-                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Giao cho lớp:</label>
-                            <select id="btvnLop" style="margin:5px 0 0 0; padding:12px;">
-                                <option value="all">Mọi lớp</option><option value="10">Lớp 10</option>
-                                <option value="11">Lớp 11</option><option value="12">Lớp 12</option>
-                            </select>
-                        </div>
-                    </div>
+                <div style="background:#eff6ff; border:1px solid #bae6fd; border-radius:12px; padding:14px; margin-bottom:18px; font-size:14px; color:#0369a1;">
+                    Chọn một đề đã tạo rồi giao cho học sinh. Muốn tạo đề mới, thầy/cô vào
+                    <b>🏦 Ngân hàng câu hỏi</b> (tạo nhanh theo ma trận) hoặc <b>✏️ Tạo đề thi</b>.
+                </div>
 
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
-                        <div>
-                            <label style="font-size:13px; font-weight:bold; color:#a16207;">⏰ Hạn nộp:</label>
-                            <input type="datetime-local" id="btvnHan" style="margin:5px 0 0 0; padding:12px;">
-                        </div>
-                        <div>
-                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Cách chấm điểm:</label>
-                            <select id="btvnChamDiem" style="margin:5px 0 0 0; padding:12px;">
-                                <option value="free">Chia đều 10 điểm</option>
-                                <option value="ratio">⚖️ Tỉ lệ 3:2:2:3</option>
-                                <option value="mixed73">TN:3 ĐS:2 TLN:2 TL:3</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size:13px; font-weight:bold; color:#a16207;">Trộn câu hỏi:</label>
-                            <select id="btvnTron" style="margin:5px 0 0 0; padding:12px;">
-                                <option value="on">🔀 Có trộn</option><option value="off">➡️ Không trộn</option>
-                            </select>
-                        </div>
+                <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
+                    <div style="flex:1; min-width:170px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Tìm đề:</label>
+                        <input type="text" id="giaoTimDe" oninput="veDanhSachGiaoBai()" placeholder="Gõ tên đề..." style="margin:5px 0 0 0; padding:11px;">
                     </div>
-                    <div style="font-size:12px; color:#78716c; margin-top:10px;">Để trống hạn nộp nếu không giới hạn. Quá hạn HS vẫn làm được nhưng bài ghi "nộp muộn".</div>
-
-                    <div style="margin-top:14px; border-top:1px dashed #fde047; padding-top:14px;">
-                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:15px; font-weight:bold; color:#a16207;">
-                            <input type="checkbox" id="btvnRieng" onchange="toggleGiaoRieng()" style="width:20px; height:20px; cursor:pointer; margin:0;">
-                            🎯 Chỉ giao cho một số em (không giao cả lớp)
-                        </label>
-                        <div id="btvnKhuChonHS" style="display:none; margin-top:12px;">
-                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-                                <button class="btn btn-gray" style="margin:0; width:auto; padding:9px 14px; font-size:13px;" onclick="chonHetHS(true)">☑ Chọn hết</button>
-                                <button class="btn btn-gray" style="margin:0; width:auto; padding:9px 14px; font-size:13px;" onclick="chonHetHS(false)">☐ Bỏ chọn</button>
-                                <span id="btvnDemHS" style="margin-left:auto; font-weight:bold; color:#a16207; font-size:14px;"></span>
-                            </div>
-                            <div id="btvnDsHS" style="max-height:220px; overflow-y:auto; background:white; border:1px solid #fde047; border-radius:10px; padding:10px;"></div>
-                        </div>
+                    <div style="flex:1; min-width:150px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Lọc kiểu:</label>
+                        <select id="giaoLocKieu" onchange="veDanhSachGiaoBai()" style="margin:5px 0 0 0; padding:11px;">
+                            <option value="">Tất cả</option>
+                            <option value="chuagiao">Chưa giao</option>
+                            <option value="exam">Bài kiểm tra</option>
+                            <option value="practice">Tự luyện</option>
+                            <option value="homework">Bài về nhà</option>
+                        </select>
                     </div>
                 </div>
 
-                <div style="background:white; border:2px solid #e2e8f0; border-radius:14px; padding:18px; margin-bottom:18px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-                        <b style="color:#0369a1; font-size:16px;">📚 Câu hỏi trong bài <span id="btvnDemCau" style="color:#94a3b8; font-weight:normal;"></span></b>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button class="btn" style="margin:0; width:auto; padding:11px 18px; font-size:14px; background:linear-gradient(to right,#8b5cf6,#7c3aed); color:white;" onclick="chonCauChoBTVN()">🏦 Lấy câu từ ngân hàng</button>
-                            <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="xoaHetCauBTVN()">🗑 Bỏ hết câu</button>
-                        </div>
-                    </div>
-                    <div id="btvnDsCau" style="max-height:340px; overflow-y:auto;"></div>
-                </div>
-
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn btn-green" style="margin:0; width:auto; padding:14px 24px;" onclick="luuBTVN()">💾 GIAO BÀI CHO HỌC SINH</button>
-                    <button class="btn btn-gray" style="margin:0; width:auto; padding:14px 24px;" onclick="soanBTVNMoi()">➕ Soạn bài mới</button>
-                </div>
+                <div id="giaoDanhSachDe"></div>
             </div>
 
-            <!-- ===== TAB DANH SÁCH ===== -->
             <div id="btvnTabDs" style="display:none;">
                 <div id="btvnDanhSach"></div>
             </div>
@@ -1210,12 +1157,13 @@
             <div id="btvnTabKq" style="display:none;">
                 <div style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:flex-end;">
                     <div style="flex:1; min-width:180px;">
-                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Chọn bài để xem kết quả:</label>
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Chọn bài (kiểm tra / tự luyện / về nhà):</label>
                         <select id="btvnResultPicker" onchange="veBangKetQuaBTVN()" style="margin:5px 0 0 0; padding:12px;"><option value="">-- Chọn bài --</option></select>
                     </div>
                     <button class="btn btn-green" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="taiLaiKetQuaBTVN()">🔄 Tải lại</button>
                 </div>
                 <div id="btvnResultArea"></div>
+                <div id="btvnChiTietLan"></div>
             </div>
 
             <button class="btn btn-gray" style="margin-top:25px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
@@ -1322,6 +1270,7 @@
         let currentUser = null, currentMode = "", questions = [], currentIdx = 0, userAnswers = {};
         let timeLeft = 0, timerInterval = null, cheatCount = 0;
         let btvnThoiDiemBatDau = 0, btvnHanNop = null;   // dành cho bài về nhà
+        let thoiDiemBatDauLam = 0;                      // mốc bắt đầu cho mọi chế độ
         let cauDanhDau = new Set();                      // các câu HS đánh dấu để quay lại
         let dbExams = {}; 
         // Ghi nhớ đề đang làm - không đọc lại từ dropdown nữa (HS đổi lựa chọn giữa chừng sẽ gây sai điểm)
@@ -1589,6 +1538,7 @@
                     mode: currentMode,
                     gopY: (document.getElementById("oGopY") || {}).value || "",
                     danhDau: [...cauDanhDau],
+                    batDauLuc: thoiDiemBatDauLam,   // giữ mốc bắt đầu để tính đúng thời gian làm
                     savedAt: Date.now()
                 }));
             } catch(e) { /* localStorage đầy hoặc bị chặn - bỏ qua, không làm gián đoạn bài thi */ }
@@ -2041,7 +1991,7 @@
                 if(ten.includes(cu)) loc.value = cu;
             }
 
-            [["examClassInput", false], ["tdLop", true], ["btvnLop", true], ["newAccClass", true]].forEach(([id, coAll]) => {
+            [["examClassInput", false], ["tdLop", true], ["newAccClass", true]].forEach(([id, coAll]) => {
                 const el = document.getElementById(id);
                 if(!el) return;
                 const cu = el.value;
@@ -2742,8 +2692,6 @@ DAP AN: 0,5`;
 
         window.openBank = () => {
             batListenerBank();
-            dangChonCauChoBTVN = false;       // vào ngân hàng theo đường thường thì không ở chế độ nhặt câu
-            capNhatThanhBTVNTrongBank();
             showScreen('screen-bank');
             bankDaChon.clear();
             capNhatDanhSachChuDe();
@@ -3209,12 +3157,6 @@ DAP AN: 0,5`;
             chon.forEach(k => bankDaChon.add(k));
             renderBank();
             document.getElementById("bankMaTranBox").style.display = 'none';
-
-            // Đang nhặt câu cho bài về nhà thì chỉ chọn sẵn, không tạo đề thi
-            if(dangChonCauChoBTVN) {
-                alert(`✅ Đã bốc ${chon.length} câu theo ma trận.\n\nBấm "✅ Dùng các câu đã chọn" ở trên để đưa vào bài về nhà.`);
-                return;
-            }
 
             if(confirm(`✅ Đã bốc ${chon.length} câu theo ma trận.\n\nTạo đề ngay bây giờ?\n\nOK = Tạo đề luôn\nCancel = Xem lại danh sách câu trước`)) {
                 taoDeNhanh();
@@ -4890,6 +4832,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 cheatCount = 0;
                 cauDanhDau.clear();
                 btvnThoiDiemBatDau = Date.now();   // để tính HS làm mất bao lâu
+                thoiDiemBatDauLam = btvnThoiDiemBatDau;
                 btvnHanNop = exam.deadline || null;
                 mocThoatGanNhat = -Infinity;       // làm lại lần mới thì đếm lại từ đầu
                 if(henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }
@@ -4928,6 +4871,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     timeLeft    = draft.timeLeft;
                     cheatCount  = draft.cheats || 0;
                     cauDanhDau  = new Set(draft.danhDau || []);
+                    thoiDiemBatDauLam = draft.batDauLuc || Date.now();
                     // Khôi phục cả lời nhắn em đang viết dở
                     setTimeout(() => { document.getElementById("oGopY").value = draft.gopY || ""; }, 50);
                 } else {
@@ -4945,6 +4889,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 userAnswers = {};
                 cheatCount  = 0;
                 cauDanhDau.clear();
+                thoiDiemBatDauLam = Date.now();   // để biết em làm mất bao lâu
                 timeLeft    = exam.time * 60;
                 mocThoatGanNhat = -Infinity;   // vào bài mới thì đếm lại từ đầu
                 document.getElementById("oGopY").value = "";
@@ -5406,13 +5351,11 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
         // ================= BÀI TẬP VỀ NHÀ (mục riêng cho Giáo viên) =================
         let btvnDuLieuTho = {};      // toàn bộ history_all tải về để xem kết quả
-        let btvnCauDaChon = [];      // các câu đang soạn cho bài hiện tại
         let btvnDangSuaTen = null;   // đang sửa bài nào (null = soạn bài mới)
-        let dangChonCauChoBTVN = false;   // đang ở ngân hàng để nhặt câu cho BTVN?
 
-        window.openBTVN = () => {
-            batListenerBank();            // cần ngân hàng để lấy câu
-            batListenerGiaoVien();        // cần danh sách đề để biết bài nào là BTVN
+        window.openBTVN = async () => {
+            batListenerGiaoVien();              // cần danh sách đề
+            if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();   // cần danh sách HS để giao riêng
             showScreen('screen-btvn');
             chuyenTabBTVN('soan');
         };
@@ -5433,270 +5376,238 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     nut.style.color = "";
                 }
             });
-            if(tab === 'soan') veDsCauBTVN();
+            if(tab === 'soan') veDanhSachGiaoBai();
             if(tab === 'ds') veDanhSachBTVN();
             if(tab === 'kq') taiLaiKetQuaBTVN();
         };
 
-        // ---------- Soạn bài ----------
-        // ---------- Băng nhắc bài tập trên trang chủ học sinh ----------
-        async function veNhacNhoBaiTap() {
-            const khung = document.getElementById("bangNhacBai");
-            if(!khung || !currentUser) return;
-            khung.style.display = 'none';
+        // ---------- Giao bài: lấy đề đã có rồi giao ----------
+        let deDangGiao = null;    // tên đề đang mở bảng giao
 
-            // Các bài về nhà em được giao và đang hiện
-            const lopHS = currentUser.targetClass || 'all';
-            const btvn = Object.keys(dbExams).filter(k => {
+        function veDanhSachGiaoBai() {
+            const khung = document.getElementById("giaoDanhSachDe");
+            if(!khung) return;
+            const tim = (document.getElementById("giaoTimDe").value || "").trim().toLowerCase();
+            const loc = document.getElementById("giaoLocKieu").value;
+
+            const ds = Object.keys(dbExams).filter(k => {
+                if(tim && !k.toLowerCase().includes(tim)) return false;
                 const ex = dbExams[k];
-                if(!ex.homework || ex.visibility === 'hide') return false;
-                if(!lopKhop(lopHS, ex.targetClass || 'all')) return false;
-                if(Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0) return ex.giaoCho.includes(currentUser.username);
+                if(loc === 'homework')  return !!ex.homework;
+                if(loc === 'practice')  return !ex.homework && ex.type === 'practice';
+                if(loc === 'exam')      return !ex.homework && ex.type !== 'practice';
+                if(loc === 'chuagiao')  return ex.visibility === 'hide';
                 return true;
-            });
-            if(btvn.length === 0) return;
+            }).sort((a,b)=>a.localeCompare(b,'vi',{numeric:true}));
 
-            // Bài nào em đã nộp rồi thì thôi
-            let daLam = new Set();
-            try {
-                const snap = await get(ref(db, `history_all/${safeKey(currentUser.username)}`));
-                if(snap.exists()) Object.values(snap.val()).forEach(b => { if(b.homework) daLam.add(b.examName); });
-            } catch(e) {}
-
-            const chuaLam = btvn.filter(k => !daLam.has(k));
-            if(chuaLam.length === 0) {
-                khung.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:14px 16px; margin-bottom:18px; text-align:left;">
-                    <b style="color:#15803d;">✅ Em đã làm hết bài được giao. Giỏi lắm!</b></div>`;
-                khung.style.display = 'block';
+            if(ds.length === 0) {
+                khung.innerHTML = `<div style="padding:28px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
+                    Không có đề nào khớp. Thầy/cô tạo đề ở <b>🏦 Ngân hàng câu hỏi</b> hoặc <b>✏️ Tạo đề thi</b> trước nhé.</div>`;
                 return;
             }
 
-            // Sắp theo hạn gần nhất
-            chuaLam.sort((a,b) => (dbExams[a].deadline || Infinity) - (dbExams[b].deadline || Infinity));
-            const gap = chuaLam.filter(k => {
-                const d = dbExams[k].deadline;
-                return d && d - Date.now() < 2 * 24 * 3600 * 1000;   // còn dưới 2 ngày
-            }).length;
+            let h = "";
+            ds.forEach(ten => {
+                const ex = dbExams[ten];
+                const soCau = (ex.questions || []).length;
+                const an = ex.visibility === 'hide';
 
-            const nen = gap > 0 ? '#fef2f2' : '#fffbeb';
-            const vien = gap > 0 ? '#fca5a5' : '#fde68a';
-            let h = `<div style="background:${nen}; border:2px solid ${vien}; border-radius:14px; padding:15px 17px; margin-bottom:18px; text-align:left;">
-                <b style="font-size:16px; color:#92400e;">🔔 Em còn ${chuaLam.length} bài chưa làm</b>
-                <div style="margin-top:9px;">`;
+                let kieu, mauKieu;
+                if(ex.homework)                { kieu = '🏠 Bài về nhà'; mauKieu = '#a16207'; }
+                else if(ex.type === 'practice'){ kieu = '📖 Tự luyện';   mauKieu = '#15803d'; }
+                else                           { kieu = '📝 Bài kiểm tra'; mauKieu = '#0369a1'; }
 
-            chuaLam.slice(0, 4).forEach(k => {
-                const mt = moTaHanNop(dbExams[k].deadline);
-                let han;
-                if(!mt) han = `<span style="color:#78716c;">không giới hạn</span>`;
-                else if(mt.quaHan) han = `<span style="color:#dc2626; font-weight:bold;">⏰ đã quá hạn</span>`;
-                else {
-                    const gapGio = (dbExams[k].deadline - Date.now()) < 2*24*3600*1000;
-                    han = `<span style="color:${gapGio ? '#dc2626' : '#15803d'}; font-weight:bold;">${mt.conLai}</span>`;
-                }
-                h += `<div style="font-size:14px; color:#0f172a; padding:4px 0;">📝 <b>${k}</b> — ${han}</div>`;
+                const mt = ex.homework ? moTaHanNop(ex.deadline) : null;
+                let nhanHan = "";
+                if(mt) nhanHan = mt.quaHan
+                    ? `<span style="color:#dc2626; font-weight:bold;">⏰ ${mt.text}</span>`
+                    : `<span style="color:#15803d; font-weight:bold;">⏳ ${mt.conLai}</span>`;
+
+                const rieng = Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0;
+                const nhanNguoi = rieng
+                    ? `<span style="color:#7c3aed; font-weight:bold;">🎯 ${ex.giaoCho.length} em được chọn</span>`
+                    : `<span style="color:#475569;">👥 ${ex.targetClass === 'all' || !ex.targetClass ? 'Mọi lớp' : 'Lớp ' + ex.targetClass}</span>`;
+
+                h += `<div style="background:${an ? '#f8fafc' : 'white'}; border:2px solid ${an ? '#e2e8f0' : '#fde047'}; border-radius:14px; padding:15px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+                        <div style="text-align:left; flex:1; min-width:190px;">
+                            <b style="font-size:16px; color:#1e293b;">${ten}</b>
+                            ${an ? '<span style="font-size:12px; background:#e2e8f0; color:#475569; padding:2px 8px; border-radius:20px; margin-left:7px;">🙈 chưa giao</span>' : ''}
+                            <div style="font-size:13px; margin-top:5px; display:flex; gap:12px; flex-wrap:wrap;">
+                                <span style="color:${mauKieu}; font-weight:bold;">${kieu}</span>
+                                <span style="color:#64748b;">📝 ${soCau} câu</span>
+                                ${nhanNguoi}
+                            </div>
+                            ${nhanHan ? `<div style="font-size:13px; margin-top:4px;">${nhanHan}</div>` : ''}
+                        </div>
+                        <button onclick="moBangGiao('${ten.replace(/'/g,"\\'")}')" class="btn" style="margin:0; width:auto; padding:11px 18px; font-size:14px; background:linear-gradient(to right,#eab308,#ca8a04); color:white;">
+                            ${an ? '📤 Giao bài' : '⚙️ Sửa cách giao'}</button>
+                    </div>
+                    <div id="bangGiao_${ten.replace(/[^a-zA-Z0-9]/g,'_')}" style="display:none; margin-top:14px; border-top:1px dashed #fde047; padding-top:14px;"></div>
+                </div>`;
             });
-            if(chuaLam.length > 4) h += `<div style="font-size:13px; color:#78716c; padding-top:4px;">... và ${chuaLam.length - 4} bài nữa</div>`;
-            h += `</div><div style="font-size:13px; color:#78716c; margin-top:7px;">Em kéo xuống mục <b>🏠 Bài tập về nhà</b> để làm nhé.</div></div>`;
-
             khung.innerHTML = h;
-            khung.style.display = 'block';
         }
 
-        // ---------- Giao bài cho từng học sinh ----------
-        window.toggleGiaoRieng = () => {
-            const bat = document.getElementById("btvnRieng").checked;
-            document.getElementById("btvnKhuChonHS").style.display = bat ? 'block' : 'none';
-            if(bat) veDsHSChoBTVN();
-        };
-
-        async function veDsHSChoBTVN(daChon) {
-            const khung = document.getElementById("btvnDsHS");
+        window.moBangGiao = async (ten) => {
+            const ex = dbExams[ten];
+            if(!ex) return;
+            const idKhung = "bangGiao_" + ten.replace(/[^a-zA-Z0-9]/g,'_');
+            const khung = document.getElementById(idKhung);
             if(!khung) return;
+
+            // Đang mở thì đóng lại
+            if(khung.style.display === 'block') { khung.style.display = 'none'; deDangGiao = null; return; }
+            document.querySelectorAll('[id^="bangGiao_"]').forEach(e => e.style.display = 'none');
+            deDangGiao = ten;
+
             if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();
 
-            const lop = document.getElementById("btvnLop").value;
-            const ds = Object.keys(dbTaiKhoan)
+            const kieuHienTai = ex.homework ? 'homework' : (ex.type === 'practice' ? 'practice' : 'exam');
+            const lopHienTai = ex.targetClass || 'all';
+            const rieng = Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0;
+
+            const dsLop = dsLopHienCo();
+            const mucLop = dsLop.map(t=>`<option value="${t.replace(/"/g,'&quot;')}" ${t===lopHienTai?'selected':''}>Lớp ${t}</option>`).join('');
+
+            khung.innerHTML = `
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Giao làm gì:</label>
+                        <select id="gKieu" onchange="doiKieuGiao()" style="margin:5px 0 0 0; padding:11px;">
+                            <option value="exam" ${kieuHienTai==='exam'?'selected':''}>📝 Bài kiểm tra (có đếm giờ)</option>
+                            <option value="practice" ${kieuHienTai==='practice'?'selected':''}>📖 Tự luyện</option>
+                            <option value="homework" ${kieuHienTai==='homework'?'selected':''}>🏠 Bài về nhà (có hạn nộp, làm nhiều lần)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Giao cho lớp:</label>
+                        <select id="gLop" onchange="veDsHSGiao()" style="margin:5px 0 0 0; padding:11px;">
+                            <option value="all" ${lopHienTai==='all'?'selected':''}>Mọi lớp</option>${mucLop}
+                        </select>
+                    </div>
+                </div>
+
+                <div id="gKhungHan" style="display:${kieuHienTai==='homework'?'block':'none'}; margin-bottom:12px;">
+                    <label style="font-size:13px; font-weight:bold; color:#a16207;">⏰ Hạn nộp (để trống nếu không giới hạn):</label>
+                    <input type="datetime-local" id="gHan" value="${ex.deadline ? mocSangDatetimeLocal(ex.deadline) : ''}" style="margin:5px 0 0 0; padding:11px; max-width:280px;">
+                </div>
+
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; font-weight:bold; color:#6d28d9; margin-bottom:10px;">
+                    <input type="checkbox" id="gRieng" ${rieng?'checked':''} onchange="veDsHSGiao()" style="width:19px; height:19px; cursor:pointer; margin:0;">
+                    🎯 Chỉ giao cho một số em (bỏ tích = giao cả lớp)
+                </label>
+
+                <div id="gKhungHS" style="display:${rieng?'block':'none'}; margin-bottom:12px;">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:9px;">
+                        <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetHSGiao(true)">☑ Chọn hết</button>
+                        <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetHSGiao(false)">☐ Bỏ chọn</button>
+                        <span id="gDemHS" style="margin-left:auto; font-weight:bold; color:#6d28d9; font-size:14px;"></span>
+                    </div>
+                    <div id="gDsHS" style="max-height:230px; overflow-y:auto; background:#faf5ff; border:1px solid #ddd6fe; border-radius:10px; padding:10px;"></div>
+                </div>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:12px 20px;" onclick="luuCachGiao('${ten.replace(/'/g,"\\'")}')">✅ GIAO BÀI</button>
+                    ${ex.visibility !== 'hide' ? `<button class="btn btn-gray" style="margin:0; width:auto; padding:12px 20px;" onclick="thuHoiBai('${ten.replace(/'/g,"\\'")}')">🙈 Thu hồi (ẩn khỏi HS)</button>` : ''}
+                </div>`;
+
+            khung.style.display = 'block';
+            veDsHSGiao(ex.giaoCho);
+        };
+
+        window.doiKieuGiao = () => {
+            const k = document.getElementById("gKieu").value;
+            document.getElementById("gKhungHan").style.display = (k === 'homework') ? 'block' : 'none';
+        };
+
+        function veDsHSGiao(daChon) {
+            const bat = document.getElementById("gRieng");
+            const khung = document.getElementById("gKhungHS");
+            const ds = document.getElementById("gDsHS");
+            if(!bat || !khung || !ds) return;
+            khung.style.display = bat.checked ? 'block' : 'none';
+            if(!bat.checked) return;
+
+            const lop = document.getElementById("gLop").value;
+            const hs = Object.keys(dbTaiKhoan)
                 .map(u => ({ u, ...dbTaiKhoan[u] }))
                 .filter(x => (x.role || 'student') === 'student')
                 .filter(x => lopKhop(x.targetClass, lop))
                 .sort((a,b)=>(a.fullName||"").localeCompare(b.fullName||"",'vi'));
 
-            if(ds.length === 0) {
-                khung.innerHTML = `<div style="padding:16px; text-align:center; color:#94a3b8; font-size:14px;">Chưa có học sinh nào ở lớp này. Thầy/cô tạo tài khoản ở mục <b>Tài khoản học sinh</b> trước.</div>`;
+            if(hs.length === 0) {
+                ds.innerHTML = `<div style="padding:14px; text-align:center; color:#94a3b8; font-size:14px;">Lớp này chưa có học sinh. Thầy/cô tạo tài khoản ở mục <b>👥 Tài khoản học sinh</b>.</div>`;
                 return;
             }
-
             const chon = new Set(daChon || []);
-            khung.innerHTML = ds.map(x => `
-                <label style="display:flex; align-items:center; gap:10px; padding:7px 4px; cursor:pointer; border-bottom:1px solid #fefce8;">
-                    <input type="checkbox" class="hs-btvn" value="${x.u}" ${chon.has(x.u)?'checked':''} onchange="demHSDaChon()" style="width:18px; height:18px; margin:0; cursor:pointer;">
+            ds.innerHTML = hs.map(x => `
+                <label style="display:flex; align-items:center; gap:10px; padding:6px 4px; cursor:pointer; border-bottom:1px solid #f5f3ff;">
+                    <input type="checkbox" class="hs-giao" value="${x.u}" ${chon.has(x.u)?'checked':''} onchange="demHSGiao()" style="width:18px; height:18px; margin:0; cursor:pointer;">
                     <span style="flex:1; text-align:left; font-size:14px;">${x.fullName}</span>
                     <span style="font-size:12px; color:#94a3b8;">${x.targetClass || ''}</span>
                 </label>`).join('');
-            demHSDaChon();
+            demHSGiao();
         }
+        window.veDsHSGiao = veDsHSGiao;
 
-        window.demHSDaChon = () => {
-            const n = document.querySelectorAll('.hs-btvn:checked').length;
-            const el = document.getElementById("btvnDemHS");
+        window.demHSGiao = () => {
+            const n = document.querySelectorAll('.hs-giao:checked').length;
+            const el = document.getElementById("gDemHS");
             if(el) el.innerText = n > 0 ? `Đã chọn ${n} em` : "Chưa chọn em nào";
         };
 
-        window.chonHetHS = (bat) => {
-            document.querySelectorAll('.hs-btvn').forEach(cb => cb.checked = bat);
-            demHSDaChon();
+        window.chonHetHSGiao = (bat) => {
+            document.querySelectorAll('.hs-giao').forEach(cb => cb.checked = bat);
+            demHSGiao();
         };
 
-        window.soanBTVNMoi = () => {
-            btvnDangSuaTen = null;
-            btvnCauDaChon = [];
-            document.getElementById("btvnTen").value = "";
-            document.getElementById("btvnLop").value = "all";
-            document.getElementById("btvnHan").value = "";
-            document.getElementById("btvnChamDiem").value = "free";
-            document.getElementById("btvnTron").value = "on";
-            document.getElementById("btvnRieng").checked = false;
-            document.getElementById("btvnKhuChonHS").style.display = 'none';
-            veDsCauBTVN();
-            chuyenTabBTVN('soan');
-        };
+        window.luuCachGiao = async (ten) => {
+            const ex = dbExams[ten];
+            if(!ex) return;
+            const kieu = document.getElementById("gKieu").value;
+            const lop  = document.getElementById("gLop").value;
+            const rieng = document.getElementById("gRieng").checked;
 
-        window.xoaHetCauBTVN = () => {
-            if(btvnCauDaChon.length === 0) return;
-            if(!confirm(`Bỏ hết ${btvnCauDaChon.length} câu khỏi bài này?`)) return;
-            btvnCauDaChon = [];
-            veDsCauBTVN();
-        };
-
-        window.xoaMotCauBTVN = (i) => {
-            btvnCauDaChon.splice(i, 1);
-            veDsCauBTVN();
-        };
-
-        function veDsCauBTVN() {
-            const khung = document.getElementById("btvnDsCau");
-            const dem = document.getElementById("btvnDemCau");
-            if(!khung) return;
-            dem.innerText = btvnCauDaChon.length ? `(${btvnCauDaChon.length} câu)` : "";
-
-            if(btvnCauDaChon.length === 0) {
-                khung.innerHTML = `<div style="padding:26px; text-align:center; color:#94a3b8; background:#f8fafc; border-radius:10px;">
-                    Chưa có câu nào. Bấm <b>🏦 Lấy câu từ ngân hàng</b> để chọn câu cho bài này.</div>`;
-                return;
-            }
-
-            let h = "";
-            btvnCauDaChon.forEach((q, i) => {
-                const mucMau = MAU_MUC[q.level] || '#64748b';
-                h += `<div style="display:flex; gap:10px; align-items:flex-start; padding:10px; border-bottom:1px solid #f1f5f9;">
-                    <b style="color:#a16207; flex-shrink:0; min-width:26px;">${i+1}.</b>
-                    <div style="flex:1; text-align:left; min-width:0;">
-                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-                            <span style="font-size:11px; background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:20px; font-weight:bold;">${TEN_LOAI[q.type]||q.type}</span>
-                            ${q.topic?`<span style="font-size:11px; background:#f3e8ff; color:#6d28d9; padding:2px 8px; border-radius:20px;">${q.topic}</span>`:''}
-                            ${q.lesson?`<span style="font-size:11px; background:#ffedd5; color:#c2410c; padding:2px 8px; border-radius:20px;">${q.lesson}</span>`:''}
-                            <span style="font-size:11px; color:${mucMau}; border:1px solid ${mucMau}; padding:1px 8px; border-radius:20px; font-weight:bold;">${TEN_MUC[q.level]||'TH'}</span>
-                        </div>
-                        <div style="font-size:14px; color:#0f172a;">${xuLyCongThucDai(q.q || "")}</div>
-                    </div>
-                    <button onclick="xoaMotCauBTVN(${i})" title="Bỏ câu này" style="padding:5px 10px; margin:0; border:none; border-radius:6px; background:#fee2e2; color:#dc2626; cursor:pointer; font-weight:bold; flex-shrink:0;">✕</button>
-                </div>`;
-            });
-            khung.innerHTML = h;
-            if(window.MathJax) MathJax.typesetPromise([khung]);
-        }
-
-        // Sang ngân hàng chọn câu, xong quay lại
-        window.chonCauChoBTVN = () => {
-            openBank();                       // openBank tự tắt cờ, nên bật lại ngay sau
-            dangChonCauChoBTVN = true;
-            bankDaChon.clear();
-            // Đánh dấu sẵn các câu đã có trong bài (theo bankId) để thầy/cô thấy
-            btvnCauDaChon.forEach(q => { if(q.bankId && dbBank[q.bankId]) bankDaChon.add(q.bankId); });
-            capNhatThanhBTVNTrongBank();
-            renderBank();
-        };
-
-
-        function capNhatThanhBTVNTrongBank() {
-            const thanh = document.getElementById("bankThanhBTVN");
-            if(!thanh) return;
-            thanh.style.display = dangChonCauChoBTVN ? 'flex' : 'none';
-        }
-
-        window.xacNhanCauChoBTVN = () => {
-            if(bankDaChon.size === 0) return alert("Chưa chọn câu nào!");
-            btvnCauDaChon = [...bankDaChon].map(k => {
-                const q = JSON.parse(JSON.stringify(dbBank[k]));
-                delete q.grade; delete q.addedAt; delete q.updatedAt;
-                q.bankId = k;
-                return q;
-            });
-            dangChonCauChoBTVN = false;
-            bankDaChon.clear();
-            renderBank();
-            showScreen('screen-btvn');
-            chuyenTabBTVN('soan');
-        };
-
-        window.huyChonCauChoBTVN = () => {
-            dangChonCauChoBTVN = false;
-            bankDaChon.clear();
-            renderBank();
-            showScreen('screen-btvn');
-            chuyenTabBTVN('soan');
-        };
-
-        window.luuBTVN = () => {
-            const ten = document.getElementById("btvnTen").value.trim();
-            if(!ten) return alert("Vui lòng đặt tên cho bài tập!");
-            if(/[.#$\[\]\/]/.test(ten)) return alert("Tên bài không được chứa: . # $ [ ] /");
-            if(btvnCauDaChon.length === 0) return alert("Bài chưa có câu hỏi nào! Bấm 🏦 Lấy câu từ ngân hàng.");
-
-            // Nếu đổi tên khi đang sửa, hoặc trùng tên bài khác thì hỏi
-            if(dbExams[ten] && ten !== btvnDangSuaTen) {
-                if(!confirm(`Đã có bài/đề tên "${ten}". Ghi đè lên nó?`)) return;
-            }
-
-            const hanRaw = document.getElementById("btvnHan").value;
-
-            // Giao riêng cho một số em: lưu danh sách tên đăng nhập được giao
             let giaoCho = null;
-            if(document.getElementById("btvnRieng").checked) {
-                giaoCho = [...document.querySelectorAll('.hs-btvn:checked')].map(cb => cb.value);
-                if(giaoCho.length === 0) return alert("Thầy/cô đã chọn giao riêng nhưng chưa tích em nào.");
+            if(rieng) {
+                giaoCho = [...document.querySelectorAll('.hs-giao:checked')].map(cb => cb.value);
+                if(giaoCho.length === 0) return alert("Thầy/cô chọn giao riêng nhưng chưa tích em nào.");
             }
 
-            const duLieu = {
-                time: Math.max(5, Math.round(btvnCauDaChon.length * 1.5)),   // chỉ để tham khảo, BTVN không đếm giờ
-                type: 'exam',
-                scoring: document.getElementById("btvnChamDiem").value,
-                targetClass: document.getElementById("btvnLop").value,
-                visibility: 'show',
-                shuffle: document.getElementById("btvnTron").value,
-                homework: true,
-                deadline: hanRaw ? new Date(hanRaw).getTime() : null,
-                giaoCho: giaoCho,          // null = cả lớp; mảng = chỉ các em này
-                customScore: { mcq:3, tf:2, short:2, essay:3 },
-                questions: btvnCauDaChon
+            let deadline = null;
+            if(kieu === 'homework') {
+                const raw = document.getElementById("gHan").value;
+                deadline = raw ? new Date(raw).getTime() : null;
+            }
+
+            const capNhat = {
+                type: kieu === 'practice' ? 'practice' : 'exam',
+                homework: kieu === 'homework',
+                deadline: deadline,
+                targetClass: lop,
+                giaoCho: giaoCho,
+                visibility: 'show'
             };
 
-            set(ref(db, 'exams/' + ten), duLieu)
-                .then(() => {
-                    // Đổi tên khi sửa thì xoá bản cũ
-                    if(btvnDangSuaTen && btvnDangSuaTen !== ten) {
-                        return remove(ref(db, 'exams/' + btvnDangSuaTen));
-                    }
-                })
-                .then(() => {
-                    const mt = moTaHanNop(duLieu.deadline);
-                    alert(`✅ Đã giao bài "${ten}" cho ${duLieu.targetClass === 'all' ? 'mọi lớp' : 'lớp ' + duLieu.targetClass}!\n\n` +
-                          `📝 ${btvnCauDaChon.length} câu\n` +
-                          (mt ? `⏰ ${mt.text}` : `⏰ Không giới hạn hạn nộp`));
-                    btvnDangSuaTen = ten;
-                    chuyenTabBTVN('ds');
-                })
-                .catch(e => alert("Lỗi khi lưu: " + e.message));
+            try {
+                await update(ref(db, 'exams/' + ten), capNhat);
+                Object.assign(dbExams[ten], capNhat);
+                const tenKieu = { exam:'bài kiểm tra', practice:'bài tự luyện', homework:'bài về nhà' }[kieu];
+                const ai = rieng ? `${giaoCho.length} em đã chọn` : (lop === 'all' ? 'mọi lớp' : 'lớp ' + lop);
+                const mt = moTaHanNop(deadline);
+                alert(`✅ Đã giao "${ten}" làm ${tenKieu} cho ${ai}.` + (mt ? `\n⏰ ${mt.text}` : ""));
+                veDanhSachGiaoBai();
+            } catch(e) { alert("Lỗi khi giao bài: " + e.message); }
+        };
+
+        window.thuHoiBai = async (ten) => {
+            if(!confirm(`Thu hồi "${ten}"?\n\nHọc sinh sẽ không thấy bài này nữa. Bài các em đã nộp vẫn giữ nguyên.`)) return;
+            try {
+                await update(ref(db, 'exams/' + ten), { visibility: 'hide' });
+                if(dbExams[ten]) dbExams[ten].visibility = 'hide';
+                veDanhSachGiaoBai();
+            } catch(e) { alert("Lỗi: " + e.message); }
         };
 
         // ---------- Danh sách bài đã giao ----------
@@ -5735,7 +5646,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                             </div>
                         </div>
                         <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <button onclick="suaBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#0284c7; color:white; cursor:pointer; font-weight:bold; font-size:13px;">✏️ Sửa</button>
+                            <button onclick="chuyenTabBTVN('soan'); setTimeout(()=>moBangGiao('${ten.replace(/'/g,"\\'")}'), 60);" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#0284c7; color:white; cursor:pointer; font-weight:bold; font-size:13px;">⚙️ Sửa cách giao</button>
                             <button onclick="doiHienBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#64748b; color:white; cursor:pointer; font-weight:bold; font-size:13px;">${ex.visibility === 'hide' ? '👁 Hiện' : '🙈 Ẩn'}</button>
                             <button onclick="xemKqBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#16a34a; color:white; cursor:pointer; font-weight:bold; font-size:13px;">📊 Kết quả</button>
                             <button onclick="xoaBTVN('${ten.replace(/'/g,"\\'")}')" style="padding:9px 14px; margin:0; border:none; border-radius:8px; background:#dc2626; color:white; cursor:pointer; font-weight:bold; font-size:13px;">🗑</button>
@@ -5745,23 +5656,6 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             });
             khung.innerHTML = h;
         }
-
-        window.suaBTVN = (ten) => {
-            const ex = dbExams[ten];
-            if(!ex) return alert("Không tìm thấy bài này.");
-            btvnDangSuaTen = ten;
-            btvnCauDaChon = JSON.parse(JSON.stringify(ex.questions || []));
-            document.getElementById("btvnTen").value = ten;
-            document.getElementById("btvnLop").value = ex.targetClass || 'all';
-            document.getElementById("btvnHan").value = ex.deadline ? mocSangDatetimeLocal(ex.deadline) : "";
-            document.getElementById("btvnChamDiem").value = ex.scoring || 'free';
-            document.getElementById("btvnTron").value = ex.shuffle || 'on';
-            const rieng = Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0;
-            document.getElementById("btvnRieng").checked = rieng;
-            document.getElementById("btvnKhuChonHS").style.display = rieng ? 'block' : 'none';
-            if(rieng) veDsHSChoBTVN(ex.giaoCho);
-            chuyenTabBTVN('soan');
-        };
 
         window.doiHienBTVN = (ten) => {
             const ex = dbExams[ten];
@@ -5804,9 +5698,10 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 return;
             }
 
+            // Gom MỌI bài có học sinh nộp: kiểm tra, tự luyện, về nhà
             const tenBTVN = new Set();
             Object.values(btvnDuLieuTho).forEach(cuaHS => {
-                Object.values(cuaHS || {}).forEach(ban => { if(ban.homework) tenBTVN.add(ban.examName); });
+                Object.values(cuaHS || {}).forEach(ban => { if(ban.examName) tenBTVN.add(ban.examName); });
             });
 
             const picker = document.getElementById("btvnResultPicker");
@@ -5817,10 +5712,88 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(ds.includes(cu)) picker.value = cu;
 
             if(ds.length === 0) {
-                area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có học sinh nào làm bài về nhà.</div>`;
+                area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có học sinh nào nộp bài.</div>`;
                 return;
             }
             veBangKetQuaBTVN();
+        };
+
+        let btvnKetQuaDangXem = {};   // kết quả đang hiện, để tra khi bấm xem chi tiết
+
+        // Xem em đó làm sai câu nào trong một lần cụ thể
+        window.xemChiTietLan = (user, idx) => {
+            const hs = btvnKetQuaDangXem[user];
+            if(!hs || !hs.cacLan[idx]) return;
+            const lan = hs.cacLan[idx];
+            const ct = lan.details || [];
+
+            const hop = document.getElementById("btvnChiTietLan");
+            if(!hop) return;
+
+            if(ct.length === 0) {
+                hop.innerHTML = `<div style="background:#fffbeb; border:2px solid #fde68a; border-radius:14px; padding:16px; margin-top:16px;">
+                    <b style="color:#92400e;">Lần làm này không lưu chi tiết từng câu.</b>
+                    <div style="font-size:13px; color:#78716c; margin-top:5px;">Bài nộp trước khi cập nhật hệ thống thì không có dữ liệu này.</div>
+                </div>`;
+                hop.scrollIntoView({behavior:'smooth', block:'nearest'});
+                return;
+            }
+
+            const tenCheDo = { exam:'Bài kiểm tra', practice:'Tự luyện', homework:'Bài về nhà' }[lan.cheDo] || '';
+            const sai = ct.filter(c => c.type !== 'essay' && (c.earned || 0) <= 0).length;
+            const tuLuan = ct.filter(c => c.type === 'essay').length;
+            const dung = ct.length - sai - tuLuan;
+
+            let h = `<div style="background:white; border:2px solid #bae6fd; border-radius:14px; padding:18px; margin-top:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                    <div style="text-align:left;">
+                        <b style="font-size:17px; color:#0369a1;">${user}</b>
+                        <div style="font-size:13px; color:#64748b; margin-top:3px;">
+                            ${tenCheDo} · ${lan.date} · Điểm <b style="color:#0f172a;">${lan.score.toFixed(2)}</b>
+                            ${lan.duration ? ' · làm trong ' + moTaThoiLuong(lan.duration) : ''}
+                            ${lan.late ? ' · <span style="color:#dc2626;">nộp muộn</span>' : ''}
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:14px; color:#16a34a; font-weight:bold;">✅ ${dung} đúng</span>
+                        <span style="font-size:14px; color:#dc2626; font-weight:bold;">❌ ${sai} sai</span>
+                        ${tuLuan ? `<span style="font-size:14px; color:#92400e;">📄 ${tuLuan} tự luận</span>` : ''}
+                        <button onclick="document.getElementById('btvnChiTietLan').innerHTML=''" style="padding:7px 13px; margin:0; border:1px solid #cbd5e1; border-radius:8px; background:white; color:#475569; cursor:pointer; font-size:13px; font-weight:bold;">✖ Đóng</button>
+                    </div>
+                </div>
+
+                <label style="display:flex; align-items:center; gap:9px; font-size:14px; color:#475569; cursor:pointer; margin-bottom:12px;">
+                    <input type="checkbox" id="ctChiCauSai" checked onchange="xemChiTietLan('${user.replace(/'/g,"\\'")}', ${idx})" style="width:18px; height:18px; margin:0; cursor:pointer;">
+                    Chỉ hiện câu làm sai
+                </label>
+
+                <div style="max-height:420px; overflow-y:auto; text-align:left;">`;
+
+            const chiSai = (() => { const el = document.getElementById("ctChiCauSai"); return el ? el.checked : true; })();
+
+            ct.forEach((c, i) => {
+                const laTuLuan = c.type === 'essay';
+                const dungCau = (c.earned || 0) > 0;
+                if(chiSai && (dungCau || laTuLuan)) return;
+
+                const mau = laTuLuan ? '#92400e' : (dungCau ? '#16a34a' : '#dc2626');
+                const nen  = laTuLuan ? '#fffbeb' : (dungCau ? '#f0fdf4' : '#fef2f2');
+                const bieu = laTuLuan ? '📄' : (dungCau ? '✅' : '❌');
+
+                h += `<div style="background:${nen}; border-left:4px solid ${mau}; border-radius:10px; padding:12px 14px; margin-bottom:9px;">
+                    <div style="font-size:14px; color:#0f172a; margin-bottom:7px;"><b style="color:${mau};">${bieu} Câu ${i+1}.</b> ${c.qText || ''}</div>
+                    <div style="font-size:14px; color:#334155;">Em trả lời: <b style="color:${mau};">${c.sAns || 'Chưa làm'}</b></div>
+                    ${!laTuLuan ? `<div style="font-size:14px; color:#334155;">Đáp án đúng: <b style="color:#0284c7;">${c.cAns || ''}</b></div>` : ''}
+                </div>`;
+            });
+
+            if(chiSai && sai === 0) {
+                h += `<div style="padding:20px; text-align:center; color:#16a34a; font-weight:bold;">🎉 Em này không sai câu nào!</div>`;
+            }
+            h += `</div></div>`;
+            hop.innerHTML = h;
+            if(window.MathJax) MathJax.typesetPromise([hop]);
+            hop.scrollIntoView({behavior:'smooth', block:'nearest'});
         };
 
         window.veBangKetQuaBTVN = () => {
@@ -5831,14 +5804,19 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             const theoHS = {};
             Object.keys(btvnDuLieuTho).forEach(user => {
                 Object.values(btvnDuLieuTho[user] || {}).forEach(ban => {
-                    if(ban.homework && ban.examName === ten) {
+                    if(ban.examName === ten) {
                         if(!theoHS[user]) theoHS[user] = { cacLan: [] };
                         const tong = (parseFloat(ban.score)||0) + (parseFloat(ban.essayScore)||0);
-                        theoHS[user].cacLan.push({ date: ban.date, score: tong, duration: ban.duration, late: ban.late, cheats: ban.cheats || 0, feedback: ban.feedback || "" });
+                        // Bản ghi cũ chưa có cheDo: suy ra từ cờ homework
+                        const cd = ban.cheDo || (ban.homework ? 'homework' : 'exam');
+                        theoHS[user].cacLan.push({ date: ban.date, score: tong, duration: ban.duration,
+                            late: ban.late, cheats: ban.cheats || 0, feedback: ban.feedback || "", cheDo: cd,
+                            details: Array.isArray(ban.details) ? ban.details : [] });
                     }
                 });
             });
 
+            btvnKetQuaDangXem = theoHS;   // giữ lại cho phần xem chi tiết từng lần
             const users = Object.keys(theoHS);
             if(users.length === 0) { area.innerHTML = `<div style="padding:20px; text-align:center; color:#94a3b8;">Chưa có ai làm bài này.</div>`; return; }
 
@@ -5850,7 +5828,8 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     <th style="padding:10px;">Số lần</th>
                     <th style="padding:10px;">Điểm cao nhất</th>
                     <th style="padding:10px;">Gần nhất</th>
-                    <th style="padding:10px; text-align:left;">Chi tiết các lần</th>
+                    <th style="padding:10px; text-align:left;">Câu làm sai (lần gần nhất)</th>
+                    <th style="padding:10px; text-align:left;">Các lần làm</th>
                 </tr></thead><tbody>`;
 
             users.map(u => {
@@ -5863,12 +5842,33 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 const ganNhat = lan[lan.length-1];
                 const mauCao = diemCao >= 8 ? "#16a34a" : (diemCao >= 6.5 ? "#0284c7" : (diemCao >= 5 ? "#f59e0b" : "#dc2626"));
 
+                // Danh sách câu sai của lần làm gần nhất
+                let oCauSai;
+                const ct = ganNhat.details || [];
+                if(ct.length === 0) {
+                    oCauSai = `<span style="color:#94a3b8; font-size:13px;">(không có dữ liệu chi tiết)</span>`;
+                } else {
+                    const sai = ct.map((c, i) => ({ i, c }))
+                        .filter(({c}) => c.type !== 'essay' && (c.earned || 0) <= 0);
+                    if(sai.length === 0) {
+                        oCauSai = `<span style="color:#16a34a; font-weight:bold; font-size:13px;">✅ Đúng hết</span>`;
+                    } else {
+                        oCauSai = sai.map(({i}) =>
+                            `<span style="display:inline-block; margin:2px; padding:2px 8px; border-radius:12px; background:#fee2e2; color:#b91c1c; font-weight:bold; font-size:13px;">${i+1}</span>`
+                        ).join('') + `<span style="color:#94a3b8; font-size:12px; margin-left:4px;">(${sai.length} câu)</span>`;
+                    }
+                }
+
                 const chips = lan.map((x, idx) => {
                     const m = x.score >= 8 ? "#16a34a" : (x.score >= 6.5 ? "#0284c7" : (x.score >= 5 ? "#f59e0b" : "#dc2626"));
                     const tg = x.duration ? moTaThoiLuong(x.duration) : "—";
                     const muon = x.late ? ` <span style="color:#dc2626;">⏰</span>` : "";
                     const thoat = x.cheats > 0 ? ` <span style="color:#b91c1c;">👁${x.cheats}</span>` : "";
-                    return `<span title="${x.date} · làm trong ${tg}${x.late?' · nộp muộn':''}${x.cheats?' · rời trang '+x.cheats+' lần':''}" style="display:inline-block; margin:2px; padding:3px 9px; border-radius:14px; background:${m}18; color:${m}; font-weight:bold; font-size:13px;">L${idx+1}: ${x.score.toFixed(2)}${muon}${thoat}</span>`;
+                    const dauCheDo = { exam:'📝', practice:'📖', homework:'🏠' }[x.cheDo] || '';
+                    const tenCheDo = { exam:'bài kiểm tra', practice:'tự luyện', homework:'bài về nhà' }[x.cheDo] || '';
+                    return `<span onclick="xemChiTietLan('${u.replace(/'/g,"\\'")}', ${idx})"
+                        title="${x.date} · ${tenCheDo} · làm trong ${tg}${x.late?' · nộp muộn':''}${x.cheats?' · rời trang '+x.cheats+' lần':''} — bấm để xem từng câu"
+                        style="display:inline-block; margin:2px; padding:3px 9px; border-radius:14px; background:${m}18; color:${m}; font-weight:bold; font-size:13px; cursor:pointer;">${dauCheDo} ${x.score.toFixed(2)}${muon}${thoat}</span>`;
                 }).join('');
 
                 h += `<tr style="border-top:1px solid #f1f5f9;">
@@ -5876,6 +5876,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     <td style="padding:10px; text-align:center;">${lan.length}</td>
                     <td style="padding:10px; text-align:center;"><b style="color:${mauCao}; font-size:16px;">${diemCao.toFixed(2)}</b></td>
                     <td style="padding:10px; text-align:center; color:#64748b;">${ganNhat.score.toFixed(2)}</td>
+                    <td style="padding:10px; text-align:left;">${oCauSai}</td>
                     <td style="padding:10px; text-align:left;">${chips}</td>
                 </tr>`;
             });
@@ -5884,10 +5885,60 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 <div style="margin-top:12px; display:flex; gap:16px; flex-wrap:wrap; font-size:14px; color:#475569;">
                     <span>👥 <b>${users.length}</b> học sinh đã làm</span>
                     <span>📝 Tổng <b>${tongLuot}</b> lượt</span>
+                    <span>📝 kiểm tra · 📖 tự luyện · 🏠 về nhà</span>
                     <span style="color:#dc2626;">⏰ = nộp muộn</span>
                     <span style="color:#b91c1c;">👁 = số lần rời trang</span>
-                    <span>Rê chuột vào ô điểm để xem chi tiết</span>
+                    <span><b>Bấm vào ô điểm</b> để xem em làm sai câu nào</span>
                 </div>`;
+
+            // ----- Thống kê theo câu: câu nào cả lớp sai nhiều nhất -----
+            const theoCau = {};
+            Object.values(btvnDuLieuTho).forEach(cuaHS => {
+                Object.values(cuaHS || {}).forEach(ban => {
+                    if(ban.examName !== ten || !Array.isArray(ban.details)) return;
+                    ban.details.forEach((ct, i) => {
+                        if(ct.type === 'essay') return;   // tự luận chấm tay, không tính
+                        if(!theoCau[i]) theoCau[i] = { tong: 0, dung: 0, qText: ct.qText || "", type: ct.type };
+                        theoCau[i].tong++;
+                        if((ct.earned || 0) > 0) theoCau[i].dung++;
+                    });
+                });
+            });
+
+            const dsCau = Object.keys(theoCau).map(i => {
+                const c = theoCau[i];
+                return { i: parseInt(i), ...c, tyLe: c.tong ? c.dung / c.tong : 0 };
+            }).sort((a,b) => a.tyLe - b.tyLe);
+
+            if(dsCau.length > 0) {
+                const yeu = dsCau.filter(c => c.tyLe < 0.5);
+                h += `<div style="margin-top:18px; background:white; border:2px solid #e2e8f0; border-radius:14px; padding:16px;">
+                    <b style="color:#0369a1; font-size:16px;">📉 Câu nào các em sai nhiều</b>
+                    <div style="font-size:13px; color:#64748b; margin:5px 0 12px 0;">Xếp từ câu yếu nhất. Dưới 50% đúng là chỗ nên giảng lại.</div>
+                    <div style="max-height:320px; overflow-y:auto;">`;
+
+                dsCau.slice(0, 15).forEach(c => {
+                    const pt = Math.round(c.tyLe * 100);
+                    const mau = pt < 30 ? '#dc2626' : (pt < 50 ? '#f59e0b' : (pt < 80 ? '#0284c7' : '#16a34a'));
+                    const tomTat = (c.qText || "").replace(/<[^>]*>/g, "").replace(/\$[^$]*\$/g, "…").slice(0, 70);
+                    h += `<div style="padding:9px 0; border-bottom:1px solid #f1f5f9;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <b style="min-width:52px; color:#475569; font-size:14px;">Câu ${c.i + 1}</b>
+                            <div style="flex:1; background:#f1f5f9; border-radius:20px; height:16px; overflow:hidden;">
+                                <div style="width:${pt}%; height:100%; background:${mau};"></div>
+                            </div>
+                            <b style="min-width:92px; text-align:right; color:${mau}; font-size:14px;">${c.dung}/${c.tong} đúng (${pt}%)</b>
+                        </div>
+                        <div style="font-size:12px; color:#94a3b8; margin-left:62px; margin-top:3px;">${tomTat}${tomTat.length >= 70 ? '…' : ''}</div>
+                    </div>`;
+                });
+                h += `</div>`;
+                if(yeu.length > 0) {
+                    h += `<div style="margin-top:12px; background:#fef2f2; border-radius:8px; padding:11px; font-size:14px; color:#b91c1c;">
+                        💡 Có <b>${yeu.length}</b> câu dưới 50% đúng: ${yeu.slice(0,8).map(c=>'câu ' + (c.i+1)).join(', ')}${yeu.length>8?'...':''}</div>`;
+                }
+                h += `</div>`;
+            }
 
             // Lời nhắn của học sinh
             const loiNhan = [];
@@ -6006,7 +6057,23 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
                     if(savedMode === 'exam') {
                         update(ref(db, `students/${studentKey()}`), { status: "Xong", score: fS, timeLeft: 0, detailAnswers: historyArr, essayMax: essayMax, essayScore: 0, feedback: gopY });
-                        push(ref(db, `history_all/${safeKey(currentUser.username)}`), { date: new Date().toLocaleString(), score: fS, details: historyArr, examName: currentExamName, essayMax: essayMax, essayScore: 0, feedback: gopY });
+                        push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
+                            date: new Date().toLocaleString(), score: fS, details: historyArr,
+                            examName: currentExamName, essayMax: essayMax, essayScore: 0,
+                            cheDo: 'exam',
+                            duration: thoiDiemBatDauLam ? (Date.now() - thoiDiemBatDauLam) : null,
+                            cheats: cheatCount, feedback: gopY });
+                    } else if(savedMode === 'practice') {
+                        // Trước đây bài tự luyện không lưu gì nên thầy/cô không có thống kê.
+                        push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
+                            date: new Date().toLocaleString(),
+                            score: fS, details: historyArr, examName: currentExamName,
+                            essayMax: essayMax, essayScore: 0,
+                            cheDo: 'practice',
+                            duration: thoiDiemBatDauLam ? (Date.now() - thoiDiemBatDauLam) : null,
+                            cheats: cheatCount,
+                            feedback: gopY
+                        });
                     } else if(savedMode === 'homework') {
                         clearInterval(btvnDongHo);
                         const thoiGianLam = Date.now() - btvnThoiDiemBatDau;
@@ -6017,6 +6084,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                             score: fS, details: historyArr, examName: currentExamName,
                             essayMax: essayMax, essayScore: 0,
                             homework: true,
+                            cheDo: 'homework',
                             duration: thoiGianLam,      // làm mất bao lâu (mili-giây)
                             late: nopMuon,               // nộp sau hạn?
                             cheats: cheatCount,          // số lần rời trang
