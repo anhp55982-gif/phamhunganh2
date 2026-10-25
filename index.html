@@ -560,6 +560,7 @@
 
                 <button class="btn btn-blue" style="margin:0; padding:17px; font-size:17px;" onclick="handleLogin()">ĐĂNG NHẬP</button>
                 <div id="dn-loi" class="dn-bao-loi"></div>
+                <div style="font-size:13px; color:#94a3b8; margin-top:16px;">Quên mật khẩu thì em báo thầy/cô cấp lại nhé.</div>
             </div>
         </div>
 
@@ -1536,7 +1537,16 @@
                     }
                 }
                 else if(q.type === "essay") {
-                    cA = "Làm ra giấy thi"; sA = "Làm ra giấy thi"; e = 0;
+                    cA = "Thầy/cô chấm tay"; e = 0;
+                    // Nếu em có nộp ảnh bài làm thì gắn luôn vào để thầy/cô chấm trên máy
+                    if(Array.isArray(u) && u.length > 0) {
+                        sA = u.map((a, k) =>
+                            `<div style="margin-top:8px;"><div style="font-size:12px; color:#64748b;">Ảnh ${k+1}/${u.length}</div>
+                            <img src="${a}" style="max-width:100%; border-radius:8px; border:1px solid #e2e8f0;"></div>`
+                        ).join("");
+                    } else {
+                        sA = "Làm ra giấy thi";
+                    }
                 }
 
                 diemMay += e;
@@ -5172,26 +5182,36 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 html += `</table>`;
             } else if(q.type === "short") {
                 const safeVal = String(savedAns || "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
-                // Bàn phím ký hiệu toán: giúp HS nhập thống nhất, tránh chấm sai oan
-                const phim = [
-                    ['√','√'], ['π','π'], ['^','^'], ['/','/'],
-                    ['½','1/2'], ['∞','∞'], ['≤','≤'], ['≥','≥'],
-                    ['α','α'], ['β','β'], ['°','°'], ['±','±']
-                ];
-                let bp = `<div style="display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-top:14px;">`;
-                phim.forEach(([nhan, chen]) => {
-                    bp += `<button type="button" onclick="chenKyHieu('${chen}')" style="min-width:46px; padding:11px 13px; font-size:18px; font-weight:bold; background:white; color:#0f172a; border:2px solid #cbd5e1; border-radius:9px; cursor:pointer; margin:0; line-height:1;" ontouchstart="">${nhan}</button>`;
-                });
-                bp += `<button type="button" onclick="xoaKyTu()" style="min-width:56px; padding:11px 13px; font-size:16px; font-weight:bold; background:#fee2e2; color:#b91c1c; border:2px solid #fca5a5; border-radius:9px; cursor:pointer; margin:0; line-height:1;">⌫</button>`;
-                bp += `</div>`;
-
-                html = `<input type="text" id="o-dap-an-ngan" value="${safeVal}" style="text-align:center; font-weight:bold; font-size: 20px; padding: 20px; border-width: 3px;" oninput="saveShort(this.value)" placeholder="✍️ Nhập đáp án của em vào đây...">
-                    ${bp}
-                    <div style="text-align:center; font-size:13px; color:#94a3b8; margin-top:10px;">Em có thể gõ "căn 2" hoặc bấm nút √ — hệ thống đều hiểu như nhau.</div>`;
+                html = `<input type="text" id="o-dap-an-ngan" value="${safeVal}"
+                    style="text-align:center; font-weight:bold; font-size: 22px; padding: 22px; border-width: 3px;"
+                    inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+                    oninput="saveShort(this.value)" placeholder="Nhập đáp án của em">`;
             } else if(q.type === "essay") {
-                html = `<div style="background: #fffbeb; padding: 25px; border-radius: 12px; border: 2px dashed #fcd34d; text-align: center;">
-                    <h3 style="color: #b45309; margin-top:0; font-size: 22px;">📄 PHẦN TỰ LUẬN</h3>
-                    <p style="font-size: 17px; color: #78350f; font-weight: bold;">Em hãy đọc kỹ đề bài và trình bày lời giải ra <u>GIẤY THI</u></p>
+                const anhDaNop = Array.isArray(savedAns) ? savedAns : [];
+                let khungAnh = "";
+                anhDaNop.forEach((a, vt) => {
+                    khungAnh += `<div style="position:relative; display:inline-block; margin:6px;">
+                        <img src="${a}" style="max-width:150px; max-height:150px; border-radius:10px; border:2px solid #fcd34d; display:block;">
+                        <button onclick="xoaAnhTuLuan(${vt})" style="position:absolute; top:-9px; right:-9px; width:26px; height:26px; padding:0; border:2px solid white; border-radius:50%; background:#dc2626; color:white; font-weight:bold; cursor:pointer; line-height:1; font-size:13px;">✕</button>
+                    </div>`;
+                });
+
+                html = `<div style="background: #fffbeb; padding: 20px; border-radius: 12px; border: 2px dashed #fcd34d;">
+                    <h3 style="color: #b45309; margin-top:0; font-size: 20px; text-align:center;">📄 PHẦN TỰ LUẬN</h3>
+                    <p style="font-size: 16px; color: #78350f; text-align:center; margin-bottom:16px;">
+                        Em trình bày lời giải ra <b>giấy</b>, rồi chụp ảnh bài làm nộp lên đây.</p>
+
+                    <div style="text-align:center;">
+                        <label style="display:inline-block; background:#0284c7; color:white; padding:14px 22px; border-radius:10px; cursor:pointer; font-size:16px; font-weight:bold;">
+                            📷 Chụp / chọn ảnh bài làm
+                            <input type="file" accept="image/*" capture="environment" multiple onchange="themAnhTuLuan(this)" style="display:none;">
+                        </label>
+                        <div style="font-size:13px; color:#92400e; margin-top:9px;">Nộp được nhiều ảnh. Ảnh tự thu nhỏ nên không tốn dung lượng.</div>
+                    </div>
+
+                    <div id="khungAnhTuLuan" style="text-align:center; margin-top:14px;">${khungAnh}</div>
+                    ${anhDaNop.length ? `<div style="text-align:center; font-size:14px; color:#15803d; font-weight:bold; margin-top:8px;">✅ Đã nộp ${anhDaNop.length} ảnh</div>`
+                                      : `<div style="text-align:center; font-size:14px; color:#92400e; margin-top:8px;">Chưa có ảnh nào. Nếu thầy/cô thu bài trên giấy thì em để trống cũng được.</div>`}
                 </div>`;
             }
             
@@ -5223,17 +5243,26 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 html += `<div style="margin-top:20px; background:${nen}; border:2px solid ${vien}; border-radius:14px; padding:18px; text-align:left;">
                     <div style="font-size:18px; font-weight:bold; color:${mau}; margin-bottom:10px;">${tieuDe}</div>`;
 
+                // Làm sai thì KHÔNG đưa đáp án ngay — để em còn cơ hội tự nghĩ lại.
+                const moHet = hienDapAnLuyen.has(currentIdx);
+
                 if(q.type !== 'mcq') {
                     html += `<div style="font-size:15px; color:#334155; margin-bottom:6px;">Đáp án của em: <b style="color:${mau};">${ct.sAns}</b></div>`;
-                    html += `<div style="font-size:15px; color:#334155;">Đáp án đúng: <b style="color:#0284c7;">${xuLyCongThucDai(String(ct.cAns))}</b></div>`;
                 }
 
-                if(q.explanation && q.explanation.trim() !== "") {
-                    html += `<div style="margin-top:14px; padding:14px; background:white; border-radius:10px; border-left:4px solid #0284c7; color:#0f172a; font-size:15px; line-height:1.7; white-space:pre-wrap;">
-                        <b style="color:#0284c7;">📖 Lời giải:</b><br>${xuLyCongThucDai(q.explanation)}</div>`;
+                if(dung || moHet) {
+                    if(q.type !== 'mcq') {
+                        html += `<div style="font-size:15px; color:#334155;">Đáp án đúng: <b style="color:#0284c7;">${xuLyCongThucDai(String(ct.cAns))}</b></div>`;
+                    }
+                    if(q.explanation && q.explanation.trim() !== "") {
+                        html += `<div style="margin-top:14px; padding:14px; background:white; border-radius:10px; border-left:4px solid #0284c7; color:#0f172a; font-size:15px; line-height:1.7; white-space:pre-wrap;">
+                            <b style="color:#0284c7;">📖 Lời giải:</b><br>${xuLyCongThucDai(q.explanation)}</div>`;
+                    }
+                    html += `<div style="margin-top:12px; font-size:13px; color:#64748b; font-style:italic;">Em có thể thử lại câu này bất cứ lúc nào.</div>`;
+                } else {
+                    html += `<div style="margin-top:10px; font-size:15px; color:#334155;">Em đọc lại đề rồi thử một lần nữa xem sao nhé.</div>
+                        <button onclick="moDapAnLuyen()" style="margin-top:12px; padding:11px 18px; border:1px solid #fca5a5; border-radius:9px; background:white; color:#b91c1c; font-weight:bold; font-size:14px; cursor:pointer;">💡 Mình chịu rồi, xem đáp án</button>`;
                 }
-
-                html += `<div style="margin-top:12px; font-size:13px; color:#64748b; font-style:italic;">Em có thể chọn lại đáp án khác để thử.</div>`;
                 html += `</div>`;
             }
 
@@ -5247,38 +5276,86 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(window.MathJax) MathJax.typesetPromise();
         }
 
-        // ================= BÀN PHÍM KÝ HIỆU TOÁN =================
-        // Chèn ký hiệu vào đúng vị trí con trỏ, không đè mất phần đã gõ
-        window.chenKyHieu = (kyHieu) => {
-            const o = document.getElementById("o-dap-an-ngan");
-            if(!o) return;
-            const bd = o.selectionStart ?? o.value.length;
-            const kt = o.selectionEnd ?? o.value.length;
-            o.value = o.value.slice(0, bd) + kyHieu + o.value.slice(kt);
-            const viTriMoi = bd + kyHieu.length;
-            o.focus();
-            o.setSelectionRange(viTriMoi, viTriMoi);
-            saveShort(o.value);
+        window.changeQ = (s) => {
+            clearTimeout(window._henChamNgay);
+            let n = currentIdx + s;
+            if(n >= 0 && n < questions.length) { currentIdx = n; renderQ(); renderGrid(); saveDraft(); }
         };
 
-        window.xoaKyTu = () => {
-            const o = document.getElementById("o-dap-an-ngan");
-            if(!o) return;
-            const bd = o.selectionStart ?? o.value.length;
-            const kt = o.selectionEnd ?? o.value.length;
-            if(bd !== kt) {
-                // Đang bôi đen thì xoá phần bôi đen
-                o.value = o.value.slice(0, bd) + o.value.slice(kt);
-                o.focus(); o.setSelectionRange(bd, bd);
-            } else if(bd > 0) {
-                o.value = o.value.slice(0, bd - 1) + o.value.slice(bd);
-                o.focus(); o.setSelectionRange(bd - 1, bd - 1);
+        window.saveAns = (i) => {
+            userAnswers[currentIdx] = i;
+            hienDapAnLuyen.delete(currentIdx);   // đổi đáp án thì ẩn gợi ý, để em tự nghĩ lại
+            syncScore(); renderQ(); renderGrid(); saveDraft();
+        };
+
+        // Những câu HS đã tự bấm "xem đáp án" trong chế độ luyện tập
+        let hienDapAnLuyen = new Set();
+
+        window.moDapAnLuyen = () => {
+            hienDapAnLuyen.add(currentIdx);
+            renderQ();
+        };
+
+        // ================= ẢNH BÀI LÀM TỰ LUẬN =================
+        // Thu nhỏ và nén trước khi lưu: ảnh điện thoại 4MB xuống còn khoảng 150KB,
+        // vẫn đọc rõ chữ viết tay mà không làm phình cơ sở dữ liệu.
+        function nenAnhBaiLam(file, canhToiDa = 1400, chatLuong = 0.72) {
+            return new Promise((xong, hong) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let { width: w, height: h } = img;
+                        const tyLe = Math.min(1, canhToiDa / Math.max(w, h));
+                        w = Math.round(w * tyLe); h = Math.round(h * tyLe);
+                        const c = document.createElement('canvas');
+                        c.width = w; c.height = h;
+                        const ctx = c.getContext('2d');
+                        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);   // nền trắng cho ảnh trong suốt
+                        ctx.drawImage(img, 0, 0, w, h);
+                        xong(c.toDataURL('image/jpeg', chatLuong));
+                    };
+                    img.onerror = () => hong(new Error("Không đọc được ảnh"));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => hong(new Error("Không đọc được tệp"));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.themAnhTuLuan = async (input) => {
+            const files = [...input.files];
+            input.value = "";
+            if(files.length === 0) return;
+
+            const hienTai = Array.isArray(userAnswers[currentIdx]) ? userAnswers[currentIdx] : [];
+            if(hienTai.length + files.length > 6) return alert("Mỗi câu nộp tối đa 6 ảnh thôi em nhé.");
+
+            const khung = document.getElementById("khungAnhTuLuan");
+            if(khung) khung.insertAdjacentHTML('beforeend', `<div id="dangXuLyAnh" style="color:#92400e; font-size:14px; padding:8px;">Đang xử lý ảnh...</div>`);
+
+            try {
+                for(const f of files) {
+                    if(!f.type || !f.type.startsWith('image/')) continue;
+                    hienTai.push(await nenAnhBaiLam(f));
+                }
+                userAnswers[currentIdx] = hienTai;
+                syncScore(); renderQ(); renderGrid(); saveDraft();
+            } catch(e) {
+                const el = document.getElementById("dangXuLyAnh");
+                if(el) el.remove();
+                alert("Không xử lý được ảnh: " + e.message);
             }
-            saveShort(o.value);
         };
 
-        window.changeQ = (s) => { clearTimeout(window._henChamNgay); let n = currentIdx + s; if(n>=0 && n<questions.length) { currentIdx = n; renderQ(); renderGrid(); saveDraft(); } };
-        window.saveAns = (i) => { userAnswers[currentIdx] = i; syncScore(); renderQ(); renderGrid(); saveDraft(); };
+        window.xoaAnhTuLuan = (vt) => {
+            const ds = Array.isArray(userAnswers[currentIdx]) ? userAnswers[currentIdx] : [];
+            ds.splice(vt, 1);
+            if(ds.length === 0) delete userAnswers[currentIdx];
+            else userAnswers[currentIdx] = ds;
+            syncScore(); renderQ(); renderGrid(); saveDraft();
+        };
+
         window.saveShort = (v) => {
             userAnswers[currentIdx] = v.trim(); syncScore(); renderGrid(); saveDraft();
             // Chế độ luyện tập: chấm ngay, nhưng chờ HS ngừng gõ 1 giây để không nhảy con trỏ
