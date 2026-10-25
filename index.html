@@ -978,6 +978,17 @@
                 </select>
             </div>
 
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:20px;">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:15px; font-weight:bold; color:#475569;">
+                    <input type="checkbox" id="examInstantInput" style="width:20px; height:20px; cursor:pointer; margin:0;">
+                    💡 Chấm ngay sau mỗi câu (kiểu học bài, không phải thi)
+                </label>
+                <div style="font-size:13px; color:#64748b; margin-top:7px;">
+                    Bật: HS vừa chọn xong là biết đúng/sai ngay, có nút xem lời giải — hợp khi cho các em ôn kiến thức.<br>
+                    <b>Tắt (mặc định): HS làm hết rồi nộp mới biết kết quả — giống thi thật.</b>
+                </div>
+            </div>
+
 
             <div id="customScoreBox" style="display:none; background:#fefce8; border:2px dashed #facc15; border-radius:12px; padding:18px; margin-bottom:20px;">
                 <b style="color:#a16207; font-size:15px;">✏️ Đặt điểm tối đa cho từng phần (tổng nên bằng 10):</b>
@@ -1315,6 +1326,7 @@
         let dbExams = {}; 
         // Ghi nhớ đề đang làm - không đọc lại từ dropdown nữa (HS đổi lựa chọn giữa chừng sẽ gây sai điểm)
         let activeExamName = "", activeScoring = "free", activeCustom = null;
+        let activeChamNgay = false;   // đề này có chấm ngay sau mỗi câu không (mặc định: không)
 
         // Firebase không cho phép . # $ [ ] / trong key → làm sạch tên trước khi dùng
         function safeKey(s) { return String(s).replace(/[.#$\[\]\/]/g, "_"); }
@@ -3794,6 +3806,7 @@ DAP AN: 0,5`;
                 document.getElementById("examClassInput").value = "10";
                 document.getElementById("examVisibilityInput").value = "show";
                 document.getElementById("examShuffleInput").value = "on";
+                document.getElementById("examInstantInput").checked = false;
                 document.getElementById("csMcq").value = 3; document.getElementById("csTf").value = 2;
                 document.getElementById("csShort").value = 2; document.getElementById("csEssay").value = 3;
                 window.builderQuestions = []; 
@@ -3806,6 +3819,7 @@ DAP AN: 0,5`;
                 document.getElementById("examClassInput").value = ex.targetClass || "10";
                 document.getElementById("examVisibilityInput").value = ex.visibility || "show";
                 document.getElementById("examShuffleInput").value = ex.shuffle || "on";
+                document.getElementById("examInstantInput").checked = ex.instantFeedback === true;
                 const cs = ex.customScore || {mcq:3, tf:2, short:2, essay:3};
                 document.getElementById("csMcq").value = cs.mcq; document.getElementById("csTf").value = cs.tf;
                 document.getElementById("csShort").value = cs.short; document.getElementById("csEssay").value = cs.essay;
@@ -4340,6 +4354,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             const targetClass = document.getElementById("examClassInput").value;
             const visibility = document.getElementById("examVisibilityInput").value;
             const shuffle = document.getElementById("examShuffleInput").value;
+            const instantFeedback = document.getElementById("examInstantInput").checked;
             
             syncBuilderData(); 
             
@@ -4359,6 +4374,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 targetClass: targetClass, // Lưu thông tin Lớp
                 visibility: visibility,   // Lưu trạng thái Ẩn/Hiện
                 shuffle: shuffle,         // Lưu trạng thái Trộn đề
+                instantFeedback: instantFeedback,   // Chấm ngay sau mỗi câu?
                 homework: (dbExams[name] && dbExams[name].homework) || false,
                 deadline: (dbExams[name] && dbExams[name].deadline) || null,
                 customScore: docCustomScore(),  // Điểm từng phần do thầy đặt
@@ -4860,6 +4876,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             }
             activeExamName = name;
             activeScoring = exam.scoring || 'free';
+            activeChamNgay = exam.instantFeedback === true;   // chỉ bật khi thầy/cô tick riêng
             activeCustom = exam.customScore || null;
             currentMode = mode;
 
@@ -5151,7 +5168,9 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             // In các lựa chọn đáp án
             let html = ""; const savedAns = userAnswers[currentIdx];
             // Chế độ tự luyện: hiện đúng/sai ngay sau khi HS chọn
-            const chamNgay = (currentMode === 'practice') && (savedAns !== undefined && savedAns !== null && savedAns !== "");
+            // Chỉ chấm ngay khi thầy/cô BẬT riêng cho đề đó. Mặc định tắt:
+            // học sinh làm xong nộp bài mới biết kết quả, như thi thật.
+            const chamNgay = activeChamNgay && (savedAns !== undefined && savedAns !== null && savedAns !== "");
 
             if(q.type === "mcq") {
                 q.a.forEach((ans, i) => {
@@ -5358,17 +5377,17 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
         window.saveShort = (v) => {
             userAnswers[currentIdx] = v.trim(); syncScore(); renderGrid(); saveDraft();
-            // Chế độ luyện tập: chấm ngay, nhưng chờ HS ngừng gõ 1 giây để không nhảy con trỏ
-            if(currentMode === 'practice') {
+            // Chỉ vẽ lại để chấm ngay khi đề có bật tính năng đó
+            if(activeChamNgay) {
                 clearTimeout(window._henChamNgay);
-                window._henChamNgay = setTimeout(() => { if(currentMode === 'practice') renderQ(); }, 1000);
+                window._henChamNgay = setTimeout(() => { if(activeChamNgay) renderQ(); }, 1000);
             }
         };
         window.saveTF = (idx, v) => {
             if(!userAnswers[currentIdx]) userAnswers[currentIdx] = {};
             userAnswers[currentIdx][idx] = v; syncScore(); renderGrid(); saveDraft();
             // Chỉ chấm ngay khi HS đã trả lời đủ cả 4 ý
-            if(currentMode === 'practice') {
+            if(activeChamNgay) {
                 const n = (questions[currentIdx].statements || []).length;
                 const daLam = Object.keys(userAnswers[currentIdx] || {}).length;
                 if(daLam >= n) renderQ();
