@@ -5356,6 +5356,10 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
         window.openBTVN = async () => {
             batListenerGiaoVien();              // cần danh sách đề
             if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();   // cần danh sách HS để giao riêng
+            try {   // tải lịch sử để đếm số lượt nộp của mỗi bài
+                const snap = await get(ref(db, 'history_all'));
+                btvnDuLieuTho = snap.exists() ? snap.val() : {};
+            } catch(e) {}
             showScreen('screen-btvn');
             chuyenTabBTVN('soan');
         };
@@ -5423,6 +5427,12 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     ? `<span style="color:#dc2626; font-weight:bold;">⏰ ${mt.text}</span>`
                     : `<span style="color:#15803d; font-weight:bold;">⏳ ${mt.conLai}</span>`;
 
+                // Đếm số em đã nộp bài này
+                let soEmNop = 0;
+                Object.values(btvnDuLieuTho || {}).forEach(cuaHS => {
+                    if(Object.values(cuaHS || {}).some(b => b.examName === ten)) soEmNop++;
+                });
+
                 const rieng = Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0;
                 const nhanNguoi = rieng
                     ? `<span style="color:#7c3aed; font-weight:bold;">🎯 ${ex.giaoCho.length} em được chọn</span>`
@@ -5437,6 +5447,9 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                                 <span style="color:${mauKieu}; font-weight:bold;">${kieu}</span>
                                 <span style="color:#64748b;">📝 ${soCau} câu</span>
                                 ${nhanNguoi}
+                                ${an ? '' : (soEmNop > 0
+                                    ? `<span style="color:#16a34a; font-weight:bold; cursor:pointer;" onclick="xemKqBTVN('${ten.replace(/'/g,"\\'")}')">✅ ${soEmNop} em đã nộp</span>`
+                                    : `<span style="color:#94a3b8;">chưa ai nộp</span>`)}
                             </div>
                             ${nhanHan ? `<div style="font-size:13px; margin-top:4px;">${nhanHan}</div>` : ''}
                         </div>
@@ -5698,21 +5711,30 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 return;
             }
 
-            // Gom MỌI bài có học sinh nộp: kiểm tra, tự luyện, về nhà
-            const tenBTVN = new Set();
+            // Đếm số lượt nộp của từng bài
+            const soLuot = {};
             Object.values(btvnDuLieuTho).forEach(cuaHS => {
-                Object.values(cuaHS || {}).forEach(ban => { if(ban.examName) tenBTVN.add(ban.examName); });
+                Object.values(cuaHS || {}).forEach(ban => {
+                    if(ban.examName) soLuot[ban.examName] = (soLuot[ban.examName] || 0) + 1;
+                });
             });
+
+            // Liệt kê MỌI bài đã giao, kể cả bài chưa ai nộp — để thầy/cô không bị hiểu nhầm là lỗi
+            const tenDeDaGiao = Object.keys(dbExams).filter(k => dbExams[k].visibility !== 'hide');
+            const tatCa = [...new Set([...tenDeDaGiao, ...Object.keys(soLuot)])]
+                .sort((a,b) => (soLuot[b]||0) - (soLuot[a]||0) || a.localeCompare(b,'vi'));
 
             const picker = document.getElementById("btvnResultPicker");
             const cu = picker.value;
-            const ds = [...tenBTVN].sort((a,b)=>a.localeCompare(b,'vi'));
             picker.innerHTML = `<option value="">-- Chọn bài --</option>` +
-                ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('');
-            if(ds.includes(cu)) picker.value = cu;
+                tatCa.map(t => {
+                    const n = soLuot[t] || 0;
+                    return `<option value="${t.replace(/"/g,'&quot;')}">${t} ${n ? `(${n} lượt nộp)` : '(chưa ai nộp)'}</option>`;
+                }).join('');
+            if(tatCa.includes(cu)) picker.value = cu;
 
-            if(ds.length === 0) {
-                area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có học sinh nào nộp bài.</div>`;
+            if(tatCa.length === 0) {
+                area.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có bài nào được giao.</div>`;
                 return;
             }
             veBangKetQuaBTVN();
@@ -5818,7 +5840,20 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
             btvnKetQuaDangXem = theoHS;   // giữ lại cho phần xem chi tiết từng lần
             const users = Object.keys(theoHS);
-            if(users.length === 0) { area.innerHTML = `<div style="padding:20px; text-align:center; color:#94a3b8;">Chưa có ai làm bài này.</div>`; return; }
+            if(users.length === 0) {
+                const ex = dbExams[ten];
+                const loaiBai = ex ? (ex.homework ? 'bài về nhà' : (ex.type === 'practice' ? 'bài tự luyện' : 'bài kiểm tra')) : '';
+                area.innerHTML = `<div style="padding:24px; background:#fffbeb; border:2px solid #fde68a; border-radius:12px; text-align:left;">
+                    <b style="color:#92400e; font-size:16px;">Chưa có em nào nộp "${ten}".</b>
+                    <div style="font-size:14px; color:#78716c; margin-top:9px; line-height:1.8;">
+                        ${ex ? `Bài này đang giao làm <b>${loaiBai}</b>${ex.targetClass && ex.targetClass !== 'all' ? ' cho lớp ' + ex.targetClass : ''}.` : 'Bài này không còn trong danh sách đề.'}<br>
+                        • Các em đã làm nhưng <b>chưa bấm Nộp bài</b> thì chưa tính.<br>
+                        • Bài <b>tự luyện làm trước ngày 25/10/2026</b> không được lưu lại — chỉ tính từ lần làm sau khi cập nhật hệ thống.<br>
+                        • Nếu các em vừa nộp xong, thầy/cô bấm <b>🔄 Tải lại</b> ở trên.
+                    </div></div>`;
+                document.getElementById("btvnChiTietLan").innerHTML = "";
+                return;
+            }
 
             let tongLuot = 0;
             let h = `<div style="overflow-x:auto; border-radius:12px; border:1px solid #e2e8f0;">
