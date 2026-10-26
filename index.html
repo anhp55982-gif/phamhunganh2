@@ -641,19 +641,36 @@
         <div id="screen-teacher-dash" class="screen">
             <h2 style="font-size: 28px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px;">🛠 Bảng Điều Khiển Quản Trị</h2>
             <div class="grid-menu">
-                <button class="btn btn-orange" onclick="openCreateExam()" style="padding: 20px;">📝 TẠO / SỬA ĐỀ THI</button>
-                <button class="btn btn-blue" onclick="openMonitor()" style="padding: 20px;">📊 GIÁM SÁT HỌC SINH</button>
-                <button class="btn" onclick="openBank()" style="padding: 20px; background:linear-gradient(to right,#8b5cf6,#7c3aed);">🏦 NGÂN HÀNG CÂU HỎI</button>
-                <button class="btn btn-green" onclick="openSolutions()" style="padding: 20px;">📖 KHO ĐÁP ÁN CHI TIẾT</button>
-                <button class="btn btn-gray" onclick="openAccountManager()" style="padding: 20px;">🔑 QUẢN LÝ TÀI KHOẢN</button>
-                <button class="btn" onclick="openQuanLyLop()" style="padding: 20px; background:linear-gradient(to right,#8b5cf6,#7c3aed);">👥 QUẢN LÝ LỚP &amp; HỌC SINH</button>
-                <button class="btn" onclick="openBTVN()" style="padding: 20px; background:linear-gradient(to right,#eab308,#ca8a04);">📤 GIAO BÀI CHO HS</button>
+                <button class="btn" onclick="openBank()" style="padding: 24px; background:linear-gradient(to right,#8b5cf6,#7c3aed);">
+                    📚 ĐỀ THI &amp; CÂU HỎI
+                    <div style="font-size:12px; font-weight:normal; opacity:0.85; margin-top:4px;">Ngân hàng · Soạn đề · Ma trận · Đáp án</div>
+                </button>
+                <button class="btn" onclick="openBTVN()" style="padding: 24px; background:linear-gradient(to right,#eab308,#ca8a04);">
+                    📤 GIAO BÀI &amp; KẾT QUẢ
+                    <div style="font-size:12px; font-weight:normal; opacity:0.85; margin-top:4px;">Giao bài · Đang giao · Thống kê</div>
+                </button>
+                <button class="btn btn-green" onclick="openSoDiem()" style="padding: 24px;">
+                    📒 SỔ ĐIỂM &amp; CHỈ TIÊU
+                    <div style="font-size:12px; font-weight:normal; opacity:0.85; margin-top:4px;">Nhập điểm · Tính ĐTB · Theo dõi chỉ tiêu</div>
+                </button>
+                <button class="btn" onclick="openQuanLyLop()" style="padding: 24px; background:linear-gradient(to right,#0ea5e9,#0369a1);">
+                    👥 LỚP &amp; TÀI KHOẢN
+                    <div style="font-size:12px; font-weight:normal; opacity:0.85; margin-top:4px;">Tạo tài khoản · Danh sách học sinh</div>
+                </button>
+                <button class="btn btn-blue" onclick="openMonitor()" style="padding: 24px; grid-column:1/-1;">
+                    📊 GIÁM SÁT LỚP ĐANG THI
+                    <div style="font-size:12px; font-weight:normal; opacity:0.85; margin-top:4px;">Chỉ dùng khi học sinh đang làm bài kiểm tra tại lớp</div>
+                </button>
             </div>
             <button class="btn btn-red" style="margin-top:30px;" onclick="location.reload()">🚪 ĐĂNG XUẤT</button>
         </div>
 
         <div id="screen-bank" class="screen">
-            <h2>🏦 Ngân Hàng Câu Hỏi</h2>
+            <h2>📚 Đề Thi &amp; Câu Hỏi</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+                <button class="btn btn-orange" style="margin:0; width:auto; padding:12px 20px; font-size:14px;" onclick="openCreateExam()">✏️ Soạn đề thủ công</button>
+                <button class="btn btn-green" style="margin:0; width:auto; padding:12px 20px; font-size:14px;" onclick="openSolutions()">📖 Xem đáp án chi tiết</button>
+            </div>
 
 
             <p style="color:#64748b; font-size:15px; margin-top:-8px;">Kho câu hỏi dùng chung. Soạn một lần, rút ra ghép đề nhiều lần.</p>
@@ -1169,8 +1186,53 @@
             <button class="btn btn-gray" style="margin-top:25px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
         </div>
 
+        <div id="screen-so-diem" class="screen">
+            <h2>📒 Sổ Điểm &amp; Chỉ Tiêu</h2>
+            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Nhập điểm theo Thông tư 22. Điểm bài kiểm tra trên web lấy sang được, không phải chép tay.</p>
+
+            <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
+                <div style="flex:1; min-width:140px;">
+                    <label style="font-size:13px; font-weight:bold; color:#15803d;">Lớp:</label>
+                    <select id="sdLop" onchange="taiSoDiem()" style="margin:5px 0 0 0; padding:11px;"></select>
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <label style="font-size:13px; font-weight:bold; color:#15803d;">Học kì:</label>
+                    <select id="sdHocKy" onchange="taiSoDiem()" style="margin:5px 0 0 0; padding:11px;">
+                        <option value="hk1">Học kì I</option>
+                        <option value="hk2">Học kì II</option>
+                    </select>
+                </div>
+                <div style="flex:1; min-width:130px;">
+                    <label style="font-size:13px; font-weight:bold; color:#15803d;">Số đầu điểm TX:</label>
+                    <select id="sdSoTX" onchange="doiSoDauDiem()" style="margin:5px 0 0 0; padding:11px;">
+                        <option value="2">2 đầu điểm</option><option value="3">3 đầu điểm</option>
+                        <option value="4" selected>4 đầu điểm</option><option value="5">5 đầu điểm</option>
+                    </select>
+                </div>
+                <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 16px; font-size:14px;" onclick="moCaiDatChiTieu()">🎯 Chỉ tiêu &amp; ngưỡng</button>
+            </div>
+
+            <div id="sdKhungChiTieu" style="display:none;"></div>
+            <div id="sdBangChiTieu"></div>
+
+            <div style="display:flex; gap:10px; margin:16px 0; flex-wrap:wrap;">
+                <button class="btn btn-blue" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="moLayDiemTuBai()">📥 Lấy điểm từ bài trên web</button>
+                <button class="btn btn-green" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="luuSoDiem()">💾 LƯU ĐIỂM</button>
+                <button class="btn btn-gray" style="margin:0; width:auto; padding:12px 18px; font-size:14px;" onclick="xuatSoDiem()">📊 Xuất Excel</button>
+                <span id="sdTrangThai" style="margin-left:auto; font-size:14px; color:#64748b; align-self:center;"></span>
+            </div>
+
+            <div id="sdKhungLayDiem" style="display:none;"></div>
+            <div id="sdBang"></div>
+
+            <button class="btn btn-gray" style="margin-top:25px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
+        </div>
+
         <div id="screen-quan-ly-lop" class="screen">
-            <h2>👥 Tài Khoản Học Sinh</h2>
+            <h2>👥 Lớp &amp; Tài Khoản</h2>
+            <div style="margin-bottom:16px;">
+                <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="openAccountManager()">🔑 Tài khoản giáo viên</button>
+            </div>
             <p style="color:#64748b; font-size:15px; margin-top:-8px;">Dán danh sách tên là có ngay tài khoản cho cả lớp. Tên đăng nhập và mật khẩu được tạo tự động, in ra phát cho các em.</p>
 
             <div style="background:#faf5ff; border:2px solid #ddd6fe; border-radius:14px; padding:18px; margin-bottom:20px;">
@@ -1947,6 +2009,400 @@
                 status_online: "Trực tuyến"
             });
             onDisconnect(ref(db, 'students/' + studentKey())).update({ status_online: "Ngoại tuyến" });
+        };
+
+        // ================= SỔ ĐIỂM (Thông tư 22) =================
+        // Công thức: ĐTBmhk = (tổng điểm TX + 2×GK + 3×CK) / (số TX + 5)
+        // Lưu ý: Tốt/Khá/Đạt của TT22 là xếp loại CẢ HỌC SINH trên mọi môn.
+        // Ở đây chỉ xếp theo điểm trung bình MÔN TOÁN, phục vụ chỉ tiêu bộ môn.
+        let sdDuLieu = {};        // { username: {tx:[], gk:null, ck:null} }
+        let sdCauHinh = {};       // { soTX, chiTieu, nguong }
+        const SD_MAC_DINH = {
+            soTX: 4,
+            chiTieu: { tot: 0, kha: 0, dat: 0 },
+            nguong: { tot: 8.0, kha: 6.5, dat: 5.0 }
+        };
+
+        window.openSoDiem = async () => {
+            showScreen('screen-so-diem');
+            if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();
+
+            const lop = dsLopHienCo();
+            const sel = document.getElementById("sdLop");
+            const cu = sel.value;
+            sel.innerHTML = lop.length
+                ? lop.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">Lớp ${t}</option>`).join('')
+                : `<option value="">(chưa có lớp nào)</option>`;
+            if(lop.includes(cu)) sel.value = cu;
+            await taiSoDiem();
+        };
+
+        function sdDuongDan() {
+            const lop = document.getElementById("sdLop").value;
+            const hk  = document.getElementById("sdHocKy").value;
+            return lop ? `sodiem/${lop}/${hk}` : null;
+        }
+
+        window.taiSoDiem = async () => {
+            const duong = sdDuongDan();
+            const bang = document.getElementById("sdBang");
+            if(!duong) {
+                bang.innerHTML = `<div style="padding:30px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
+                    Chưa có lớp nào. Thầy/cô tạo tài khoản học sinh ở mục <b>👥 Lớp &amp; tài khoản</b> trước.</div>`;
+                document.getElementById("sdBangChiTieu").innerHTML = "";
+                return;
+            }
+            bang.innerHTML = `<div style="padding:24px; text-align:center; color:#64748b;">Đang tải sổ điểm...</div>`;
+            try {
+                const snap = await get(ref(db, duong));
+                const v = snap.exists() ? snap.val() : {};
+                sdCauHinh = Object.assign({}, SD_MAC_DINH, v.cauHinh || {});
+                sdCauHinh.chiTieu = Object.assign({}, SD_MAC_DINH.chiTieu, (v.cauHinh||{}).chiTieu || {});
+                sdCauHinh.nguong  = Object.assign({}, SD_MAC_DINH.nguong,  (v.cauHinh||{}).nguong  || {});
+                sdDuLieu = v.diem || {};
+            } catch(e) {
+                bang.innerHTML = `<div style="padding:24px; text-align:center; color:#dc2626;">Lỗi tải sổ điểm: ${e.message}</div>`;
+                return;
+            }
+            document.getElementById("sdSoTX").value = String(sdCauHinh.soTX);
+            veBangSoDiem();
+        };
+
+        window.doiSoDauDiem = () => {
+            sdCauHinh.soTX = parseInt(document.getElementById("sdSoTX").value) || 4;
+            veBangSoDiem();
+            bupTrangThai("Đã đổi số đầu điểm — nhớ bấm 💾 LƯU ĐIỂM");
+        };
+
+        function bupTrangThai(t, mau) {
+            const el = document.getElementById("sdTrangThai");
+            if(el) { el.innerHTML = t; el.style.color = mau || '#b45309'; }
+        }
+
+        // Tính điểm trung bình môn học kì theo Thông tư 22
+        function tinhDTBmhk(d, soTX) {
+            const tx = (d.tx || []).slice(0, soTX).map(x => parseFloat(x)).filter(x => !isNaN(x));
+            const gk = parseFloat(d.gk), ck = parseFloat(d.ck);
+            if(tx.length < soTX || isNaN(gk) || isNaN(ck)) return null;   // thiếu điểm thì chưa tính
+            const tong = tx.reduce((a,b)=>a+b, 0) + 2*gk + 3*ck;
+            return Math.round((tong / (soTX + 5)) * 100) / 100;
+        }
+
+        function xepLoaiMon(dtb, nguong) {
+            if(dtb === null) return { ten: '—', mau: '#94a3b8', ma: 'thieu' };
+            if(dtb >= nguong.tot) return { ten: 'Tốt',  mau: '#16a34a', ma: 'tot' };
+            if(dtb >= nguong.kha) return { ten: 'Khá',  mau: '#0284c7', ma: 'kha' };
+            if(dtb >= nguong.dat) return { ten: 'Đạt',  mau: '#f59e0b', ma: 'dat' };
+            return { ten: 'Chưa đạt', mau: '#dc2626', ma: 'chuadat' };
+        }
+
+        function dsHocSinhLop(lop) {
+            return Object.keys(dbTaiKhoan)
+                .map(u => ({ u, ...dbTaiKhoan[u] }))
+                .filter(x => (x.role || 'student') === 'student' && x.targetClass === lop)
+                .sort((a,b) => (a.fullName||"").localeCompare(b.fullName||"", 'vi'));
+        }
+
+        function veBangSoDiem() {
+            const lop = document.getElementById("sdLop").value;
+            const bang = document.getElementById("sdBang");
+            const hs = dsHocSinhLop(lop);
+            const n = sdCauHinh.soTX;
+
+            if(hs.length === 0) {
+                bang.innerHTML = `<div style="padding:30px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
+                    Lớp ${lop} chưa có học sinh nào.</div>`;
+                document.getElementById("sdBangChiTieu").innerHTML = "";
+                return;
+            }
+
+            let h = `<div style="overflow-x:auto; border:1px solid #e2e8f0; border-radius:12px; max-height:560px; overflow-y:auto;">
+                <table style="width:100%; font-size:14px; min-width:720px;">
+                <thead style="position:sticky; top:0; z-index:2;"><tr style="background:#f0fdf4;">
+                    <th style="padding:9px; text-align:left; background:#f0fdf4; position:sticky; left:0; z-index:3; min-width:150px;">Họ tên</th>`;
+            for(let i = 0; i < n; i++) h += `<th style="padding:9px; width:62px; background:#f0fdf4;">TX${i+1}</th>`;
+            h += `<th style="padding:9px; width:68px; background:#dbeafe;">GK<br><span style="font-size:11px; font-weight:normal;">×2</span></th>
+                  <th style="padding:9px; width:68px; background:#fee2e2;">CK<br><span style="font-size:11px; font-weight:normal;">×3</span></th>
+                  <th style="padding:9px; width:78px; background:#f0fdf4;">ĐTB môn</th>
+                  <th style="padding:9px; width:90px; background:#f0fdf4;">Xếp loại</th>
+                </tr></thead><tbody>`;
+
+            hs.forEach(x => {
+                const d = sdDuLieu[x.u] || { tx: [], gk: "", ck: "" };
+                const dtb = tinhDTBmhk(d, n);
+                const xl = xepLoaiMon(dtb, sdCauHinh.nguong);
+
+                h += `<tr style="border-top:1px solid #f1f5f9;">
+                    <td style="padding:6px 9px; text-align:left; font-weight:600; background:white; position:sticky; left:0; z-index:1;">${x.fullName}</td>`;
+                for(let i = 0; i < n; i++) {
+                    const v = (d.tx && d.tx[i] !== undefined && d.tx[i] !== null) ? d.tx[i] : "";
+                    h += `<td style="padding:4px;"><input type="text" inputmode="decimal" value="${v}"
+                        data-u="${x.u}" data-loai="tx" data-i="${i}" oninput="suaO(this)"
+                        style="margin:0; padding:7px 4px; text-align:center; font-weight:bold; font-size:15px;"></td>`;
+                }
+                h += `<td style="padding:4px;"><input type="text" inputmode="decimal" value="${d.gk ?? ""}"
+                        data-u="${x.u}" data-loai="gk" oninput="suaO(this)"
+                        style="margin:0; padding:7px 4px; text-align:center; font-weight:bold; font-size:15px; background:#eff6ff;"></td>
+                    <td style="padding:4px;"><input type="text" inputmode="decimal" value="${d.ck ?? ""}"
+                        data-u="${x.u}" data-loai="ck" oninput="suaO(this)"
+                        style="margin:0; padding:7px 4px; text-align:center; font-weight:bold; font-size:15px; background:#fef2f2;"></td>
+                    <td style="padding:6px; text-align:center;"><b id="dtb_${x.u}" style="font-size:16px; color:${xl.mau};">${dtb === null ? '—' : dtb.toFixed(2)}</b></td>
+                    <td style="padding:6px; text-align:center;"><b id="xl_${x.u}" style="color:${xl.mau};">${xl.ten}</b></td>
+                </tr>`;
+            });
+            h += `</tbody></table></div>
+                <div style="margin-top:10px; font-size:13px; color:#64748b;">
+                    Gõ điểm thang 10, dùng dấu chấm hoặc phẩy đều được. Ô nào để trống thì chưa tính ĐTB.
+                    Nhập xong nhớ bấm <b>💾 LƯU ĐIỂM</b>.</div>`;
+            bang.innerHTML = h;
+            veChiTieu();
+        }
+
+        // Người dùng gõ vào một ô điểm
+        window.suaO = (el) => {
+            const u = el.dataset.u, loai = el.dataset.loai;
+            let v = el.value.trim().replace(',', '.');
+            if(v !== "") {
+                const so = parseFloat(v);
+                if(isNaN(so) || so < 0 || so > 10) { el.style.borderColor = '#dc2626'; return; }
+                v = so;
+            } else v = null;
+            el.style.borderColor = '';
+
+            if(!sdDuLieu[u]) sdDuLieu[u] = { tx: [], gk: null, ck: null };
+            if(loai === 'tx') {
+                if(!Array.isArray(sdDuLieu[u].tx)) sdDuLieu[u].tx = [];
+                sdDuLieu[u].tx[parseInt(el.dataset.i)] = v;
+            } else sdDuLieu[u][loai] = v;
+
+            // Cập nhật ĐTB và xếp loại ngay, không vẽ lại cả bảng (giữ con trỏ)
+            const dtb = tinhDTBmhk(sdDuLieu[u], sdCauHinh.soTX);
+            const xl = xepLoaiMon(dtb, sdCauHinh.nguong);
+            const oDtb = document.getElementById("dtb_" + u), oXl = document.getElementById("xl_" + u);
+            if(oDtb) { oDtb.innerText = dtb === null ? '—' : dtb.toFixed(2); oDtb.style.color = xl.mau; }
+            if(oXl)  { oXl.innerText = xl.ten; oXl.style.color = xl.mau; }
+            veChiTieu();
+            bupTrangThai("✏️ Có thay đổi chưa lưu");
+        };
+
+        window.luuSoDiem = async () => {
+            const duong = sdDuongDan();
+            if(!duong) return;
+            try {
+                await set(ref(db, duong), { cauHinh: sdCauHinh, diem: sdDuLieu, capNhat: Date.now() });
+                bupTrangThai("✅ Đã lưu lúc " + new Date().toLocaleTimeString(), '#16a34a');
+            } catch(e) { alert("Lỗi khi lưu: " + e.message); }
+        };
+
+        // ---------- Chỉ tiêu & cảnh báo sớm ----------
+        window.moCaiDatChiTieu = () => {
+            const k = document.getElementById("sdKhungChiTieu");
+            if(k.style.display === 'block') { k.style.display = 'none'; return; }
+            const ct = sdCauHinh.chiTieu, ng = sdCauHinh.nguong;
+            k.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:16px; margin-bottom:16px;">
+                <b style="color:#15803d; font-size:16px;">🎯 Chỉ tiêu đăng ký &amp; ngưỡng xếp loại</b>
+                <div style="font-size:13px; color:#78716c; margin:6px 0 12px 0;">
+                    Ngưỡng mặc định lấy theo Thông tư 22 (8.0 / 6.5 / 5.0). Trường quy định khác thì thầy/cô sửa lại.
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#16a34a;">Chỉ tiêu Tốt (em):</label>
+                        <input type="number" id="ctTot" min="0" value="${ct.tot}" style="margin:4px 0 0 0; padding:10px;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0284c7;">Chỉ tiêu Khá (em):</label>
+                        <input type="number" id="ctKha" min="0" value="${ct.kha}" style="margin:4px 0 0 0; padding:10px;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#f59e0b;">Chỉ tiêu Đạt (em):</label>
+                        <input type="number" id="ctDat" min="0" value="${ct.dat}" style="margin:4px 0 0 0; padding:10px;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#16a34a;">Ngưỡng Tốt (≥):</label>
+                        <input type="number" id="ngTot" step="0.1" min="0" max="10" value="${ng.tot}" style="margin:4px 0 0 0; padding:10px;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0284c7;">Ngưỡng Khá (≥):</label>
+                        <input type="number" id="ngKha" step="0.1" min="0" max="10" value="${ng.kha}" style="margin:4px 0 0 0; padding:10px;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#f59e0b;">Ngưỡng Đạt (≥):</label>
+                        <input type="number" id="ngDat" step="0.1" min="0" max="10" value="${ng.dat}" style="margin:4px 0 0 0; padding:10px;"></div>
+                </div>
+                <button class="btn btn-green" style="margin:14px 0 0 0; width:auto; padding:11px 20px; font-size:14px;" onclick="luuChiTieu()">✅ Áp dụng</button>
+            </div>`;
+            k.style.display = 'block';
+        };
+
+        window.luuChiTieu = () => {
+            sdCauHinh.chiTieu = {
+                tot: parseInt(document.getElementById("ctTot").value) || 0,
+                kha: parseInt(document.getElementById("ctKha").value) || 0,
+                dat: parseInt(document.getElementById("ctDat").value) || 0
+            };
+            sdCauHinh.nguong = {
+                tot: parseFloat(document.getElementById("ngTot").value) || 8,
+                kha: parseFloat(document.getElementById("ngKha").value) || 6.5,
+                dat: parseFloat(document.getElementById("ngDat").value) || 5
+            };
+            document.getElementById("sdKhungChiTieu").style.display = 'none';
+            veBangSoDiem();
+            bupTrangThai("✏️ Đã đổi chỉ tiêu — nhớ bấm 💾 LƯU ĐIỂM");
+        };
+
+        function veChiTieu() {
+            const khung = document.getElementById("sdBangChiTieu");
+            if(!khung) return;
+            const lop = document.getElementById("sdLop").value;
+            const hs = dsHocSinhLop(lop);
+            const n = sdCauHinh.soTX, ng = sdCauHinh.nguong, ct = sdCauHinh.chiTieu;
+
+            const dem = { tot:0, kha:0, dat:0, chuadat:0, thieu:0 };
+            const satNguong = [];    // sắp đạt mức cao hơn
+            hs.forEach(x => {
+                const dtb = tinhDTBmhk(sdDuLieu[x.u] || {}, n);
+                const xl = xepLoaiMon(dtb, ng);
+                dem[xl.ma]++;
+                if(dtb === null) return;
+                // Còn thiếu bao nhiêu để lên mức trên
+                let can = null, mucTren = "";
+                if(dtb < ng.tot && dtb >= ng.kha) { can = ng.tot - dtb; mucTren = "Tốt"; }
+                else if(dtb < ng.kha && dtb >= ng.dat) { can = ng.kha - dtb; mucTren = "Khá"; }
+                else if(dtb < ng.dat) { can = ng.dat - dtb; mucTren = "Đạt"; }
+                if(can !== null && can <= 0.5) satNguong.push({ ten: x.fullName, dtb, can, mucTren });
+            });
+            satNguong.sort((a,b)=>a.can-b.can);
+
+            const o = (nhan, so, chiTieu, mau) => {
+                const du = chiTieu > 0 ? so - chiTieu : null;
+                let ghi = "";
+                if(chiTieu > 0) ghi = du >= 0
+                    ? `<span style="color:#16a34a; font-weight:bold;">đạt chỉ tiêu (+${du})</span>`
+                    : `<span style="color:#dc2626; font-weight:bold;">còn thiếu ${-du}</span>`;
+                return `<div style="background:white; border:2px solid ${mau}33; border-radius:12px; padding:12px 14px; flex:1; min-width:130px;">
+                    <div style="font-size:13px; color:#64748b;">${nhan}</div>
+                    <div style="font-size:24px; font-weight:800; color:${mau};">${so}${chiTieu > 0 ? `<span style="font-size:15px; color:#94a3b8; font-weight:600;"> / ${chiTieu}</span>` : ''}</div>
+                    <div style="font-size:12px; margin-top:2px;">${ghi}</div>
+                </div>`;
+            };
+
+            let h = `<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+                ${o('Tốt (≥' + ng.tot + ')', dem.tot, ct.tot, '#16a34a')}
+                ${o('Khá (≥' + ng.kha + ')', dem.kha, ct.kha, '#0284c7')}
+                ${o('Đạt (≥' + ng.dat + ')', dem.dat, ct.dat, '#f59e0b')}
+                ${o('Chưa đạt', dem.chuadat, 0, '#dc2626')}
+                ${dem.thieu ? o('Chưa đủ điểm', dem.thieu, 0, '#94a3b8') : ''}
+            </div>`;
+
+            if(satNguong.length > 0) {
+                h += `<div style="background:#fffbeb; border:2px solid #fde68a; border-radius:12px; padding:14px; margin-bottom:14px;">
+                    <b style="color:#92400e;">🎯 Các em sát ngưỡng — kèm thêm chút là lên mức</b>
+                    <div style="margin-top:9px; display:flex; flex-wrap:wrap; gap:8px;">`;
+                satNguong.slice(0, 10).forEach(x => {
+                    h += `<span style="background:white; border:1px solid #fcd34d; border-radius:10px; padding:7px 12px; font-size:13px;">
+                        <b>${x.ten}</b> — ${x.dtb.toFixed(2)} · thiếu <b style="color:#b45309;">${x.can.toFixed(2)}</b> để lên ${x.mucTren}</span>`;
+                });
+                h += `</div></div>`;
+            }
+            khung.innerHTML = h;
+        }
+
+        // ---------- Lấy điểm từ bài học sinh đã làm trên web ----------
+        window.moLayDiemTuBai = async () => {
+            const k = document.getElementById("sdKhungLayDiem");
+            if(k.style.display === 'block') { k.style.display = 'none'; return; }
+
+            if(Object.keys(btvnDuLieuTho).length === 0) {
+                k.innerHTML = `<div style="padding:16px; text-align:center; color:#64748b;">Đang tải điểm các bài...</div>`;
+                k.style.display = 'block';
+                try {
+                    const snap = await get(ref(db, 'history_all'));
+                    btvnDuLieuTho = snap.exists() ? snap.val() : {};
+                } catch(e) { k.innerHTML = `<div style="color:#dc2626; padding:14px;">Lỗi: ${e.message}</div>`; return; }
+            }
+
+            const ten = new Set();
+            Object.values(btvnDuLieuTho).forEach(c => Object.values(c||{}).forEach(b => { if(b.examName) ten.add(b.examName); }));
+            const ds = [...ten].sort((a,b)=>a.localeCompare(b,'vi'));
+
+            if(ds.length === 0) {
+                k.innerHTML = `<div style="background:#fffbeb; border:2px solid #fde68a; border-radius:12px; padding:16px; margin-bottom:14px; color:#92400e;">
+                    Chưa có bài nào học sinh nộp để lấy điểm.</div>`;
+                k.style.display = 'block';
+                return;
+            }
+
+            const n = sdCauHinh.soTX;
+            let oCot = "";
+            for(let i = 0; i < n; i++) oCot += `<option value="tx${i}">Đầu điểm TX${i+1}</option>`;
+            oCot += `<option value="gk">Điểm giữa kì</option><option value="ck">Điểm cuối kì</option>`;
+
+            k.innerHTML = `<div style="background:#eff6ff; border:2px solid #bae6fd; border-radius:14px; padding:16px; margin-bottom:14px;">
+                <b style="color:#0369a1; font-size:16px;">📥 Lấy điểm từ bài học sinh đã làm</b>
+                <div style="font-size:13px; color:#64748b; margin:6px 0 12px 0;">Em nào làm nhiều lần thì lấy điểm cao nhất. Em chưa làm thì để trống, không ghi đè.</div>
+                <div style="display:grid; grid-template-columns:2fr 1fr auto; gap:12px; align-items:end;">
+                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lấy từ bài:</label>
+                        <select id="ldBai" style="margin:4px 0 0 0; padding:11px;">${ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('')}</select></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Đổ vào cột:</label>
+                        <select id="ldCot" style="margin:4px 0 0 0; padding:11px;">${oCot}</select></div>
+                    <button class="btn btn-blue" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="layDiemVaoSo()">📥 Lấy điểm</button>
+                </div>
+            </div>`;
+            k.style.display = 'block';
+        };
+
+        window.layDiemVaoSo = () => {
+            const ten = document.getElementById("ldBai").value;
+            const cot = document.getElementById("ldCot").value;
+            const lop = document.getElementById("sdLop").value;
+            const hs = dsHocSinhLop(lop);
+
+            // Điểm cao nhất của từng em ở bài này
+            const diemCao = {};
+            Object.keys(btvnDuLieuTho).forEach(u => {
+                Object.values(btvnDuLieuTho[u] || {}).forEach(b => {
+                    if(b.examName !== ten) return;
+                    const d = (parseFloat(b.score)||0) + (parseFloat(b.essayScore)||0);
+                    if(diemCao[u] === undefined || d > diemCao[u]) diemCao[u] = d;
+                });
+            });
+
+            const coDiem = hs.filter(x => diemCao[x.u] !== undefined);
+            if(coDiem.length === 0) return alert(`Không em nào trong lớp ${lop} làm bài "${ten}".`);
+
+            const tenCot = cot === 'gk' ? 'Giữa kì' : (cot === 'ck' ? 'Cuối kì' : 'TX' + (parseInt(cot.slice(2))+1));
+            if(!confirm(`Lấy điểm bài "${ten}" đổ vào cột ${tenCot}?\n\n` +
+                        `• ${coDiem.length}/${hs.length} em có điểm\n` +
+                        `• ${hs.length - coDiem.length} em chưa làm — giữ nguyên ô cũ\n\n` +
+                        `Điểm cũ ở cột ${tenCot} của ${coDiem.length} em này sẽ bị ghi đè.`)) return;
+
+            coDiem.forEach(x => {
+                if(!sdDuLieu[x.u]) sdDuLieu[x.u] = { tx: [], gk: null, ck: null };
+                const d = Math.round(diemCao[x.u] * 100) / 100;
+                if(cot === 'gk' || cot === 'ck') sdDuLieu[x.u][cot] = d;
+                else {
+                    if(!Array.isArray(sdDuLieu[x.u].tx)) sdDuLieu[x.u].tx = [];
+                    sdDuLieu[x.u].tx[parseInt(cot.slice(2))] = d;
+                }
+            });
+            document.getElementById("sdKhungLayDiem").style.display = 'none';
+            veBangSoDiem();
+            bupTrangThai(`✏️ Đã lấy ${coDiem.length} điểm vào cột ${tenCot} — nhớ bấm 💾 LƯU ĐIỂM`);
+        };
+
+        // ---------- Xuất Excel ----------
+        window.xuatSoDiem = () => {
+            const lop = document.getElementById("sdLop").value;
+            const hk  = document.getElementById("sdHocKy").value === 'hk1' ? 'Học kì I' : 'Học kì II';
+            const hs = dsHocSinhLop(lop);
+            if(hs.length === 0) return alert("Lớp này chưa có học sinh.");
+            const n = sdCauHinh.soTX;
+
+            let csv = `Sổ điểm môn Toán - Lớp ${lop} - ${hk}\n`;
+            csv += "STT;Họ và tên;" + Array.from({length:n}, (_,i)=>`TX${i+1}`).join(';') + ";GK;CK;ĐTB môn;Xếp loại\n";
+            hs.forEach((x, i) => {
+                const d = sdDuLieu[x.u] || {};
+                const dtb = tinhDTBmhk(d, n);
+                const xl = xepLoaiMon(dtb, sdCauHinh.nguong);
+                const tx = Array.from({length:n}, (_,k) => (d.tx && d.tx[k] != null) ? d.tx[k] : "").join(';');
+                csv += `${i+1};${x.fullName};${tx};${d.gk ?? ""};${d.ck ?? ""};${dtb === null ? "" : dtb.toFixed(2)};${xl.ten}\n`;
+            });
+
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `sodiem_${lop}_${hk.replace(/\s/g,'')}.csv`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         };
 
         // ================= TÀI KHOẢN HỌC SINH (GIÁO VIÊN) =================
