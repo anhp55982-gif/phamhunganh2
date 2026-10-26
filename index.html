@@ -1183,13 +1183,17 @@
                     </div>
                     <div>
                         <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Mật khẩu:</label>
-                        <select id="tkKieuMK" style="margin:5px 0 0 0; padding:12px;">
+                        <select id="tkKieuMK" onchange="doiKieuMatKhau()" style="margin:5px 0 0 0; padding:12px;">
                             <option value="random">Mỗi em một mã 4 số riêng</option>
                             <option value="chung">Dùng chung một mật khẩu</option>
                         </select>
                     </div>
                 </div>
-                <input type="text" id="tkMKChung" placeholder="Mật khẩu dùng chung" style="display:none; margin:0 0 12px 0; padding:12px;">
+                <div id="tkKhungMKChung" style="display:none; margin-bottom:12px;">
+                    <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Mật khẩu dùng chung cho cả lớp:</label>
+                    <input type="text" id="tkMKChung" placeholder="VD: 8a4toan" style="margin:5px 0 0 0; padding:12px; font-weight:bold;">
+                    <div style="font-size:12px; color:#78716c; margin-top:5px;">Cả lớp dùng chung mật khẩu này. Thầy/cô đổi riêng cho từng em sau cũng được.</div>
+                </div>
 
                 <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Danh sách học sinh — mỗi dòng một em:</label>
                 <textarea id="tkDanhSach" rows="7" style="margin:5px 0 0 0; padding:12px; font-size:15px;" placeholder="Nguyễn Văn An&#10;Trần Thị Bình&#10;Lê Hoàng Cường&#10;..."></textarea>
@@ -1934,7 +1938,7 @@
 
             await taiDanhMucChoHocSinh();
             showScreen('screen-student-dash');
-            veNhacNhoBaiTap();
+            try { veNhacNhoBaiTap(); } catch(e) { console.error("Lỗi băng nhắc bài:", e); }
 
             update(ref(db, 'students/' + studentKey()), {
                 fullName: currentUser.fullName,
@@ -1950,6 +1954,7 @@
 
         window.openQuanLyLop = async () => {
             showScreen('screen-quan-ly-lop');
+            doiKieuMatKhau();   // hiện/ẩn ô mật khẩu chung cho đúng với lựa chọn hiện tại
             await taiTaiKhoan();
         };
 
@@ -2055,6 +2060,12 @@
             });
             return { lop, moi, trung };
         }
+
+        window.doiKieuMatKhau = () => {
+            const chung = document.getElementById("tkKieuMK").value === 'chung';
+            document.getElementById("tkKhungMKChung").style.display = chung ? 'block' : 'none';
+            if(chung) document.getElementById("tkMKChung").focus();
+        };
 
         window.xemTruocTaiKhoan = () => {
             const kq = dungDanhSachTK();
@@ -5384,6 +5395,68 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(tab === 'ds') veDanhSachBTVN();
             if(tab === 'kq') taiLaiKetQuaBTVN();
         };
+
+        // ---------- Băng nhắc bài tập trên trang chủ học sinh ----------
+        async function veNhacNhoBaiTap() {
+            const khung = document.getElementById("bangNhacBai");
+            if(!khung || !currentUser) return;
+            khung.style.display = 'none';
+
+            // Các bài về nhà em được giao và đang hiện
+            const lopHS = currentUser.targetClass || 'all';
+            const btvn = Object.keys(dbExams).filter(k => {
+                const ex = dbExams[k];
+                if(!ex.homework || ex.visibility === 'hide') return false;
+                if(!lopKhop(lopHS, ex.targetClass || 'all')) return false;
+                if(Array.isArray(ex.giaoCho) && ex.giaoCho.length > 0) return ex.giaoCho.includes(currentUser.username);
+                return true;
+            });
+            if(btvn.length === 0) return;
+
+            // Bài nào em đã nộp rồi thì thôi
+            let daLam = new Set();
+            try {
+                const snap = await get(ref(db, `history_all/${safeKey(currentUser.username)}`));
+                if(snap.exists()) Object.values(snap.val()).forEach(b => { if(b.homework) daLam.add(b.examName); });
+            } catch(e) {}
+
+            const chuaLam = btvn.filter(k => !daLam.has(k));
+            if(chuaLam.length === 0) {
+                khung.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:14px 16px; margin-bottom:18px; text-align:left;">
+                    <b style="color:#15803d;">✅ Em đã làm hết bài được giao. Giỏi lắm!</b></div>`;
+                khung.style.display = 'block';
+                return;
+            }
+
+            chuaLam.sort((a,b) => (dbExams[a].deadline || Infinity) - (dbExams[b].deadline || Infinity));
+            const gap = chuaLam.filter(k => {
+                const d = dbExams[k].deadline;
+                return d && d - Date.now() < 2 * 24 * 3600 * 1000;
+            }).length;
+
+            const nen = gap > 0 ? '#fef2f2' : '#fffbeb';
+            const vien = gap > 0 ? '#fca5a5' : '#fde68a';
+            let h = `<div style="background:${nen}; border:2px solid ${vien}; border-radius:14px; padding:15px 17px; margin-bottom:18px; text-align:left;">
+                <b style="font-size:16px; color:#92400e;">🔔 Em còn ${chuaLam.length} bài chưa làm</b>
+                <div style="margin-top:9px;">`;
+
+            chuaLam.slice(0, 4).forEach(k => {
+                const mt = moTaHanNop(dbExams[k].deadline);
+                let han;
+                if(!mt) han = `<span style="color:#78716c;">không giới hạn</span>`;
+                else if(mt.quaHan) han = `<span style="color:#dc2626; font-weight:bold;">⏰ đã quá hạn</span>`;
+                else {
+                    const gapGio = (dbExams[k].deadline - Date.now()) < 2*24*3600*1000;
+                    han = `<span style="color:${gapGio ? '#dc2626' : '#15803d'}; font-weight:bold;">${mt.conLai}</span>`;
+                }
+                h += `<div style="font-size:14px; color:#0f172a; padding:4px 0;">📝 <b>${k}</b> — ${han}</div>`;
+            });
+            if(chuaLam.length > 4) h += `<div style="font-size:13px; color:#78716c; padding-top:4px;">... và ${chuaLam.length - 4} bài nữa</div>`;
+            h += `</div><div style="font-size:13px; color:#78716c; margin-top:7px;">Em kéo xuống mục <b>🏠 Bài tập về nhà</b> để làm nhé.</div></div>`;
+
+            khung.innerHTML = h;
+            khung.style.display = 'block';
+        }
 
         // ---------- Giao bài: lấy đề đã có rồi giao ----------
         let deDangGiao = null;    // tên đề đang mở bảng giao
