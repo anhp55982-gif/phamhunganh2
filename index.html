@@ -874,6 +874,11 @@
             <button class="btn btn-gray" style="margin-top:15px;" onclick="showScreen('screen-teacher-dash')">🔙 QUAY LẠI BẢNG ĐIỀU KHIỂN</button>
         </div>
 
+        <div id="modalXemAnh" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:10000; align-items:center; justify-content:center; padding:16px; cursor:zoom-out;" onclick="dongPhongToAnh()">
+            <img id="anhPhongTo" style="max-width:100%; max-height:100%; border-radius:8px;">
+            <button onclick="event.stopPropagation(); dongPhongToAnh()" style="position:absolute; top:16px; right:16px; width:44px; height:44px; border:none; border-radius:50%; background:rgba(255,255,255,0.92); color:#0f172a; font-size:20px; font-weight:bold; cursor:pointer;">✕</button>
+        </div>
+
         <div id="modalNopBai" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:9999; align-items:center; justify-content:center; padding:20px;">
             <div style="background:white; border-radius:20px; padding:26px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 50px rgba(0,0,0,0.3);">
                 <h3 style="margin-top:0; color:#0369a1; font-size:22px;">📥 Nộp bài</h3>
@@ -1116,6 +1121,7 @@
                 </table>
             </div>
 
+            <div id="monitorGhiChu"></div>
             <div id="monitorFeedback"></div>
             
             <div id="gv-detail-view" style="display:none; background:#ffffff; padding:25px; border-radius:16px; margin-top:25px; border:2px solid #bae6fd; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
@@ -1253,7 +1259,7 @@
                 </div>
                 <div id="tkKhungMKChung" style="display:none; margin-bottom:12px;">
                     <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Mật khẩu dùng chung cho cả lớp:</label>
-                    <input type="text" id="tkMKChung" placeholder="VD: 8a4toan" style="margin:5px 0 0 0; padding:12px; font-weight:bold;">
+                    <input type="text" id="tkMKChung" placeholder="VD: toan8a4" style="margin:5px 0 0 0; padding:12px; font-weight:bold;">
                     <div style="font-size:12px; color:#78716c; margin-top:5px;">Cả lớp dùng chung mật khẩu này. Thầy/cô đổi riêng cho từng em sau cũng được.</div>
                 </div>
 
@@ -1568,8 +1574,11 @@
                     // Nếu em có nộp ảnh bài làm thì gắn luôn vào để thầy/cô chấm trên máy
                     if(Array.isArray(u) && u.length > 0) {
                         sA = u.map((a, k) =>
-                            `<div style="margin-top:8px;"><div style="font-size:12px; color:#64748b;">Ảnh ${k+1}/${u.length}</div>
-                            <img src="${a}" style="max-width:100%; border-radius:8px; border:1px solid #e2e8f0;"></div>`
+                            `<div style="margin-top:8px;">
+                                <div style="font-size:12px; color:#64748b;">Ảnh ${k+1}/${u.length} — bấm vào ảnh để phóng to</div>
+                                <img src="${a}" onclick="phongToAnh(this.src)" loading="lazy"
+                                     style="max-width:100%; max-height:420px; border-radius:8px; border:1px solid #e2e8f0; cursor:zoom-in; display:block;">
+                            </div>`
                         ).join("");
                     } else {
                         sA = "Làm ra giấy thi";
@@ -2040,7 +2049,8 @@
         function sdDuongDan() {
             const lop = document.getElementById("sdLop").value;
             const hk  = document.getElementById("sdHocKy").value;
-            return lop ? `sodiem/${lop}/${hk}` : null;
+            // Bọc safeKey phòng trường hợp tên lớp lỡ có ký tự Firebase cấm
+            return lop ? `sodiem/${safeKey(lop)}/${hk}` : null;
         }
 
         window.taiSoDiem = async () => {
@@ -2479,8 +2489,9 @@
             const tu = boDau(hoTen).toLowerCase().trim().split(/\s+/);
             const ten = (tu[tu.length - 1] || "hs").replace(/[^a-z0-9]/g, "");
             const lopGon = boDau(lop).toLowerCase().replace(/[^a-z0-9]/g, "");
-            let goc = `${ten}.${lopGon}`, u = goc, i = 2;
-            while(daDung.has(u)) { u = `${ten}${i}.${lopGon}`; i++; }
+            // Dùng gạch ngang, KHÔNG dùng dấu chấm: Firebase cấm . # $ [ ] / trong khoá
+            let goc = `${ten}-${lopGon}`, u = goc, i = 2;
+            while(daDung.has(u)) { u = `${ten}${i}-${lopGon}`; i++; }
             daDung.add(u);
             return u;
         }
@@ -2503,6 +2514,7 @@
             if(kieu === 'chung' && !chung.trim()) return { loi: "Thầy/cô nhập mật khẩu dùng chung." };
 
             const daDung = new Set(Object.keys(dbTaiKhoan));
+            const kyTuCam = /[.#$\[\]\/]/;
             const tenDaCo = new Set(Object.values(dbTaiKhoan)
                 .filter(a => a.targetClass === lop)
                 .map(a => (a.fullName || "").trim().toLowerCase()));
@@ -2511,6 +2523,7 @@
             ds.forEach(hoTen => {
                 if(tenDaCo.has(hoTen.toLowerCase())) { trung.push(hoTen); return; }
                 const u = taoTenDangNhap(hoTen, lop, daDung);
+                if(kyTuCam.test(u)) return { loi: `Tên đăng nhập sinh ra ("${u}") chứa ký tự Firebase không nhận. Thầy/cô đổi tên lớp cho đơn giản hơn (chỉ chữ và số).` };
                 moi.push({ u, hoTen, mk: taoMatKhau(kieu, chung), lop });
                 tenDaCo.add(hoTen.toLowerCase());
             });
@@ -4853,8 +4866,18 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 const st = currentMonitorData[name];
                 if(st.examName === selectedExam) {
                     const cheatStyle = st.cheats >= 2 ? "color:#ef4444; font-weight:bold" : "";
-                    const timeStr = st.status === "Xong" ? "<span style='color:#10b981; font-weight:bold;'>Đã nộp</span>" : 
-                                   (st.timeLeft ? `${Math.floor(st.timeLeft/60)}p ${st.timeLeft%60}s` : "Đang tải...");
+                    const laBTVN = (st.cheDo || 'exam') === 'homework';
+                    let timeStr;
+                    if(st.status === "Xong") {
+                        timeStr = `<span style='color:#10b981; font-weight:bold;'>Đã nộp</span>`;
+                        if(laBTVN && st.duration) timeStr += `<br><span style="font-size:11px; color:#94a3b8;">làm ${moTaThoiLuong(st.duration)}</span>`;
+                        if(laBTVN && st.late) timeStr += `<br><span style="font-size:11px; color:#dc2626; font-weight:bold;">⏰ nộp muộn</span>`;
+                    } else if(laBTVN) {
+                        const daLam = st.batDauLuc ? moTaThoiLuong(Date.now() - st.batDauLuc) : "—";
+                        timeStr = `<span style="color:#a16207;">đang làm ${daLam}</span>`;
+                    } else {
+                        timeStr = st.timeLeft ? `${Math.floor(st.timeLeft/60)}p ${st.timeLeft%60}s` : "Đang tải...";
+                    }
                     
                     const hienThi = st.fullName || name;
                     const nameEsc = name.replace(/'/g, "\\'");
@@ -4874,8 +4897,18 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     const coNhan = st.feedback && st.feedback.trim()
                         ? ` <span title="Có lời nhắn cho thầy/cô" style="color:#0284c7;">💬</span>` : "";
 
+                    // Phân biệt bài thi với bài tự luyện
+                    const cd = st.cheDo || 'exam';
+                    const kieuNhan = {
+                        practice: ['#dcfce7', '#15803d', '📖 Tự luyện'],
+                        homework: ['#fef9c3', '#a16207', '🏠 Về nhà'],
+                        exam:     ['#dbeafe', '#1d4ed8', '📝 Bài thi']
+                    }[cd] || ['#dbeafe', '#1d4ed8', '📝 Bài thi'];
+                    const nhanCheDo = `<span style="font-size:11px; background:${kieuNhan[0]}; color:${kieuNhan[1]}; padding:2px 7px; border-radius:20px; font-weight:bold;">${kieuNhan[2]}</span>`;
+                    const nhanLop = st.lop ? `<span style="font-size:11px; color:#94a3b8; margin-left:5px;">${st.lop}</span>` : "";
+
                     html += `<tr>
-                        <td style="color:#0284c7; cursor:pointer; font-weight:bold; text-align:left;" onclick="viewStudentDetailGV('${nameEsc}')">🔍 ${hienThi}${coNhan}<br><span style="font-size:12px; color:#94a3b8; font-weight:normal;">${name}</span></td>
+                        <td style="color:#0284c7; cursor:pointer; font-weight:bold; text-align:left;" onclick="viewStudentDetailGV('${nameEsc}')">🔍 ${hienThi}${coNhan}<br><span style="font-weight:normal;">${nhanCheDo}${nhanLop}</span></td>
                         <td>${st.status || "Đang làm"}</td>
                         <td style="${cheatStyle}">${st.cheats || 0}</td>
                         <td style="font-family:monospace; color:#ea580c; font-size: 16px;">${timeStr}</td>
@@ -4887,6 +4920,16 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 }
             });
             document.getElementById("monitorBody").innerHTML = html || "<tr><td colspan='8' style='padding: 30px; color: #64748b;'>Chưa có dữ liệu học sinh làm đề này</td></tr>";
+
+            // Bài về nhà làm nhiều lần: bảng này chỉ hiện lần gần nhất
+            const coBTVN = Object.values(currentMonitorData).some(x => x.examName === selectedExam && (x.cheDo||'') === 'homework');
+            const oNhac = document.getElementById("monitorGhiChu");
+            if(oNhac) oNhac.innerHTML = coBTVN
+                ? `<div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:11px 14px; margin-top:12px; font-size:14px; color:#92400e;">
+                    🏠 Đây là bài về nhà — bảng này hiện <b>lần làm gần nhất</b> của mỗi em.
+                    Muốn xem <b>tất cả các lần</b> kèm điểm từng lần, thầy/cô vào
+                    <b>📤 Giao bài &amp; kết quả → 📊 Kết quả &amp; thống kê</b>.</div>`
+                : "";
 
             // Gom lời nhắn của HS về đề này
             const nhan = [];
@@ -5089,6 +5132,16 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             khung.innerHTML = h;
             khung.style.display = 'block';
             if(window.MathJax) MathJax.typesetPromise();
+        };
+
+        // Xem ảnh bài làm phóng to — chữ viết tay cần nhìn rõ mới chấm được
+        window.phongToAnh = (src) => {
+            document.getElementById("anhPhongTo").src = src;
+            document.getElementById("modalXemAnh").style.display = 'flex';
+        };
+        window.dongPhongToAnh = () => {
+            document.getElementById("modalXemAnh").style.display = 'none';
+            document.getElementById("anhPhongTo").src = "";
         };
 
         window.viewStudentDetailGV = (name) => {
@@ -5300,6 +5353,21 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 cauDanhDau.clear();
                 btvnThoiDiemBatDau = Date.now();   // để tính HS làm mất bao lâu
                 thoiDiemBatDauLam = btvnThoiDiemBatDau;
+
+                // Ghi danh lên bảng Giám sát để thầy/cô thấy em đang làm
+                update(ref(db, `students/${studentKey()}`), {
+                    examName: name,
+                    fullName: currentUser.fullName,
+                    lop: currentUser.targetClass || '',
+                    cheDo: 'homework',
+                    totalQ: questions.length,
+                    status: "Đang làm",
+                    score: 0,
+                    cheats: 0,
+                    timeLeft: null,          // bài về nhà không đếm ngược
+                    batDauLuc: btvnThoiDiemBatDau,
+                    detailAnswers: null
+                });
                 btvnHanNop = exam.deadline || null;
                 mocThoatGanNhat = -Infinity;       // làm lại lần mới thì đếm lại từ đầu
                 if(henGioBlur) { clearTimeout(henGioBlur); henGioBlur = null; }
@@ -5364,11 +5432,13 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
             if(questions.length === 0) return alert("Đề này chưa có câu hỏi nào!");
             
-            // Ghi danh lên bảng Giám sát của Giáo viên
-            if(mode === 'exam') {
+            // Ghi danh lên bảng Giám sát của Giáo viên (bài thi và bài tự luyện)
+            if(mode === 'exam' || mode === 'practice') {
                 update(ref(db, `students/${studentKey()}`), { 
                     examName: name, 
                     fullName: currentUser.fullName,
+                    lop: currentUser.targetClass || '',
+                    cheDo: mode,                 // để thầy/cô phân biệt thi và tự luyện
                     totalQ: questions.length, 
                     status: "Đang làm", 
                     score: 0, 
@@ -5386,7 +5456,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             saveDraft();
 
             // LỆNH CỐT LÕI: Ép hệ thống nộp ngay bản nháp trắng của "ĐỀ MỚI" lên cho thầy xem lập tức!
-            if(mode === 'exam') {
+            if(mode === 'exam' || mode === 'practice') {
                 syncScore(); 
             }
         };
@@ -5432,7 +5502,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 
                 if(timeLeft % 5 === 0) {
                     saveDraft();   // Tự lưu nháp mỗi 5 giây (phòng mất điện / mất mạng / F5)
-                    if(currentMode === 'exam') {
+                    if(currentMode === 'exam' || currentMode === 'practice') {
                         update(ref(db, `students/${studentKey()}`), { timeLeft: timeLeft });
                     }
                 }
@@ -5807,7 +5877,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
         };
 
         function syncScore() {
-            if(currentMode !== 'exam') return;
+            if(currentMode !== 'exam' && currentMode !== 'practice' && currentMode !== 'homework') return;
             const kq = chamBai(questions, userAnswers, activeScoring, activeCustom);
             update(ref(db, `students/${studentKey()}`), {
                 score: kq.diemMay.toFixed(2),
@@ -6325,7 +6395,9 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             ct.forEach((c, i) => {
                 const laTuLuan = c.type === 'essay';
                 const dungCau = (c.earned || 0) > 0;
-                if(chiSai && (dungCau || laTuLuan)) return;
+                // Câu tự luận có ảnh thì luôn hiện, vì thầy/cô cần xem để chấm
+                const coAnh = laTuLuan && (c.sAns || "").includes('<img');
+                if(chiSai && (dungCau || laTuLuan) && !coAnh) return;
 
                 const mau = laTuLuan ? '#92400e' : (dungCau ? '#16a34a' : '#dc2626');
                 const nen  = laTuLuan ? '#fffbeb' : (dungCau ? '#f0fdf4' : '#fef2f2');
@@ -6333,7 +6405,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
                 h += `<div style="background:${nen}; border-left:4px solid ${mau}; border-radius:10px; padding:12px 14px; margin-bottom:9px;">
                     <div style="font-size:14px; color:#0f172a; margin-bottom:7px;"><b style="color:${mau};">${bieu} Câu ${i+1}.</b> ${c.qText || ''}</div>
-                    <div style="font-size:14px; color:#334155;">Em trả lời: <b style="color:${mau};">${c.sAns || 'Chưa làm'}</b></div>
+                    <div style="font-size:14px; color:#334155;">${laTuLuan ? '📷 Bài làm:' : 'Em trả lời:'} <b style="color:${mau};">${c.sAns || 'Chưa làm'}</b></div>
                     ${!laTuLuan ? `<div style="font-size:14px; color:#334155;">Đáp án đúng: <b style="color:#0284c7;">${c.cAns || ''}</b></div>` : ''}
                 </div>`;
             });
@@ -6620,7 +6692,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     const gopY = oGY ? oGY.value.trim().slice(0, 1000) : "";
 
                     if(savedMode === 'exam') {
-                        update(ref(db, `students/${studentKey()}`), { status: "Xong", score: fS, timeLeft: 0, detailAnswers: historyArr, essayMax: essayMax, essayScore: 0, feedback: gopY });
+                        update(ref(db, `students/${studentKey()}`), { status: "Xong", score: fS, timeLeft: 0, detailAnswers: historyArr, essayMax: essayMax, essayScore: 0, cheDo: 'exam', feedback: gopY });
                         push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
                             date: new Date().toLocaleString(), score: fS, details: historyArr,
                             examName: currentExamName, essayMax: essayMax, essayScore: 0,
@@ -6628,7 +6700,12 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                             duration: thoiDiemBatDauLam ? (Date.now() - thoiDiemBatDauLam) : null,
                             cheats: cheatCount, feedback: gopY });
                     } else if(savedMode === 'practice') {
-                        // Trước đây bài tự luyện không lưu gì nên thầy/cô không có thống kê.
+                        // Báo lên bảng giám sát là em đã nộp xong
+                        update(ref(db, `students/${studentKey()}`), {
+                            status: "Xong", score: fS, timeLeft: 0,
+                            detailAnswers: historyArr, essayMax: essayMax, essayScore: 0,
+                            cheDo: 'practice', feedback: gopY
+                        });
                         push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
                             date: new Date().toLocaleString(),
                             score: fS, details: historyArr, examName: currentExamName,
@@ -6642,6 +6719,13 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         clearInterval(btvnDongHo);
                         const thoiGianLam = Date.now() - btvnThoiDiemBatDau;
                         const nopMuon = btvnHanNop ? (Date.now() > btvnHanNop) : false;
+
+                        // Báo lên bảng giám sát (ghi lần làm gần nhất)
+                        update(ref(db, `students/${studentKey()}`), {
+                            status: "Xong", score: fS, detailAnswers: historyArr,
+                            essayMax: essayMax, essayScore: 0, cheDo: 'homework',
+                            duration: thoiGianLam, late: nopMuon, cheats: cheatCount, feedback: gopY
+                        });
                         // Lưu mỗi lần làm thành một bản ghi riêng để thầy xem được tất cả các lần
                         push(ref(db, `history_all/${safeKey(currentUser.username)}`), {
                             date: new Date().toLocaleString(),
@@ -6690,6 +6774,13 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 
                 if(h.type === 'essay') {
                     detailsHtml += `<b style="color: #b45309;">⚠️ CÂU TỰ LUẬN CHẤM RIÊNG.</b><br>`;
+                    // Ảnh bài làm em chụp gửi lên (nếu có) — trước đây bị bỏ sót nên không hiện
+                    const baiLam = (h.sAns || "").trim();
+                    if(baiLam && baiLam !== "Làm ra giấy thi") {
+                        detailsHtml += `<div style="margin-top:10px;"><b style="color:#0369a1;">📷 Bài làm em gửi lên:</b>${baiLam}</div>`;
+                    } else {
+                        detailsHtml += `<div style="margin-top:6px; color:#78716c; font-size:14px; font-style:italic;">Em làm ra giấy, không gửi ảnh lên.</div>`;
+                    }
                 } else {
                     detailsHtml += `Đáp án của em: <b style="color: ${statusColor};">${h.sAns}</b><br>`;
                     detailsHtml += `Đáp án chính xác: <b style="color: #0284c7;">${h.cAns}</b><br>`;
