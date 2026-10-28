@@ -1256,7 +1256,8 @@
                             <option value="tatca">Từ đầu đến giờ</option>
                         </select>
                     </div>
-                    <button class="btn btn-green" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="moCongDiem()">➕ Cộng điểm cho HS</button>
+                    <button class="btn btn-green" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="moCongDiem('cong')">➕ Cộng điểm</button>
+                    <button class="btn btn-red" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="moCongDiem('tru')">➖ Trừ điểm</button>
                     <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="moVinhDanh()">🎖 Tổng kết vinh danh</button>
                 </div>
 
@@ -2627,7 +2628,9 @@
                     .filter(v => !tuMoc || (v.ngay || 0) >= tuMoc)
                     .sort((a,b) => (b.ngay||0) - (a.ngay||0));
                 const tong = cac.reduce((t,v) => t + (parseFloat(v.diem)||0), 0);
-                return { ...x, cac, tong };
+                const soTru = cac.filter(v => (parseFloat(v.diem)||0) < 0).length;
+                const diemTru = cac.reduce((t,v) => t + Math.min(0, parseFloat(v.diem)||0), 0);
+                return { ...x, cac, tong, soTru, diemTru };
             }).sort((a,b) => b.tong - a.tong || (a.fullName||"").localeCompare(b.fullName||"",'vi'));
         }
 
@@ -2652,13 +2655,13 @@
             if(!lop) { khung.innerHTML = `<div style="padding:26px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">Chưa có lớp nào.</div>`; return; }
 
             const ds = gomDiemCong(lop, moc(khoang));
-            const coDiem = ds.filter(x => x.tong > 0);
+            const coDiem = ds.filter(x => x.cac.length > 0);   // có ghi nhận là vào bảng, kể cả bị trừ
             const tenKhoang = { tuan:'tuần này', thang:'tháng này', tatca:'từ đầu đến giờ' }[khoang];
 
             if(coDiem.length === 0) {
                 khung.innerHTML = `<div style="padding:26px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
-                    Chưa em nào có điểm cộng ${tenKhoang}.<br>
-                    <span style="font-size:14px;">Điểm cộng tự ghi khi em nộp bài về nhà đúng hạn, hoặc thầy cộng tay.</span></div>`;
+                    Chưa em nào có ghi nhận ${tenKhoang}.<br>
+                    <span style="font-size:14px;">Điểm cộng tự ghi khi em nộp bài về nhà đúng hạn.</span></div>`;
                 document.getElementById("tdLichSu").innerHTML = "";
                 return;
             }
@@ -2678,18 +2681,18 @@
                     <div style="flex:1; text-align:left;">
                         <b style="font-size:15px; color:#1e293b;">${x.fullName}</b>
                         ${x.dongHang ? '<span style="font-size:11px; background:#fde68a; color:#92400e; padding:2px 7px; border-radius:20px; margin-left:6px; font-weight:bold;">đồng hạng</span>' : ''}
-                        <div style="font-size:12px; color:#78716c;">${x.cac.length} lần được cộng</div>
+                        <div style="font-size:12px; color:#78716c;">${x.cac.length - x.soTru} lần được cộng${x.soTru ? ` · <span style="color:#b91c1c;">${x.soTru} lần bị trừ (${x.diemTru})</span>` : ''}</div>
                     </div>
-                    <div style="font-size:21px; font-weight:800; color:#b45309;">+${x.tong}</div>
+                    <div style="font-size:21px; font-weight:800; color:${x.tong < 0 ? '#b91c1c' : '#b45309'};">${x.tong > 0 ? '+' : ''}${x.tong}</div>
                     <button onclick="xemLichSuCong('${x.u.replace(/'/g,"\\'")}')" style="padding:7px 12px; margin:0; border:1px solid #fcd34d; border-radius:8px; background:white; color:#b45309; cursor:pointer; font-size:12px; font-weight:bold;">Chi tiết</button>
                 </div>`;
             });
             h += `</div></div>`;
 
-            const chuaCo = ds.filter(x => x.tong === 0);
+            const chuaCo = ds.filter(x => x.cac.length === 0);
             if(chuaCo.length > 0) {
                 h += `<div style="font-size:14px; color:#64748b; margin-bottom:14px;">
-                    Chưa có điểm cộng ${tenKhoang} (${chuaCo.length} em): ${chuaCo.slice(0,12).map(x=>x.fullName).join(', ')}${chuaCo.length>12?'...':''}</div>`;
+                    Chưa có ghi nhận nào ${tenKhoang} (${chuaCo.length} em): ${chuaCo.slice(0,12).map(x=>x.fullName).join(', ')}${chuaCo.length>12?'...':''}</div>`;
             }
             khung.innerHTML = h;
             document.getElementById("tdLichSu").innerHTML = "";
@@ -2711,8 +2714,9 @@
             if(cac.length === 0) h += `<div style="color:#94a3b8; padding:10px;">Chưa có lần nào.</div>`;
             cac.forEach(v => {
                 const ng = v.ngay ? new Date(v.ngay).toLocaleString('vi-VN') : '';
-                h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid #f8fafc;">
-                    <b style="color:#b45309; min-width:42px; font-size:16px;">+${v.diem}</b>
+                const am = (parseFloat(v.diem) || 0) < 0;
+                h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid #f8fafc; ${am ? 'background:#fef2f2;' : ''}">
+                    <b style="color:${am ? '#b91c1c' : '#b45309'}; min-width:48px; font-size:16px;">${am ? '' : '+'}${v.diem}</b>
                     <div style="flex:1; text-align:left; font-size:14px;">${v.lyDo || ''}
                         <div style="font-size:12px; color:#94a3b8;">${ng}${v.tuDong ? ' · tự động' : ''}</div></div>
                     <button onclick="xoaDiemCong('${u.replace(/'/g,"\\'")}','${v.id}')" style="padding:5px 10px; margin:0; border:none; border-radius:7px; background:#fee2e2; color:#dc2626; cursor:pointer; font-size:12px; font-weight:bold;">✕</button>
@@ -2731,46 +2735,58 @@
         };
 
         // ---------- Cộng điểm tay ----------
-        window.moCongDiem = () => {
+        let cdCheDo = 'cong';   // 'cong' hoặc 'tru'
+
+        window.moCongDiem = (cheDo) => {
             const k = document.getElementById("tdKhungCong");
-            if(k.style.display === 'block') { k.style.display = 'none'; return; }
+            // Đang mở đúng chế độ đó thì đóng lại; khác chế độ thì đổi sang
+            if(k.style.display === 'block' && cdCheDo === cheDo) { k.style.display = 'none'; return; }
+            cdCheDo = cheDo || 'cong';
+
             const lop = document.getElementById("tdLopXem").value;
             const hs = dsHocSinhLop(lop);
             if(hs.length === 0) return alert("Lớp này chưa có học sinh.");
 
-            k.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:16px; margin-bottom:16px;">
-                <b style="color:#15803d; font-size:16px;">➕ Cộng điểm — lớp ${lop}
+            const tru = cdCheDo === 'tru';
+            const nen   = tru ? '#fef2f2' : '#f0fdf4';
+            const vien  = tru ? '#fca5a5' : '#86efac';
+            const chu   = tru ? '#b91c1c' : '#15803d';
+            const tieuDe = tru ? '➖ Trừ điểm' : '➕ Cộng điểm';
+            const lyDoGoiY = tru
+                ? ['Không làm bài tập','Nói chuyện riêng trong giờ','Đi học muộn','Không mang vở / SGK','Mất trật tự','Không thuộc bài']
+                : ['Hăng hái phát biểu','Giúp bạn hiểu bài','Làm bài về nhà đầy đủ','Tiến bộ rõ rệt','Lên bảng làm đúng','Chuẩn bị bài tốt'];
+
+            k.innerHTML = `<div style="background:${nen}; border:2px solid ${vien}; border-radius:14px; padding:16px; margin-bottom:16px;">
+                <b style="color:${chu}; font-size:16px;">${tieuDe} — lớp ${lop}
                     <span style="font-weight:normal; color:#78716c; font-size:14px;">(${hs.length} em)</span></b>
+
                 <div style="display:grid; grid-template-columns:1fr 110px; gap:12px; margin:12px 0;">
-                    <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Lý do:</label>
-                        <input type="text" id="cdLyDo" list="ds-ly-do" placeholder="VD: Hăng hái phát biểu" style="margin:4px 0 0 0; padding:11px;">
-                        <datalist id="ds-ly-do">
-                            <option value="Hăng hái phát biểu">
-                            <option value="Giúp bạn hiểu bài">
-                            <option value="Làm bài về nhà đầy đủ">
-                            <option value="Tiến bộ rõ rệt">
-                            <option value="Lên bảng làm đúng">
-                            <option value="Chuẩn bị bài tốt">
-                        </datalist></div>
-                    <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Số điểm:</label>
-                        <input type="number" id="cdDiem" value="0.5" step="0.5" min="-10" max="10" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:${chu};">Lý do ${tru ? 'trừ' : 'cộng'} điểm:</label>
+                        <input type="text" id="cdLyDo" list="ds-ly-do" placeholder="${tru ? 'VD: Không làm bài tập' : 'VD: Hăng hái phát biểu'}" style="margin:4px 0 0 0; padding:11px;">
+                        <datalist id="ds-ly-do">${lyDoGoiY.map(x=>`<option value="${x}">`).join('')}</datalist></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:${chu};">Số điểm:</label>
+                        <input type="number" id="cdDiem" value="0.5" step="0.5" min="0" max="10" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
                 </div>
+
                 <input type="text" id="cdTim" oninput="locHSCongDiem()" placeholder="🔍 Tìm trong lớp ${lop} — gõ không dấu cũng được"
                     style="margin:0 0 10px 0; padding:12px; font-size:15px;" autocomplete="off">
 
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:9px; align-items:center;">
                     <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetCongDiem(true)">☑ Chọn hết đang hiện</button>
                     <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetCongDiem(false)">☐ Bỏ chọn</button>
-                    <span id="cdDem" style="margin-left:auto; font-weight:bold; color:#15803d; font-size:14px;">Chưa chọn em nào</span>
+                    <span id="cdDem" style="margin-left:auto; font-weight:bold; color:${chu}; font-size:14px;">Chưa chọn em nào</span>
                 </div>
-                <div id="cdDsHS" style="max-height:260px; overflow-y:auto; background:white; border:1px solid #86efac; border-radius:10px; padding:10px;">
+
+                <div id="cdDsHS" style="max-height:260px; overflow-y:auto; background:white; border:1px solid ${vien}; border-radius:10px; padding:10px;">
                     ${hs.map(x => `<label class="dong-hs-cong" data-tim="${boDau(x.fullName).toLowerCase()} ${x.fullName.toLowerCase()}"
-                        style="display:flex; align-items:center; gap:10px; padding:8px 6px; cursor:pointer; border-bottom:1px solid #f0fdf4; border-radius:8px;">
+                        style="display:flex; align-items:center; gap:10px; padding:8px 6px; cursor:pointer; border-bottom:1px solid #f8fafc; border-radius:8px;">
                         <input type="checkbox" class="hs-cong" value="${x.u}" onchange="demCongDiem()" style="width:19px; height:19px; margin:0; cursor:pointer;">
                         <span style="flex:1; text-align:left; font-size:15px;">${x.fullName}</span></label>`).join('')}
                     <div id="cdKhongThay" style="display:none; padding:14px; text-align:center; color:#94a3b8; font-size:14px;">Không tìm thấy em nào khớp.</div>
                 </div>
-                <button class="btn btn-green" style="margin:12px 0 0 0; width:auto; padding:11px 20px; font-size:14px;" onclick="luuCongDiem()">✅ CỘNG ĐIỂM</button>
+
+                <button class="btn ${tru ? 'btn-red' : 'btn-green'}" style="margin:12px 0 0 0; width:auto; padding:11px 20px; font-size:14px;" onclick="luuCongDiem()">
+                    ${tru ? '✅ TRỪ ĐIỂM' : '✅ CỘNG ĐIỂM'}</button>
             </div>`;
             k.style.display = 'block';
             setTimeout(() => { const o = document.getElementById("cdTim"); if(o) o.focus(); }, 60);
@@ -2804,13 +2820,15 @@
         };
 
         window.luuCongDiem = async () => {
+            const tru = cdCheDo === 'tru';
             const lyDo = document.getElementById("cdLyDo").value.trim();
-            const diem = parseFloat(document.getElementById("cdDiem").value);
+            let diem = parseFloat(document.getElementById("cdDiem").value);
             const chon = [...document.querySelectorAll('.hs-cong:checked')].map(cb => cb.value);
 
             if(chon.length === 0) return alert("Chưa chọn em nào.");
-            if(!lyDo) return alert("Ghi lý do để các em biết vì sao được cộng.");
-            if(isNaN(diem) || diem === 0) return alert("Số điểm phải khác 0.");
+            if(!lyDo) return alert(`Ghi lý do để các em biết vì sao bị ${tru ? 'trừ' : 'cộng'} điểm.`);
+            if(isNaN(diem) || diem <= 0) return alert("Số điểm phải lớn hơn 0.");
+            if(tru) diem = -diem;
 
             const ngay = Date.now();
             try {
@@ -2820,7 +2838,7 @@
                 })));
                 document.getElementById("tdKhungCong").style.display = 'none';
                 await taiThiDua();
-                alert(`✅ Đã cộng ${diem > 0 ? '+' : ''}${diem} điểm cho ${chon.length} em.\nLý do: ${lyDo}`);
+                alert(`✅ Đã ${tru ? 'trừ' : 'cộng'} ${Math.abs(diem)} điểm cho ${chon.length} em.\nLý do: ${lyDo}`);
             } catch(e) { alert("Lỗi: " + e.message); }
         };
 
@@ -2829,7 +2847,7 @@
             const lop = document.getElementById("tdLopXem").value;
             const khoang = document.getElementById("tdKhoang").value;
             const ds = gomDiemCong(lop, moc(khoang)).filter(x => x.tong > 0);
-            if(ds.length === 0) return alert("Chưa em nào có điểm cộng trong khoảng này.");
+            if(ds.length === 0) return alert("Chưa em nào có điểm cộng dương trong khoảng này.");
 
             const tenKhoang = { tuan:'TUẦN NÀY', thang:'THÁNG ' + (new Date().getMonth()+1), tatca:'TỪ ĐẦU NĂM' }[khoang];
             ganThuHang(ds);
