@@ -414,6 +414,8 @@
         }
         .nut-nho:active { background: #e2e8f0; }
         .nut-nho.dang-bat { background: #fef3c7; border-color: #fbbf24; color: #b45309; }
+        .dong-hs-cong:hover { background: #f0fdf4; }
+        .dong-hs-cong:has(input:checked) { background: #dcfce7; }
 
         .nhan-so-cau {
             display: block; width: fit-content; background: var(--primary); color: white;
@@ -2737,19 +2739,38 @@
                     <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Số điểm:</label>
                         <input type="number" id="cdDiem" value="2" min="-20" max="20" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
                 </div>
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:9px;">
-                    <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetCongDiem(true)">☑ Chọn hết</button>
+                <input type="text" id="cdTim" oninput="locHSCongDiem()" placeholder="🔍 Gõ tên em cần cộng điểm — không dấu cũng được"
+                    style="margin:0 0 10px 0; padding:12px; font-size:15px;" autocomplete="off">
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:9px; align-items:center;">
+                    <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetCongDiem(true)">☑ Chọn hết đang hiện</button>
                     <button class="btn btn-gray" style="margin:0; width:auto; padding:8px 13px; font-size:13px;" onclick="chonHetCongDiem(false)">☐ Bỏ chọn</button>
                     <span id="cdDem" style="margin-left:auto; font-weight:bold; color:#15803d; font-size:14px;">Chưa chọn em nào</span>
                 </div>
-                <div style="max-height:240px; overflow-y:auto; background:white; border:1px solid #86efac; border-radius:10px; padding:10px;">
-                    ${hs.map(x => `<label style="display:flex; align-items:center; gap:10px; padding:6px 4px; cursor:pointer; border-bottom:1px solid #f0fdf4;">
-                        <input type="checkbox" class="hs-cong" value="${x.u}" onchange="demCongDiem()" style="width:18px; height:18px; margin:0; cursor:pointer;">
-                        <span style="flex:1; text-align:left; font-size:14px;">${x.fullName}</span></label>`).join('')}
+                <div id="cdDsHS" style="max-height:260px; overflow-y:auto; background:white; border:1px solid #86efac; border-radius:10px; padding:10px;">
+                    ${hs.map(x => `<label class="dong-hs-cong" data-tim="${boDau(x.fullName).toLowerCase()} ${x.fullName.toLowerCase()}"
+                        style="display:flex; align-items:center; gap:10px; padding:8px 6px; cursor:pointer; border-bottom:1px solid #f0fdf4; border-radius:8px;">
+                        <input type="checkbox" class="hs-cong" value="${x.u}" onchange="demCongDiem()" style="width:19px; height:19px; margin:0; cursor:pointer;">
+                        <span style="flex:1; text-align:left; font-size:15px;">${x.fullName}</span></label>`).join('')}
+                    <div id="cdKhongThay" style="display:none; padding:14px; text-align:center; color:#94a3b8; font-size:14px;">Không tìm thấy em nào khớp.</div>
                 </div>
                 <button class="btn btn-green" style="margin:12px 0 0 0; width:auto; padding:11px 20px; font-size:14px;" onclick="luuCongDiem()">✅ CỘNG ĐIỂM</button>
             </div>`;
             k.style.display = 'block';
+            setTimeout(() => { const o = document.getElementById("cdTim"); if(o) o.focus(); }, 60);
+        };
+
+        // Lọc theo tên — gõ có dấu hay không dấu đều tìm được
+        window.locHSCongDiem = () => {
+            const tim = boDau(document.getElementById("cdTim").value).toLowerCase().trim();
+            let hien = 0;
+            document.querySelectorAll('.dong-hs-cong').forEach(d => {
+                const khop = !tim || (d.dataset.tim || "").includes(tim);
+                d.style.display = khop ? 'flex' : 'none';
+                if(khop) hien++;
+            });
+            const kt = document.getElementById("cdKhongThay");
+            if(kt) kt.style.display = hien === 0 ? 'block' : 'none';
         };
 
         window.demCongDiem = () => {
@@ -2758,7 +2779,11 @@
             if(el) el.innerText = n > 0 ? `Đã chọn ${n} em` : "Chưa chọn em nào";
         };
         window.chonHetCongDiem = (bat) => {
-            document.querySelectorAll('.hs-cong').forEach(cb => cb.checked = bat);
+            document.querySelectorAll('.dong-hs-cong').forEach(d => {
+                if(bat && d.style.display === 'none') return;   // đang bị lọc thì bỏ qua
+                const cb = d.querySelector('.hs-cong');
+                if(cb) cb.checked = bat;
+            });
             demCongDiem();
         };
 
@@ -2800,23 +2825,112 @@
 
             const w = window.open('', '_blank');
             if(w) {
+                const mauThe = [
+                    ['#fff7d6','#f59e0b','#92400e'],   // vàng
+                    ['#eef2ff','#94a3b8','#475569'],   // bạc
+                    ['#fff1e6','#d97706','#9a3412'],   // đồng
+                    ['#f0fdf4','#86efac','#15803d'],
+                    ['#f0f9ff','#7dd3fc','#0369a1']
+                ];
+                const giayKhen = top.map((x, i) => {
+                    const [nen, vien, chu] = mauThe[i] || mauThe[4];
+                    const to = i === 0;
+                    return `<div class="the ${to ? 'quan-quan' : ''}" style="background:${nen}; border-color:${vien}; animation-delay:${i * 0.18}s;">
+                        ${to ? '<div class="vuong">👑</div>' : ''}
+                        <div class="hu">${huy[i]}</div>
+                        <div class="ten" style="color:${chu};">${x.fullName}
+                            <div class="lan">${x.cac.length} lần được thầy/cô ghi nhận</div></div>
+                        <div class="so" style="color:${chu};">${x.tong}<span class="dv">điểm</span></div>
+                    </div>`;
+                }).join('');
+
+                // Giấy màu rơi cho vui mắt
+                const mauGiay = ['#f59e0b','#ef4444','#3b82f6','#10b981','#a855f7','#ec4899','#eab308'];
+                let giayRoi = "";
+                for(let i = 0; i < 60; i++) {
+                    giayRoi += `<i style="left:${Math.random()*100}%;
+                        background:${mauGiay[i % mauGiay.length]};
+                        animation-delay:${(Math.random()*5).toFixed(2)}s;
+                        animation-duration:${(3.5 + Math.random()*3).toFixed(2)}s;
+                        transform:rotate(${Math.floor(Math.random()*360)}deg);"></i>`;
+                }
+
                 w.document.write(`<html><head><meta charset="utf-8"><title>Vinh danh lớp ${lop}</title>
-                    <style>body{font-family:system-ui,sans-serif;padding:40px;text-align:center;background:#fffbeb;}
-                    h1{color:#b45309;margin-bottom:4px;} .ph{color:#78716c;margin-bottom:28px;}
-                    .em{background:white;border:2px solid #fde68a;border-radius:16px;padding:16px 22px;margin:10px auto;max-width:560px;display:flex;align-items:center;gap:16px;}
-                    .hu{font-size:30px;} .ten{flex:1;text-align:left;font-size:19px;font-weight:700;color:#1e293b;}
-                    .so{font-size:26px;font-weight:800;color:#b45309;}
-                    .lan{font-size:13px;color:#78716c;font-weight:normal;}
-                    @media print{button{display:none;}}</style></head><body>
-                    <h1>🎖 VINH DANH LỚP ${lop}</h1><div class="ph">${tenKhoang}</div>
-                    <button onclick="window.print()" style="padding:10px 20px;margin-bottom:22px;cursor:pointer;font-size:15px;">🖨 In ra dán bảng tin</button>
-                    ${top.map((x,i)=>`<div class="em"><div class="hu">${huy[i]}</div>
-                        <div class="ten">${x.fullName}<div class="lan">${x.cac.length} lần được cộng</div></div>
-                        <div class="so">${x.tong}</div></div>`).join('')}
-                    <div style="margin-top:26px;color:#78716c;">Các em còn lại cố lên nhé! 💪</div>
-                    </body></html>`);
+<style>
+  *{box-sizing:border-box;}
+  body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:34px 18px 60px;text-align:center;
+       background:linear-gradient(160deg,#4f46e5 0%,#7c3aed 40%,#db2777 100%);min-height:100vh;overflow-x:hidden;}
+
+  /* Giấy màu rơi */
+  .giay{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+  .giay i{position:absolute;top:-20px;width:11px;height:16px;border-radius:2px;opacity:0.9;
+          animation:roi linear infinite;}
+  @keyframes roi{
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+    100%{transform:translateY(105vh) rotate(720deg);opacity:0.75;}
+  }
+
+  .khung{position:relative;z-index:1;max-width:680px;margin:0 auto;}
+  h1{color:#fff;font-size:40px;margin:0 0 2px;letter-spacing:1px;
+     text-shadow:0 3px 0 rgba(0,0,0,0.18), 0 0 26px rgba(255,255,255,0.45);
+     animation:nhun 2.4s ease-in-out infinite;}
+  @keyframes nhun{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
+  .ph{color:#fde68a;font-size:21px;font-weight:800;margin-bottom:6px;letter-spacing:3px;}
+  .loi{color:rgba(255,255,255,0.9);font-size:15px;margin-bottom:26px;}
+
+  .the{display:flex;align-items:center;gap:16px;border:3px solid;border-radius:20px;
+       padding:16px 22px;margin:0 auto 14px;max-width:560px;position:relative;
+       box-shadow:0 10px 26px rgba(0,0,0,0.22);
+       opacity:0;animation:hienRa 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+  @keyframes hienRa{
+    0%{opacity:0;transform:translateY(32px) scale(0.9);}
+    100%{opacity:1;transform:translateY(0) scale(1);}
+  }
+  .the.quan-quan{padding:22px;border-width:4px;transform-origin:center;}
+  .the.quan-quan::after{content:"";position:absolute;inset:-4px;border-radius:20px;
+       background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.75) 50%,transparent 70%);
+       background-size:220% 100%;animation:lap 2.6s linear infinite;pointer-events:none;}
+  @keyframes lap{0%{background-position:220% 0;}100%{background-position:-120% 0;}}
+
+  .vuong{position:absolute;top:-26px;left:50%;transform:translateX(-50%);font-size:34px;
+         animation:nhay 1.6s ease-in-out infinite;}
+  @keyframes nhay{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-7px);}}
+
+  .hu{font-size:42px;line-height:1;}
+  .the.quan-quan .hu{font-size:52px;}
+  .ten{flex:1;text-align:left;font-size:21px;font-weight:800;}
+  .the.quan-quan .ten{font-size:25px;}
+  .lan{font-size:13px;font-weight:500;opacity:0.75;margin-top:3px;}
+  .so{font-size:34px;font-weight:900;line-height:1;}
+  .dv{display:block;font-size:12px;font-weight:600;opacity:0.7;letter-spacing:1px;}
+
+  .cuoi{color:#fff;font-size:18px;font-weight:700;margin-top:28px;
+        text-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  .nut{padding:13px 26px;margin:0 6px 22px;cursor:pointer;font-size:15px;font-weight:700;
+       border:none;border-radius:12px;background:#fff;color:#4f46e5;box-shadow:0 5px 14px rgba(0,0,0,0.2);}
+
+  @media print{
+    body{background:#fff;padding:20px;}
+    .giay,.nut{display:none;}
+    h1{color:#4f46e5;text-shadow:none;animation:none;}
+    .ph{color:#92400e;} .loi,.cuoi{color:#475569;text-shadow:none;}
+    .the{animation:none;opacity:1;box-shadow:none;}
+    .the.quan-quan::after{display:none;}
+    .vuong{animation:none;}
+  }
+</style></head><body>
+<div class="giay">${giayRoi}</div>
+<div class="khung">
+  <h1>🎉 VINH DANH 🎉</h1>
+  <div class="ph">LỚP ${lop}</div>
+  <div class="loi">${tenKhoang} — những em chăm chỉ nhất</div>
+  <button class="nut" onclick="window.print()">🖨 In ra dán bảng tin</button>
+  ${giayKhen}
+  <div class="cuoi">Các bạn còn lại cố lên nhé, tháng sau sẽ có tên mình! 💪</div>
+</div></body></html>`);
                 w.document.close();
             }
+
             if(navigator.clipboard) navigator.clipboard.writeText(vb).catch(()=>{});
         };
 
