@@ -2631,6 +2631,20 @@
             }).sort((a,b) => b.tong - a.tong || (a.fullName||"").localeCompare(b.fullName||"",'vi'));
         }
 
+        // Gán thứ hạng, cùng điểm thì đồng hạng (1, 2, 2, 4 — không có hạng 3)
+        function ganThuHang(ds) {
+            let hang = 0, diemTruoc = null;
+            ds.forEach((x, i) => {
+                if(diemTruoc === null || x.tong !== diemTruoc) { hang = i + 1; diemTruoc = x.tong; }
+                x.hang = hang;
+            });
+            // Đánh dấu em nào đang chia hạng với bạn khác
+            const dem = {};
+            ds.forEach(x => dem[x.hang] = (dem[x.hang] || 0) + 1);
+            ds.forEach(x => x.dongHang = dem[x.hang] > 1);
+            return ds;
+        }
+
         window.veBangThiDua = () => {
             const lop = document.getElementById("tdLopXem").value;
             const khoang = document.getElementById("tdKhoang").value;
@@ -2649,18 +2663,21 @@
                 return;
             }
 
-            const huy = ['🥇','🥈','🥉'];
+            const huy = { 1:'🥇', 2:'🥈', 3:'🥉' };
+            ganThuHang(coDiem);
+
             let h = `<div style="background:#fffbeb; border:2px solid #fde68a; border-radius:14px; padding:18px; margin-bottom:16px;">
                 <b style="color:#92400e; font-size:17px;">🏆 Bảng chăm chỉ — ${tenKhoang}</b>
                 <div style="margin-top:12px;">`;
 
-            coDiem.forEach((x, i) => {
-                const nen = i === 0 ? '#fef3c7' : (i < 3 ? '#fffdf5' : 'white');
-                const vien = i === 0 ? '#f59e0b' : '#fde68a';
+            coDiem.forEach(x => {
+                const nen = x.hang === 1 ? '#fef3c7' : (x.hang <= 3 ? '#fffdf5' : 'white');
+                const vien = x.hang === 1 ? '#f59e0b' : '#fde68a';
                 h += `<div style="display:flex; align-items:center; gap:12px; background:${nen}; border:1px solid ${vien}; border-radius:12px; padding:11px 14px; margin-bottom:8px;">
-                    <div style="font-size:${i<3?'22px':'15px'}; min-width:36px; text-align:center; font-weight:800; color:#92400e;">${huy[i] || (i+1)}</div>
+                    <div style="font-size:${x.hang<=3?'22px':'15px'}; min-width:36px; text-align:center; font-weight:800; color:#92400e;">${huy[x.hang] || x.hang}</div>
                     <div style="flex:1; text-align:left;">
                         <b style="font-size:15px; color:#1e293b;">${x.fullName}</b>
+                        ${x.dongHang ? '<span style="font-size:11px; background:#fde68a; color:#92400e; padding:2px 7px; border-radius:20px; margin-left:6px; font-weight:bold;">đồng hạng</span>' : ''}
                         <div style="font-size:12px; color:#78716c;">${x.cac.length} lần được cộng</div>
                     </div>
                     <div style="font-size:21px; font-weight:800; color:#b45309;">+${x.tong}</div>
@@ -2815,11 +2832,12 @@
             if(ds.length === 0) return alert("Chưa em nào có điểm cộng trong khoảng này.");
 
             const tenKhoang = { tuan:'TUẦN NÀY', thang:'THÁNG ' + (new Date().getMonth()+1), tatca:'TỪ ĐẦU NĂM' }[khoang];
-            const top = ds.slice(0, 5);
-            const huy = ['🥇','🥈','🥉','🏅','🏅'];
+            ganThuHang(ds);
+            const top = ds.filter(x => x.hang <= 3);   // đồng hạng thì vinh danh hết, không cắt
+            const huy = { 1:'🥇', 2:'🥈', 3:'🥉' };
 
             let vb = `🎖 VINH DANH LỚP ${lop} — ${tenKhoang}\n\n`;
-            top.forEach((x, i) => { vb += `${huy[i]} ${x.fullName} — ${x.tong} điểm cộng (${x.cac.length} lần)\n`; });
+            top.forEach(x => { vb += `${huy[x.hang]} ${x.fullName} — ${x.tong} điểm cộng${x.dongHang ? ' (đồng hạng)' : ''}\n`; });
             vb += `\nCác em còn lại cố lên nhé! 💪`;
 
             const w = window.open('', '_blank');
@@ -2832,13 +2850,13 @@
                     ['#f0f9ff','#7dd3fc','#0369a1']
                 ];
                 const giayKhen = top.map((x, i) => {
-                    const [nen, vien, chu] = mauThe[i] || mauThe[4];
-                    const to = i === 0;
+                    const [nen, vien, chu] = mauThe[x.hang - 1] || mauThe[4];
+                    const to = x.hang === 1;
                     return `<div class="the ${to ? 'quan-quan' : ''}" style="background:${nen}; border-color:${vien}; animation-delay:${i * 0.18}s;">
                         ${to ? '<div class="vuong">👑</div>' : ''}
-                        <div class="hu">${huy[i]}</div>
+                        <div class="hu">${huy[x.hang]}</div>
                         <div class="ten" style="color:${chu};">${x.fullName}
-                            <div class="lan">${x.cac.length} lần được ghi nhận</div></div>
+                            <div class="lan">${x.cac.length} lần được ghi nhận${x.dongHang ? ' <span class="dh">đồng hạng</span>' : ''}</div></div>
                         <div class="so" style="color:${chu};">${x.tong}<span class="dv">điểm</span></div>
                     </div>`;
                 }).join('');
@@ -2900,6 +2918,8 @@
   .ten{flex:1;text-align:left;font-size:21px;font-weight:800;}
   .the.quan-quan .ten{font-size:25px;}
   .lan{font-size:13px;font-weight:500;opacity:0.75;margin-top:3px;}
+  .dh{font-size:11px;font-weight:700;background:rgba(0,0,0,0.1);padding:2px 9px;
+      border-radius:20px;margin-left:6px;white-space:nowrap;display:inline-block;}
   .so{font-size:34px;font-weight:900;line-height:1;}
   .dv{display:block;font-size:12px;font-weight:600;opacity:0.7;letter-spacing:1px;}
 
@@ -2922,7 +2942,7 @@
 <div class="khung">
   <h1>🎉 VINH DANH 🎉</h1>
   <div class="ph">LỚP ${lop}</div>
-  <div class="loi">${tenKhoang} — những em chăm chỉ nhất</div>
+  <div class="loi">${tenKhoang} — những em chăm chỉ nhất lớp</div>
   <button class="nut" onclick="window.print()">🖨 In ra dán bảng tin</button>
   ${giayKhen}
   <div class="cuoi">Các bạn còn lại cố lên nhé, tháng sau sẽ có tên mình! 💪</div>
