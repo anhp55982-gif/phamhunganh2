@@ -562,7 +562,7 @@
 
                 <button class="btn btn-blue" style="margin:0; padding:17px; font-size:17px;" onclick="handleLogin()">ĐĂNG NHẬP</button>
                 <div id="dn-loi" class="dn-bao-loi"></div>
-                <div style="font-size:13px; color:#94a3b8; margin-top:16px;">Quên mật khẩu thì em báo thầy/cô cấp lại nhé.</div>
+                <div style="font-size:13px; color:#94a3b8; margin-top:16px;">Quên mật khẩu thì em báo thầy Hùng Anh nhé.</div>
             </div>
         </div>
 
@@ -584,7 +584,6 @@
                 <button class="btn btn-green" onclick="startStudentMode('practice')" style="padding: 14px; margin-top: 10px;">TỰ LUYỆN TẬP</button>
             </div>
 
-            <div id="theDiemCong" style="display:none;"></div>
             <div id="bangNhacBai" style="display:none;"></div>
 
             <div id="student-homework-box" style="display:none; text-align: left; margin-bottom: 25px; background: #fef9c3; padding: 15px; border-radius: 12px; border: 2px solid #fde047;">
@@ -890,11 +889,10 @@
 
                 <div style="background:#f0f9ff; border:2px solid #bae6fd; border-radius:14px; padding:16px; margin-bottom:18px; text-align:left;">
                     <label for="oGopY" style="display:block; font-size:15px; font-weight:bold; color:#0369a1; margin-bottom:4px;">
-                        💬 Em có điều gì muốn nhắn với thầy/cô không?
+                        💬 Em có điều gì muốn nhắn với thầy Hùng Anh không?
                     </label>
                     <div style="font-size:13px; color:#64748b; margin-bottom:8px;">
-                        Câu nào khó, chỗ nào chưa hiểu, hay đề có gì nhầm lẫn... Em cứ viết thoải mái nhé.
-                        <b>Phần này không tính điểm, để trống vẫn nộp bài được bình thường.</b>
+                        <b>Không tính điểm, để trống vẫn nộp bài được.</b>
                     </div>
                     <textarea id="oGopY" rows="3" maxlength="1000" placeholder="VD: Câu 7 em thấy khó hiểu đề ạ. Phần lượng giác thầy giảng lại giúp em được không ạ?" style="margin:0; padding:12px; font-size:15px; border-color:#7dd3fc;"></textarea>
                 </div>
@@ -1002,8 +1000,7 @@
                     💡 Chấm ngay sau mỗi câu (kiểu học bài, không phải thi)
                 </label>
                 <div style="font-size:13px; color:#64748b; margin-top:7px;">
-                    Bật: HS vừa chọn xong là biết đúng/sai ngay, có nút xem lời giải — hợp khi cho các em ôn kiến thức.<br>
-                    <b>Tắt (mặc định): HS làm hết rồi nộp mới biết kết quả — giống thi thật.</b>
+                    <b>Tắt (mặc định): làm hết rồi nộp mới biết kết quả.</b>
                 </div>
             </div>
 
@@ -1140,7 +1137,7 @@
 
         <div id="screen-btvn" class="screen">
             <h2>📤 Giao Bài Cho Học Sinh</h2>
-            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Đề tạo một lần, giao nhiều lần. Chọn giao làm bài tự luyện hay bài về nhà, cho cả lớp hay chỉ một số em.</p>
+            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Đề tạo một lần, giao nhiều lần — cho cả lớp hoặc một số em.</p>
 
             <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
                 <button id="tabBtvnSoan" class="btn" style="margin:0; width:auto; padding:13px 22px; background:linear-gradient(to right,#eab308,#ca8a04); color:white;" onclick="chuyenTabBTVN('soan')">📤 Giao bài</button>
@@ -1151,8 +1148,7 @@
             <!-- ===== TAB SOẠN BÀI ===== -->
             <div id="btvnTabSoan">
                 <div style="background:#eff6ff; border:1px solid #bae6fd; border-radius:12px; padding:14px; margin-bottom:18px; font-size:14px; color:#0369a1;">
-                    Chọn một đề đã tạo rồi giao cho học sinh. Muốn tạo đề mới, thầy/cô vào
-                    <b>🏦 Ngân hàng câu hỏi</b> (tạo nhanh theo ma trận) hoặc <b>✏️ Tạo đề thi</b>.
+                    Tạo đề mới ở <b>🏦 Ngân hàng câu hỏi</b> hoặc <b>✏️ Tạo đề thi</b>.
                 </div>
 
                 <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
@@ -1204,7 +1200,7 @@
             </div>
 
             <div id="sdTabDiem">
-            <p style="color:#64748b; font-size:15px; margin-top:-4px;">Nhập điểm theo Thông tư 22. Điểm bài kiểm tra trên web lấy sang được, không phải chép tay.</p>
+            <p style="color:#64748b; font-size:15px; margin-top:-4px;">Theo Thông tư 22. Điểm bài trên web lấy sang được.</p>
 
             <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
                 <div style="flex:1; min-width:140px;">
@@ -1244,7 +1240,7 @@
 
             <div id="sdTabThiDua" style="display:none;">
                 <p style="color:#64748b; font-size:15px; margin-top:-4px;">
-                    Điểm cộng ghi nhận sự <b>chăm chỉ và tiến bộ</b>, không phải điểm số — để em học lực trung bình chịu khó vẫn đứng đầu bảng được.
+                    Điểm cộng ghi nhận <b>chăm chỉ và tiến bộ</b>, không phải điểm số.
                 </p>
 
                 <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
@@ -1277,7 +1273,7 @@
             <div style="margin-bottom:16px;">
                 <button class="btn btn-gray" style="margin:0; width:auto; padding:11px 18px; font-size:14px;" onclick="openAccountManager()">🔑 Tài khoản giáo viên</button>
             </div>
-            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Dán danh sách tên là có ngay tài khoản cho cả lớp. Tên đăng nhập và mật khẩu được tạo tự động, in ra phát cho các em.</p>
+            <p style="color:#64748b; font-size:15px; margin-top:-8px;">Dán danh sách tên là có tài khoản cho cả lớp, in ra phát cho các em.</p>
 
             <div style="background:#faf5ff; border:2px solid #ddd6fe; border-radius:14px; padding:18px; margin-bottom:20px;">
                 <h3 style="margin-top:0; color:#6d28d9; font-size:17px;">⚡ Tạo tài khoản cho cả lớp</h3>
@@ -1298,12 +1294,12 @@
                 <div id="tkKhungMKChung" style="display:none; margin-bottom:12px;">
                     <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Mật khẩu dùng chung cho cả lớp:</label>
                     <input type="text" id="tkMKChung" placeholder="VD: toan8a4" style="margin:5px 0 0 0; padding:12px; font-weight:bold;">
-                    <div style="font-size:12px; color:#78716c; margin-top:5px;">Cả lớp dùng chung mật khẩu này. Thầy/cô đổi riêng cho từng em sau cũng được.</div>
+                    <div style="font-size:12px; color:#78716c; margin-top:5px;">Đổi riêng cho từng em sau cũng được.</div>
                 </div>
 
                 <label style="font-size:13px; font-weight:bold; color:#6d28d9;">Danh sách học sinh — mỗi dòng một em:</label>
                 <textarea id="tkDanhSach" rows="7" style="margin:5px 0 0 0; padding:12px; font-size:15px;" placeholder="Nguyễn Văn An&#10;Trần Thị Bình&#10;Lê Hoàng Cường&#10;..."></textarea>
-                <div style="font-size:12px; color:#78716c; margin:6px 0 12px 0;">Dán thẳng từ Excel được. Số thứ tự đầu dòng và dòng trống sẽ tự bỏ.</div>
+                <div style="font-size:12px; color:#78716c; margin:6px 0 12px 0;">Dán thẳng từ Excel được.</div>
 
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-blue" style="margin:0; width:auto; padding:13px 22px;" onclick="xemTruocTaiKhoan()">👁 XEM TRƯỚC</button>
@@ -1608,8 +1604,8 @@
                     }
                 }
                 else if(q.type === "essay") {
-                    cA = "Thầy/cô chấm tay"; e = 0;
-                    // Nếu em có nộp ảnh bài làm thì gắn luôn vào để thầy/cô chấm trên máy
+                    cA = "Thầy chấm tay"; e = 0;
+                    // Nếu em có nộp ảnh bài làm thì gắn luôn vào để thầy chấm trên máy
                     if(Array.isArray(u) && u.length > 0) {
                         sA = u.map((a, k) =>
                             `<div style="margin-top:8px;">
@@ -2048,7 +2044,6 @@
             await taiDanhMucChoHocSinh();
             showScreen('screen-student-dash');
             try { veNhacNhoBaiTap(); } catch(e) { console.error("Lỗi băng nhắc bài:", e); }
-            try { veTheDiemCong(); } catch(e) { console.error("Lỗi thẻ điểm cộng:", e); }
 
             update(ref(db, 'students/' + studentKey()), {
                 fullName: currentUser.fullName,
@@ -2098,7 +2093,7 @@
             const bang = document.getElementById("sdBang");
             if(!duong) {
                 bang.innerHTML = `<div style="padding:30px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
-                    Chưa có lớp nào. Thầy/cô tạo tài khoản học sinh ở mục <b>👥 Lớp &amp; tài khoản</b> trước.</div>`;
+                    Chưa có lớp nào. Tạo tài khoản học sinh ở mục <b>👥 Lớp &amp; tài khoản</b> trước.</div>`;
                 document.getElementById("sdBangChiTieu").innerHTML = "";
                 return;
             }
@@ -2237,7 +2232,7 @@
                 const d = sdDuLieu[x.u] || { tx: [], gk: "", ck: "" };
                 const dtb = tinhDTBmhk(d, n);
                 const xl = xepLoaiMon(dtb, sdCauHinh.nguong);
-                // Mục tiêu: lấy mức thầy/cô đã chọn, chưa chọn thì app tự đề xuất
+                // Mục tiêu: lấy mức thầy đã chọn, chưa chọn thì app tự đề xuất
                 const mt = (d.mt != null) ? parseFloat(d.mt) : mucTieuGoiY(d, n);
 
                 h += `<tr style="border-top:1px solid #f1f5f9;">
@@ -2265,8 +2260,7 @@
             });
             h += `</tbody></table></div>
                 <div style="margin-top:10px; font-size:13px; color:#64748b;">
-                    Gõ điểm thang 10, dùng dấu chấm hoặc phẩy đều được. Ô nào để trống thì chưa tính ĐTB.
-                    Nhập xong nhớ bấm <b>💾 LƯU ĐIỂM</b>.</div>`;
+                    Gõ thang 10, chấm hoặc phẩy đều được. Nhập xong bấm <b>💾 LƯU ĐIỂM</b>.</div>`;
             bang.innerHTML = h;
             hs.forEach(x => veGoiYMotEm(x.u));
             veChiTieu();
@@ -2363,7 +2357,7 @@
             k.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:16px; margin-bottom:16px;">
                 <b style="color:#15803d; font-size:16px;">🎯 Chỉ tiêu đăng ký &amp; ngưỡng xếp loại</b>
                 <div style="font-size:13px; color:#78716c; margin:6px 0 12px 0;">
-                    Ngưỡng mặc định lấy theo Thông tư 22 (8.0 / 6.5 / 5.0). Trường quy định khác thì thầy/cô sửa lại.
+                    Ngưỡng mặc định theo Thông tư 22. Sửa được nếu trường quy định khác.
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;">
                     <div><label style="font-size:13px; font-weight:bold; color:#16a34a;">Chỉ tiêu Tốt (em):</label>
@@ -2489,7 +2483,7 @@
 
             k.innerHTML = `<div style="background:#eff6ff; border:2px solid #bae6fd; border-radius:14px; padding:16px; margin-bottom:14px;">
                 <b style="color:#0369a1; font-size:16px;">📥 Lấy điểm từ bài học sinh đã làm</b>
-                <div style="font-size:13px; color:#64748b; margin:6px 0 12px 0;">Em nào làm nhiều lần thì lấy điểm cao nhất. Em chưa làm thì để trống, không ghi đè.</div>
+                <div style="font-size:13px; color:#64748b; margin:6px 0 12px 0;">Lấy điểm cao nhất. Em chưa làm thì giữ nguyên ô cũ.</div>
                 <div style="display:grid; grid-template-columns:2fr 1fr auto; gap:12px; align-items:end;">
                     <div><label style="font-size:13px; font-weight:bold; color:#0369a1;">Lấy từ bài:</label>
                         <select id="ldBai" style="margin:4px 0 0 0; padding:11px;">${ds.map(t=>`<option value="${t.replace(/"/g,'&quot;')}">${t}</option>`).join('')}</select></div>
@@ -2646,7 +2640,7 @@
             if(coDiem.length === 0) {
                 khung.innerHTML = `<div style="padding:26px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
                     Chưa em nào có điểm cộng ${tenKhoang}.<br>
-                    <span style="font-size:14px;">Điểm cộng tự ghi khi em nộp bài về nhà đúng hạn, hoặc thầy/cô cộng tay.</span></div>`;
+                    <span style="font-size:14px;">Điểm cộng tự ghi khi em nộp bài về nhà đúng hạn, hoặc thầy cộng tay.</span></div>`;
                 document.getElementById("tdLichSu").innerHTML = "";
                 return;
             }
@@ -2737,7 +2731,7 @@
                             <option value="Chuẩn bị bài tốt">
                         </datalist></div>
                     <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Số điểm:</label>
-                        <input type="number" id="cdDiem" value="2" min="-20" max="20" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
+                        <input type="number" id="cdDiem" value="0.5" step="0.5" min="-10" max="10" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
                 </div>
                 <input type="text" id="cdTim" oninput="locHSCongDiem()" placeholder="🔍 Gõ tên em cần cộng điểm — không dấu cũng được"
                     style="margin:0 0 10px 0; padding:12px; font-size:15px;" autocomplete="off">
@@ -2792,8 +2786,8 @@
             const diem = parseFloat(document.getElementById("cdDiem").value);
             const chon = [...document.querySelectorAll('.hs-cong:checked')].map(cb => cb.value);
 
-            if(chon.length === 0) return alert("Thầy/cô chưa chọn em nào.");
-            if(!lyDo) return alert("Thầy/cô ghi lý do cộng điểm để các em biết vì sao.");
+            if(chon.length === 0) return alert("Chưa chọn em nào.");
+            if(!lyDo) return alert("Ghi lý do để các em biết vì sao được cộng.");
             if(isNaN(diem) || diem === 0) return alert("Số điểm phải khác 0.");
 
             const ngay = Date.now();
@@ -2839,7 +2833,7 @@
                         ${to ? '<div class="vuong">👑</div>' : ''}
                         <div class="hu">${huy[i]}</div>
                         <div class="ten" style="color:${chu};">${x.fullName}
-                            <div class="lan">${x.cac.length} lần được thầy/cô ghi nhận</div></div>
+                            <div class="lan">${x.cac.length} lần được ghi nhận</div></div>
                         <div class="so" style="color:${chu};">${x.tong}<span class="dv">điểm</span></div>
                     </div>`;
                 }).join('');
@@ -2986,7 +2980,7 @@
                 if(!el) return;
                 const cu = el.value;
                 el.innerHTML = (coAll ? `<option value="all">Mọi lớp</option>` : "") +
-                    (ten.length ? `<optgroup label="Lớp của thầy/cô">${mucLop}</optgroup>` : "") + mucKhoi;
+                    (ten.length ? `<optgroup label="Lớp của thầy">${mucLop}</optgroup>` : "") + mucKhoi;
                 if([...el.querySelectorAll('option')].some(o=>o.value===cu)) el.value = cu;
             });
         }
@@ -3027,10 +3021,10 @@
             const chung = document.getElementById("tkMKChung").value;
             const ds = tachDanhSachTen(document.getElementById("tkDanhSach").value);
 
-            if(!lop) return { loi: "Thầy/cô nhập tên lớp." };
+            if(!lop) return { loi: "Chưa nhập tên lớp." };
             if(/[.#$\[\]\/]/.test(lop)) return { loi: "Tên lớp không được chứa: . # $ [ ] /" };
             if(ds.length === 0) return { loi: "Danh sách học sinh đang trống." };
-            if(kieu === 'chung' && !chung.trim()) return { loi: "Thầy/cô nhập mật khẩu dùng chung." };
+            if(kieu === 'chung' && !chung.trim()) return { loi: "Chưa nhập mật khẩu dùng chung." };
 
             const daDung = new Set(Object.keys(dbTaiKhoan));
             const kyTuCam = /[.#$\[\]\/]/;
@@ -3042,7 +3036,7 @@
             ds.forEach(hoTen => {
                 if(tenDaCo.has(hoTen.toLowerCase())) { trung.push(hoTen); return; }
                 const u = taoTenDangNhap(hoTen, lop, daDung);
-                if(kyTuCam.test(u)) return { loi: `Tên đăng nhập sinh ra ("${u}") chứa ký tự Firebase không nhận. Thầy/cô đổi tên lớp cho đơn giản hơn (chỉ chữ và số).` };
+                if(kyTuCam.test(u)) return { loi: `Tên đăng nhập sinh ra ("${u}") chứa ký tự Firebase không nhận. Đổi tên lớp cho đơn giản hơn (chỉ chữ và số).` };
                 moi.push({ u, hoTen, mk: taoMatKhau(kieu, chung), lop });
                 tenDaCo.add(hoTen.toLowerCase());
             });
@@ -3080,7 +3074,7 @@
 
             if(!confirm(`Tạo ${kq.moi.length} tài khoản cho lớp ${kq.lop}?` +
                         (kq.trung.length ? `\n(Bỏ qua ${kq.trung.length} em đã có)` : "") +
-                        `\n\nSau khi tạo, thầy/cô bấm "🖨 In / chép danh sách" để phát cho các em.`)) return;
+                        `\n\nSau khi tạo, bấm "🖨 In / chép danh sách" để phát cho các em.`)) return;
 
             const goi = {};
             kq.moi.forEach(x => {
@@ -3094,7 +3088,7 @@
                 await taiTaiKhoan();
                 document.getElementById("tkLocLop").value = kq.lop;
                 veBangTaiKhoan();
-                alert(`✅ Đã tạo ${kq.moi.length} tài khoản cho lớp ${kq.lop}.\n\nThầy/cô bấm "🖨 In / chép danh sách" để lấy danh sách phát cho các em.`);
+                alert(`✅ Đã tạo ${kq.moi.length} tài khoản cho lớp ${kq.lop}.\n\nBấm "🖨 In / chép danh sách" để phát cho các em.`);
             } catch(e) { alert("Lỗi khi tạo: " + e.message); }
         };
 
@@ -3461,7 +3455,7 @@
             }
             else {
                 h = `<div style="background:#fffbeb; padding:14px; border-radius:8px; border:1px dashed #fcd34d; margin-bottom:14px; color:#92400e; font-size:14px;">
-                     ⚠️ Câu tự luận không có đáp án tự động — học sinh làm ra giấy, thầy/cô chấm tay.</div>`;
+                     ⚠️ Câu tự luận không có đáp án tự động — học sinh làm ra giấy, thầy chấm tay.</div>`;
             }
             khung.innerHTML = h;
             veXemTruocCau();
@@ -3542,7 +3536,7 @@
                     veFormThemCau();
                     veKhungAnhBank();
                     document.getElementById("ncNoiDung").focus();
-                    alert("✅ Đã thêm vào ngân hàng! Thầy/cô có thể nhập tiếp câu sau.");
+                    alert("✅ Đã thêm vào ngân hàng! Nhập tiếp câu sau được.");
                 })
                 .catch(e => alert("Lỗi khi lưu: " + e.message));
         };
@@ -3641,7 +3635,7 @@ DAP AN: 0,5`;
                     <b style="color:#b91c1c;">⚠️ ${loi.length} vấn đề:</b>
                     <ul style="margin:8px 0 0 0; color:#7f1d1d; font-size:14px; line-height:1.7;">${loi.map(l=>`<li>${l}</li>`).join('')}</ul></div>`;
             }
-            // Gom theo Chủ đề › Bài › Mức độ để thầy/cô kiểm tra trước khi lưu
+            // Gom theo Chủ đề › Bài › Mức độ để thầy kiểm tra trước khi lưu
             const cay = {};
             ds.forEach(q => {
                 const cd = q.topic || "(chưa gắn chủ đề)";
@@ -4150,7 +4144,7 @@ DAP AN: 0,5`;
             });
 
             if(thieu.length) return alert("Không đủ câu:\n\n" + thieu.map(t=>'• '+t).join('\n'));
-            if(chon.length === 0) return alert("Thầy/cô chưa nhập số câu nào!");
+            if(chon.length === 0) return alert("Chưa nhập số câu nào!");
 
             bankDaChon.clear();
             chon.forEach(k => bankDaChon.add(k));
@@ -4227,7 +4221,7 @@ DAP AN: 0,5`;
                 dongModalTaoDe();
                 bankDaChon.clear();
                 renderBank();
-                const nhan = hienNgay === 'show' ? "Đề đã HIỆN, học sinh vào làm được ngay." : "Đề đang ẨN, thầy/cô bật khi cần.";
+                const nhan = hienNgay === 'show' ? "Đề đã HIỆN, học sinh vào làm được ngay." : "Đề đang ẨN, thầy bật khi cần.";
                 alert(`✅ Đã tạo đề "${ten}" với ${cauHoi.length} câu.\n\n${nhan}`);
             })
             .catch(e => alert("Lỗi khi tạo đề: " + e.message));
@@ -4332,7 +4326,7 @@ DAP AN: 0,5`;
             }
             else if(q.type === 'essay') {
                 h += `<div style="padding:10px 14px; border-radius:8px; background:#fffbeb; border:1px solid #fcd34d; font-size:14px; color:#92400e; font-style:italic;">
-                    Câu tự luận — học sinh làm ra giấy, thầy/cô chấm tay.</div>`;
+                    Câu tự luận — học sinh làm ra giấy, thầy chấm tay.</div>`;
             }
 
             if((q.explanation && q.explanation.trim()) || q.solutionImage) {
@@ -4404,7 +4398,7 @@ DAP AN: 0,5`;
             ban.addedAt = Date.now();
             ban.q = (ban.q || "") + " (bản sao)";
             push(ref(db, 'bank'), ban)
-                .then(() => alert("✅ Đã tạo bản sao. Thầy/cô bấm ✏️ để sửa lại nội dung."))
+                .then(() => alert("✅ Đã tạo bản sao. Bấm ✏️ để sửa nội dung."))
                 .catch(e => alert("Lỗi: " + e.message));
         };
 
@@ -4531,7 +4525,7 @@ DAP AN: 0,5`;
             showScreen('screen-teacher-create');
             renderBuilder();
             capNhatTongDiem();
-            alert(`✅ Đã đưa ${ds.length} câu vào trình soạn đề. Thầy/cô nhớ đặt tên đề và bấm LƯU.`);
+            alert(`✅ Đã đưa ${ds.length} câu vào trình soạn đề. Nhớ đặt tên đề rồi bấm LƯU.`);
         };
 
         // Lưu các câu đang soạn vào ngân hàng để dùng lại sau
@@ -4633,7 +4627,7 @@ DAP AN: 0,5`;
                 t += "\n\n";
 
                 if(q.image) {
-                    t += "% Câu này có hình ảnh - thầy/cô lưu ảnh ra file rồi bỏ chú thích dòng dưới\n";
+                    t += "% Câu này có hình ảnh - thầy lưu ảnh ra file rồi bỏ chú thích dòng dưới\n";
                     t += "% \\begin{center}\\includegraphics[width=0.5\\textwidth]{hinh" + stt + ".png}\\end{center}\n\n";
                 }
 
@@ -4712,7 +4706,7 @@ DAP AN: 0,5`;
             const nd = taoNoiDungTex(ds, ten.toUpperCase(), kem);
             taiFileTex(nd, tenFileSach(ten) + (kem ? "_CoDapAn" : "") + ".tex");
             const coAnh = ds.filter(q => q.image).length;
-            if(coAnh > 0) alert(`Lưu ý: đề có ${coAnh} câu kèm ảnh.\n\nFile .tex không nhúng được ảnh, thầy/cô cần lưu ảnh ra file riêng rồi bỏ chú thích dòng \\includegraphics tương ứng.`);
+            if(coAnh > 0) alert(`Lưu ý: đề có ${coAnh} câu kèm ảnh.\n\nFile .tex không nhúng được ảnh, thầy cần lưu ảnh ra file riêng rồi bỏ chú thích dòng \\includegraphics tương ứng.`);
         };
 
         // Xuất từ ngân hàng câu hỏi
@@ -5029,7 +5023,7 @@ DAP AN: 0,5`;
             if(cM) h += `<li>Trắc nghiệm: <b>${cM}</b> câu × ${(w.mcq/cM).toFixed(2)}đ = <b>${w.mcq.toFixed(2)}đ</b></li>`;
             if(cT) h += `<li>Đúng/Sai: <b>${cT}</b> câu × ${(w.tf/cT).toFixed(2)}đ = <b>${w.tf.toFixed(2)}đ</b></li>`;
             if(cS) h += `<li>Trả lời ngắn: <b>${cS}</b> câu × ${(w.short/cS).toFixed(2)}đ = <b>${w.short.toFixed(2)}đ</b></li>`;
-            if(cE) h += `<li>Tự luận: <b>${cE}</b> câu = <b>${w.essay.toFixed(2)}đ</b> <i>(thầy/cô chấm tay)</i></li>`;
+            if(cE) h += `<li>Tự luận: <b>${cE}</b> câu = <b>${w.essay.toFixed(2)}đ</b> <i>(thầy chấm tay)</i></li>`;
             const tong = w.mcq + w.tf + w.short + w.essay;
             const mau = Math.abs(tong - 10) < 0.01 ? "#16a34a" : "#dc2626";
             h += `</ul><div style="margin-top:10px; font-size:16px; color:${mau}; font-weight:bold;">TỔNG: ${tong.toFixed(2)} / 10 điểm ${Math.abs(tong-10)<0.01?'✅':'⚠️ (khác 10)'}</div>`;
@@ -5414,7 +5408,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         : `<span style="color:#cbd5e1;">—</span>`;
 
                     const coNhan = st.feedback && st.feedback.trim()
-                        ? ` <span title="Có lời nhắn cho thầy/cô" style="color:#0284c7;">💬</span>` : "";
+                        ? ` <span title="Có lời nhắn cho thầy" style="color:#0284c7;">💬</span>` : "";
 
                     // Phân biệt bài thi với bài tự luyện
                     const cd = st.cheDo || 'exam';
@@ -5446,7 +5440,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(oNhac) oNhac.innerHTML = coBTVN
                 ? `<div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:11px 14px; margin-top:12px; font-size:14px; color:#92400e;">
                     🏠 Đây là bài về nhà — bảng này hiện <b>lần làm gần nhất</b> của mỗi em.
-                    Muốn xem <b>tất cả các lần</b> kèm điểm từng lần, thầy/cô vào
+                    Muốn xem <b>tất cả các lần</b> kèm điểm từng lần, vào
                     <b>📤 Giao bài &amp; kết quả → 📊 Kết quả &amp; thống kê</b>.</div>`
                 : "";
 
@@ -5847,7 +5841,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(!exam.questions) {
                 try {
                     const snapDe = await get(ref(db, 'exams/' + name));
-                    if(!snapDe.exists()) return alert("Không tìm thấy đề này. Có thể thầy/cô đã xoá.");
+                    if(!snapDe.exists()) return alert("Không tìm thấy đề này. Có thể đã bị xoá.");
                     exam = snapDe.val();
                     dbExams[name] = exam;   // giữ lại để không phải tải lần nữa
                 } catch(e) {
@@ -5857,7 +5851,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             }
             activeExamName = name;
             activeScoring = exam.scoring || 'free';
-            activeChamNgay = exam.instantFeedback === true;   // chỉ bật khi thầy/cô tick riêng
+            activeChamNgay = exam.instantFeedback === true;   // chỉ bật khi thầy tick riêng
             activeCustom = exam.customScore || null;
             currentMode = mode;
 
@@ -5873,7 +5867,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 btvnThoiDiemBatDau = Date.now();   // để tính HS làm mất bao lâu
                 thoiDiemBatDauLam = btvnThoiDiemBatDau;
 
-                // Ghi danh lên bảng Giám sát để thầy/cô thấy em đang làm
+                // Ghi danh lên bảng Giám sát để thầy thấy em đang làm
                 update(ref(db, `students/${studentKey()}`), {
                     examName: name,
                     fullName: currentUser.fullName,
@@ -5957,7 +5951,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                     examName: name, 
                     fullName: currentUser.fullName,
                     lop: currentUser.targetClass || '',
-                    cheDo: mode,                 // để thầy/cô phân biệt thi và tự luyện
+                    cheDo: mode,                 // để thầy phân biệt thi và tự luyện
                     totalQ: questions.length, 
                     status: "Đang làm", 
                     score: 0, 
@@ -6169,7 +6163,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             // In các lựa chọn đáp án
             let html = ""; const savedAns = userAnswers[currentIdx];
             // Chế độ tự luyện: hiện đúng/sai ngay sau khi HS chọn
-            // Chỉ chấm ngay khi thầy/cô BẬT riêng cho đề đó. Mặc định tắt:
+            // Chỉ chấm ngay khi thầy BẬT riêng cho đề đó. Mặc định tắt:
             // học sinh làm xong nộp bài mới biết kết quả, như thi thật.
             const chamNgay = activeChamNgay && (savedAns !== undefined && savedAns !== null && savedAns !== "");
 
@@ -6219,19 +6213,19 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 html = `<div style="background: #fffbeb; padding: 20px; border-radius: 12px; border: 2px dashed #fcd34d;">
                     <h3 style="color: #b45309; margin-top:0; font-size: 20px; text-align:center;">📄 PHẦN TỰ LUẬN</h3>
                     <p style="font-size: 16px; color: #78350f; text-align:center; margin-bottom:16px;">
-                        Em trình bày lời giải ra <b>giấy</b>, rồi chụp ảnh bài làm nộp lên đây.</p>
+                        Em làm ra <b>giấy</b> rồi chụp ảnh nộp lên đây.</p>
 
                     <div style="text-align:center;">
                         <label style="display:inline-block; background:#0284c7; color:white; padding:14px 22px; border-radius:10px; cursor:pointer; font-size:16px; font-weight:bold;">
                             📷 Chụp / chọn ảnh bài làm
                             <input type="file" accept="image/*" capture="environment" multiple onchange="themAnhTuLuan(this)" style="display:none;">
                         </label>
-                        <div style="font-size:13px; color:#92400e; margin-top:9px;">Nộp được nhiều ảnh. Ảnh tự thu nhỏ nên không tốn dung lượng.</div>
+                        <div style="font-size:13px; color:#92400e; margin-top:9px;">Nộp được nhiều ảnh.</div>
                     </div>
 
                     <div id="khungAnhTuLuan" style="text-align:center; margin-top:14px;">${khungAnh}</div>
                     ${anhDaNop.length ? `<div style="text-align:center; font-size:14px; color:#15803d; font-weight:bold; margin-top:8px;">✅ Đã nộp ${anhDaNop.length} ảnh</div>`
-                                      : `<div style="text-align:center; font-size:14px; color:#92400e; margin-top:8px;">Chưa có ảnh nào. Nếu thầy/cô thu bài trên giấy thì em để trống cũng được.</div>`}
+                                      : `<div style="text-align:center; font-size:14px; color:#92400e; margin-top:8px;">Chưa có ảnh nào. Nếu thầy Hùng Anh thu bài trên giấy thì em để trống cũng được.</div>`}
                 </div>`;
             }
             
@@ -6386,7 +6380,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 // Nộp đúng hạn: +2
                 if(!nopMuon) {
                     await set(ref(db, `diemcong/${u}/dunghan_${khoa}`), {
-                        diem: 2, lyDo: `Nộp đúng hạn: ${tenBai}`, ngay: Date.now(), tuDong: true,
+                        diem: 0.5, lyDo: `Nộp đúng hạn: ${tenBai}`, ngay: Date.now(), tuDong: true,
                         lop: currentUser.targetClass || '', ten: currentUser.fullName
                     });
                 }
@@ -6400,7 +6394,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         const truocDo = Math.max(...cacLan.slice(0, -1));
                         if(diemLan > truocDo + 0.01) {
                             await set(ref(db, `diemcong/${u}/tienbo_${khoa}`), {
-                                diem: 3, lyDo: `Tiến bộ ở "${tenBai}": ${truocDo.toFixed(2)} → ${diemLan.toFixed(2)}`,
+                                diem: 0.5, lyDo: `Tiến bộ ở "${tenBai}": ${truocDo.toFixed(2)} → ${diemLan.toFixed(2)}`,
                                 ngay: Date.now(), tuDong: true,
                                 lop: currentUser.targetClass || '', ten: currentUser.fullName
                             });
@@ -6474,83 +6468,6 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             if(tab === 'ds') veDanhSachBTVN();
             if(tab === 'kq') taiLaiKetQuaBTVN();
         };
-
-        // ---------- Thẻ điểm cộng của học sinh ----------
-        async function veTheDiemCong() {
-            const khung = document.getElementById("theDiemCong");
-            if(!khung || !currentUser) return;
-            khung.style.display = 'none';
-
-            const u = safeKey(currentUser.username);
-            const lop = currentUser.targetClass;
-            let tatCa = {};
-            try {
-                const snap = await get(ref(db, 'diemcong'));
-                tatCa = snap.exists() ? snap.val() : {};
-            } catch(e) { return; }
-
-            // Mốc đầu tháng
-            const d = new Date(); d.setDate(1); d.setHours(0,0,0,0);
-            const dauThang = d.getTime();
-            const tinh = (uu) => Object.values(tatCa[uu] || {})
-                .filter(v => (v.ngay||0) >= dauThang)
-                .reduce((t,v) => t + (parseFloat(v.diem)||0), 0);
-
-            const cuaEm = tinh(u);
-            const cacLan = Object.values(tatCa[u] || {})
-                .filter(v => (v.ngay||0) >= dauThang)
-                .sort((a,b) => (b.ngay||0) - (a.ngay||0));
-
-            // Thứ hạng trong lớp — tính từ chính dữ liệu điểm cộng (mỗi bản ghi có lưu tên lớp),
-            // không cần tải danh sách tài khoản về máy học sinh.
-            let hang = null, tongHS = 0;
-            if(lop && lop !== 'all') {
-                const bang = [];
-                Object.keys(tatCa).forEach(uu => {
-                    const cac = Object.values(tatCa[uu] || {}).filter(v => (v.ngay||0) >= dauThang);
-                    if(cac.length === 0) return;
-                    if(!cac.some(v => v.lop === lop)) return;     // chỉ bạn cùng lớp
-                    bang.push({ uu, d: cac.reduce((t,v) => t + (parseFloat(v.diem)||0), 0) });
-                });
-                bang.sort((a,b) => b.d - a.d);
-                tongHS = bang.length;
-                const vt = bang.findIndex(x => x.uu === u);
-                if(vt >= 0) hang = vt + 1;
-            }
-
-            if(cuaEm <= 0) {
-                khung.innerHTML = `<div style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:14px; padding:14px 16px; margin-bottom:16px; text-align:left;">
-                    <b style="color:#475569;">⭐ Điểm cộng tháng này: 0</b>
-                    <div style="font-size:13px; color:#64748b; margin-top:5px;">
-                        Em nộp bài về nhà đúng hạn là được <b>+2</b>, làm lại tốt hơn lần trước được thêm <b>+3</b>.
-                        Thầy/cô cũng cộng thêm khi em phát biểu, giúp bạn, tiến bộ.</div>
-                </div>`;
-                khung.style.display = 'block';
-                return;
-            }
-
-            const thuHang = (hang && hang <= 3)
-                ? ['🥇 Nhất lớp!','🥈 Nhì lớp!','🥉 Ba lớp!'][hang-1]
-                : (hang ? `Hạng ${hang} trong ${tongHS} bạn có điểm cộng` : '');
-
-            let h = `<div style="background:#fffbeb; border:2px solid #fde68a; border-radius:14px; padding:15px 17px; margin-bottom:16px; text-align:left;">
-                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-                    <div style="font-size:30px; font-weight:800; color:#b45309;">+${cuaEm}</div>
-                    <div style="flex:1; min-width:150px;">
-                        <b style="color:#92400e; font-size:15px;">⭐ Điểm cộng tháng này</b>
-                        ${thuHang ? `<div style="font-size:14px; color:#b45309; font-weight:bold;">${thuHang}</div>` : ''}
-                    </div>
-                </div>
-                <div style="margin-top:10px; border-top:1px dashed #fde68a; padding-top:9px;">`;
-            cacLan.slice(0, 3).forEach(v => {
-                h += `<div style="font-size:13px; color:#78716c; padding:2px 0;">
-                    <b style="color:#b45309;">+${v.diem}</b> ${v.lyDo || ''}</div>`;
-            });
-            if(cacLan.length > 3) h += `<div style="font-size:12px; color:#94a3b8;">... và ${cacLan.length - 3} lần nữa</div>`;
-            h += `</div></div>`;
-            khung.innerHTML = h;
-            khung.style.display = 'block';
-        }
 
         // ---------- Băng nhắc bài tập trên trang chủ học sinh ----------
         async function veNhacNhoBaiTap() {
@@ -6635,7 +6552,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
 
             if(ds.length === 0) {
                 khung.innerHTML = `<div style="padding:28px; text-align:center; color:#64748b; background:#f8fafc; border-radius:12px;">
-                    Không có đề nào khớp. Thầy/cô tạo đề ở <b>🏦 Ngân hàng câu hỏi</b> hoặc <b>✏️ Tạo đề thi</b> trước nhé.</div>`;
+                    Không có đề nào khớp. Tạo đề ở <b>🏦 Ngân hàng câu hỏi</b> hoặc <b>✏️ Tạo đề thi</b> trước nhé.</div>`;
                 return;
             }
 
@@ -6779,7 +6696,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 .sort((a,b)=>(a.fullName||"").localeCompare(b.fullName||"",'vi'));
 
             if(hs.length === 0) {
-                ds.innerHTML = `<div style="padding:14px; text-align:center; color:#94a3b8; font-size:14px;">Lớp này chưa có học sinh. Thầy/cô tạo tài khoản ở mục <b>👥 Tài khoản học sinh</b>.</div>`;
+                ds.innerHTML = `<div style="padding:14px; text-align:center; color:#94a3b8; font-size:14px;">Lớp này chưa có học sinh. Tạo tài khoản ở mục <b>👥 Tài khoản học sinh</b>.</div>`;
                 return;
             }
             const chon = new Set(daChon || []);
@@ -6814,7 +6731,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             let giaoCho = null;
             if(rieng) {
                 giaoCho = [...document.querySelectorAll('.hs-giao:checked')].map(cb => cb.value);
-                if(giaoCho.length === 0) return alert("Thầy/cô chọn giao riêng nhưng chưa tích em nào.");
+                if(giaoCho.length === 0) return alert("Đã chọn giao riêng nhưng chưa tích em nào.");
             }
 
             let deadline = null;
@@ -6948,7 +6865,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                 });
             });
 
-            // Liệt kê MỌI bài đã giao, kể cả bài chưa ai nộp — để thầy/cô không bị hiểu nhầm là lỗi
+            // Liệt kê MỌI bài đã giao, kể cả bài chưa ai nộp — để thầy không bị hiểu nhầm là lỗi
             const tenDeDaGiao = Object.keys(dbExams).filter(k => dbExams[k].visibility !== 'hide');
             const tatCa = [...new Set([...tenDeDaGiao, ...Object.keys(soLuot)])]
                 .sort((a,b) => (soLuot[b]||0) - (soLuot[a]||0) || a.localeCompare(b,'vi'));
@@ -7025,7 +6942,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
             ct.forEach((c, i) => {
                 const laTuLuan = c.type === 'essay';
                 const dungCau = (c.earned || 0) > 0;
-                // Câu tự luận có ảnh thì luôn hiện, vì thầy/cô cần xem để chấm
+                // Câu tự luận có ảnh thì luôn hiện, vì thầy cần xem để chấm
                 const coAnh = laTuLuan && (c.sAns || "").includes('<img');
                 if(chiSai && (dungCau || laTuLuan) && !coAnh) return;
 
@@ -7080,7 +6997,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         ${ex ? `Bài này đang giao làm <b>${loaiBai}</b>${ex.targetClass && ex.targetClass !== 'all' ? ' cho lớp ' + ex.targetClass : ''}.` : 'Bài này không còn trong danh sách đề.'}<br>
                         • Các em đã làm nhưng <b>chưa bấm Nộp bài</b> thì chưa tính.<br>
                         • Bài <b>tự luyện làm trước ngày 25/10/2026</b> không được lưu lại — chỉ tính từ lần làm sau khi cập nhật hệ thống.<br>
-                        • Nếu các em vừa nộp xong, thầy/cô bấm <b>🔄 Tải lại</b> ở trên.
+                        • Nếu các em vừa nộp xong, bấm <b>🔄 Tải lại</b> ở trên.
                     </div></div>`;
                 document.getElementById("btvnChiTietLan").innerHTML = "";
                 return;
@@ -7621,7 +7538,7 @@ GIAI: $\\int_0^1 2x\\,dx = x^2 \\big|_0^1 = 1$
                         if(b.cheats > 0) nhanBTVN += ` · <span style="color:#b91c1c;">rời trang ${b.cheats} lần</span>`;
                         nhanBTVN += `</span>`;
                     }
-                    // Lời nhắn em đã gửi cho thầy/cô
+                    // Lời nhắn em đã gửi cho thầy
                     if(b.feedback && b.feedback.trim()) {
                         nhanBTVN += `<br><span style="font-size:13px; color:#0369a1;">💬 Em đã nhắn: "${b.feedback.replace(/</g,'&lt;').slice(0,80)}${b.feedback.length>80?'...':''}"</span>`;
                     }
