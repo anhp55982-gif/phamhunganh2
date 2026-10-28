@@ -2612,6 +2612,10 @@
                 dbDiemCong = snap.exists() ? snap.val() : {};
             } catch(e) { dbDiemCong = {}; }
             veBangThiDua();
+
+            // Đang mở bảng cộng điểm thì dựng lại theo lớp mới, tránh hiện nhầm lớp cũ
+            const kc = document.getElementById("tdKhungCong");
+            if(kc && kc.style.display === 'block') { kc.style.display = 'none'; moCongDiem(); }
         };
 
         // Gom điểm cộng của từng em trong khoảng thời gian
@@ -2718,7 +2722,8 @@
             if(hs.length === 0) return alert("Lớp này chưa có học sinh.");
 
             k.innerHTML = `<div style="background:#f0fdf4; border:2px solid #86efac; border-radius:14px; padding:16px; margin-bottom:16px;">
-                <b style="color:#15803d; font-size:16px;">➕ Cộng điểm cho học sinh</b>
+                <b style="color:#15803d; font-size:16px;">➕ Cộng điểm — lớp ${lop}
+                    <span style="font-weight:normal; color:#78716c; font-size:14px;">(${hs.length} em)</span></b>
                 <div style="display:grid; grid-template-columns:1fr 110px; gap:12px; margin:12px 0;">
                     <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Lý do:</label>
                         <input type="text" id="cdLyDo" list="ds-ly-do" placeholder="VD: Hăng hái phát biểu" style="margin:4px 0 0 0; padding:11px;">
@@ -2733,7 +2738,7 @@
                     <div><label style="font-size:13px; font-weight:bold; color:#15803d;">Số điểm:</label>
                         <input type="number" id="cdDiem" value="0.5" step="0.5" min="-10" max="10" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
                 </div>
-                <input type="text" id="cdTim" oninput="locHSCongDiem()" placeholder="🔍 Gõ tên em cần cộng điểm — không dấu cũng được"
+                <input type="text" id="cdTim" oninput="locHSCongDiem()" placeholder="🔍 Tìm trong lớp ${lop} — gõ không dấu cũng được"
                     style="margin:0 0 10px 0; padding:12px; font-size:15px;" autocomplete="off">
 
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:9px; align-items:center;">
