@@ -1262,6 +1262,17 @@
                     <button class="btn" style="margin:0; width:auto; padding:11px 18px; font-size:14px; background:linear-gradient(to right,#dc2626,#b91c1c); color:white;" onclick="inGiayKhen()">🏅 In giấy khen</button>
                 </div>
 
+                <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end;">
+                    <div style="flex:2; min-width:220px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">🏫 Tên trường (in trên giấy khen):</label>
+                        <input type="text" id="tdTenTruong" oninput="luuTenTruong()" placeholder="VD: TRƯỜNG THCS QUYẾT THẮNG" style="margin:5px 0 0 0; padding:11px;">
+                    </div>
+                    <div style="flex:1; min-width:170px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Tên phong trào:</label>
+                        <input type="text" id="tdTenPhongTrao" oninput="luuTenTruong()" placeholder="thi đua học tập môn Toán" style="margin:5px 0 0 0; padding:11px;">
+                    </div>
+                </div>
+
                 <div id="tdKhungCong" style="display:none;"></div>
                 <div id="tdBangXep"></div>
                 <div id="tdLichSu"></div>
@@ -2599,7 +2610,24 @@
             return d.getTime();
         }
 
+        window.luuTenTruong = () => {
+            try {
+                localStorage.setItem('tenTruong', document.getElementById("tdTenTruong").value.trim());
+                localStorage.setItem('tenPhongTrao', document.getElementById("tdTenPhongTrao").value.trim());
+            } catch(e) {}
+        };
+
+        function napTenTruong() {
+            try {
+                const a = document.getElementById("tdTenTruong");
+                const b = document.getElementById("tdTenPhongTrao");
+                if(a) a.value = localStorage.getItem('tenTruong') || "";
+                if(b) b.value = localStorage.getItem('tenPhongTrao') || "";
+            } catch(e) {}
+        }
+
         window.taiThiDua = async () => {
+            napTenTruong();
             if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();
             const sel = document.getElementById("tdLopXem");
             const lop = dsLopHienCo();
@@ -2885,55 +2913,99 @@
             ganThuHang(ds);
             const top = ds.filter(x => x.hang <= 3);
 
-            // Tên trường chỉ hỏi một lần rồi nhớ
-            let truong = "";
-            try { truong = localStorage.getItem('tenTruong') || ""; } catch(e) {}
+            const truong = (document.getElementById("tdTenTruong").value || "").trim();
             if(!truong) {
-                truong = prompt("Tên trường (ghi trên giấy khen):", "TRƯỜNG THCS ") || "";
-                if(!truong.trim()) return;
-                truong = truong.trim();
-                try { localStorage.setItem('tenTruong', truong); } catch(e) {}
+                document.getElementById("tdTenTruong").focus();
+                return alert("Nhập tên trường ở ô 🏫 phía trên trước khi in giấy khen.");
             }
+            const phongTrao = (document.getElementById("tdTenPhongTrao").value || "").trim() || "thi đua học tập môn Toán";
 
             const d = new Date();
             const thang = d.getMonth() + 1, nam = d.getFullYear();
             const ngayThang = `Ngày ${d.getDate()} tháng ${thang} năm ${nam}`;
-            const dotThi = { tuan:'tuần', thang:`tháng ${thang}`, tatca:`học kì` }[khoang];
-
+            const dotThi = { tuan:'tuần', thang:`tháng ${thang}`, tatca:'học kì' }[khoang];
             const tenGiai = { 1:'GIẢI NHẤT', 2:'GIẢI NHÌ', 3:'GIẢI BA' };
-            const mauGiai = {
-                1: ['#b8860b','#fffdf2','#f0c75e'],
-                2: ['#64748b','#fbfcfd','#c2cad4'],
-                3: ['#a8591f','#fffaf5','#dba36e']
+
+            // Mỗi hạng một bộ màu rực rỡ riêng
+            const bo = {
+                1: { c1:'#f97316', c2:'#e11d48', c3:'#facc15', nen1:'#fff8e7', nen2:'#ffeede', hoa:'#fb923c', chu:'#9a3412' },
+                2: { c1:'#8b5cf6', c2:'#2563eb', c3:'#22d3ee', nen1:'#f5f3ff', nen2:'#eef2ff', hoa:'#a78bfa', chu:'#4c1d95' },
+                3: { c1:'#10b981', c2:'#0ea5e9', c3:'#a3e635', nen1:'#f0fdf4', nen2:'#ecfeff', hoa:'#34d399', chu:'#065f46' }
             };
 
-            const to = top.map(x => {
-                const [mauChinh, nenGiay, vienPhu] = mauGiai[x.hang];
-                return `<div class="to">
-                  <div class="vien" style="border-color:${mauChinh}; background:${nenGiay};">
-                    <div class="vien2" style="border-color:${vienPhu};">
+            // Hoạ tiết góc
+            const canhHoa = (x, y, r, mauCanh, mauNhuy) =>
+                `<g transform="translate(${x},${y})">
+                    ${[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="${-r}" rx="${r*0.52}" ry="${r}" fill="${mauCanh}" transform="rotate(${a})"/>`).join('')}
+                    <circle r="${r*0.46}" fill="${mauNhuy}"/>
+                 </g>`;
 
-                      <div class="dau">
-                        <div class="truong">${truong.toUpperCase()}</div>
-                        <div class="gach" style="background:${mauChinh};"></div>
+            const hoaGoc = (m) => `<svg viewBox="0 0 120 120" class="goc-svg">
+                <path d="M8 112 C8 56, 56 8, 112 8" fill="none" stroke="${m.c1}" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+                <path d="M20 112 C20 64, 64 20, 112 20" fill="none" stroke="${m.c3}" stroke-width="1.6" stroke-linecap="round" opacity="0.75"/>
+                <path d="M34 86 q-13 -5 -17 -19 q15 1 19 17 z" fill="${m.hoa}" opacity="0.9"/>
+                <path d="M62 54 q-5 -13 2 -25 q10 10 5 24 z" fill="${m.hoa}" opacity="0.9"/>
+                ${canhHoa(30, 62, 11, m.hoa, m.c3)}
+                ${canhHoa(62, 30, 8, m.c3, m.c1)}
+                ${canhHoa(88, 88, 6, m.c2, m.c3)}
+                <circle cx="48" cy="44" r="2.8" fill="${m.c2}"/>
+                <circle cx="80" cy="56" r="2.2" fill="${m.c1}"/>
+            </svg>`;
+
+            const sao = (m) => `<svg viewBox="0 0 24 24" class="sao"><path d="M12 1.6l3 6.6 7 .7-5.2 4.7 1.5 7-6.3-3.6L5.7 20.6l1.5-7L2 8.9l7-.7z" fill="${m.c3}" stroke="${m.c1}" stroke-width="1.2"/></svg>`;
+
+            const to = top.map(x => {
+                const m = bo[x.hang];
+                const chamTron = [
+                    `left:5.5%;  top:30%; width:3.4mm; background:${m.c3}`,
+                    `left:7.5%;  top:38%; width:2.2mm; background:${m.c1}`,
+                    `right:5.5%; top:28%; width:3.4mm; background:${m.c2}`,
+                    `right:7.5%; top:36%; width:2.2mm; background:${m.c3}`,
+                    `left:6.5%;  top:70%; width:2.6mm; background:${m.hoa}`,
+                    `right:6.5%; top:72%; width:2.6mm; background:${m.c1}`
+                ].map(v => `<i class="cham" style="${v}"></i>`).join('');
+                const bongBay = chamTron;
+
+                return `<div class="to">
+                  <div class="khung" style="background:linear-gradient(135deg, ${m.c1}, ${m.c2} 45%, ${m.c3});">
+                    <div class="giay" style="background:
+                        radial-gradient(circle at 50% -8%, ${m.nen2} 0 18%, transparent 18%),
+                        linear-gradient(170deg, #ffffff, ${m.nen1} 70%, ${m.nen2});">
+
+                      <span class="goc g1">${hoaGoc(m)}</span>
+                      <span class="goc g2">${hoaGoc(m)}</span>
+                      <span class="goc g3">${hoaGoc(m)}</span>
+                      <span class="goc g4">${hoaGoc(m)}</span>
+                      ${bongBay}
+
+                      <div class="bang" style="background:linear-gradient(90deg, ${m.c1}, ${m.c2});">
+                        <span>${truong.toUpperCase()}</span>
                       </div>
 
-                      <div class="tieude" style="color:${mauChinh};">GIẤY KHEN</div>
+                      <div class="td-hang">
+                        ${sao(m)}
+                        <div class="tieude" style="color:${m.c2};">GIẤY KHEN</div>
+                        ${sao(m)}
+                      </div>
+                      <div class="song" style="color:${m.hoa};">✿ ❀ ✿ ❀ ✿</div>
 
-                      <div class="tang">Trân trọng tặng em</div>
-                      <div class="ten">${x.fullName}</div>
-                      <div class="lop">Học sinh lớp ${lop}</div>
+                      <div class="tang" style="color:${m.chu};">Trân trọng tặng em</div>
+                      <div class="ten" style="color:${m.chu};">${x.fullName}</div>
+                      <div class="net" style="background:linear-gradient(90deg,transparent,${m.c1},${m.c2},transparent);"></div>
+                      <div class="lop" style="color:${m.chu};">Học sinh lớp ${lop}</div>
 
-                      <div class="vi">Đã có thành tích xuất sắc trong phong trào thi đua học tập môn Toán</div>
-                      <div class="giai" style="color:${mauChinh}; border-color:${mauChinh};">${tenGiai[x.hang]}</div>
-                      <div class="dot">Đợt thi đua ${dotThi} năm học ${nam - 1}–${nam}</div>
+                      <div class="vi" style="color:${m.chu};">Đã có thành tích xuất sắc trong phong trào ${phongTrao}</div>
+
+                      <div class="ruybang" style="background:linear-gradient(90deg, ${m.c2}, ${m.c1});">${tenGiai[x.hang]}</div>
+                      <div class="dot" style="color:${m.chu};">Đợt thi đua ${dotThi} &nbsp;•&nbsp; Năm học ${nam - 1}–${nam}</div>
 
                       <div class="chan">
-                        <div class="dau-tron" style="border-color:${mauChinh}; color:${mauChinh};">
-                          <div class="so-diem">${x.tong}</div>
-                          <div class="nhan-diem">ĐIỂM</div>
+                        <div class="huy" style="background:linear-gradient(145deg, ${m.c3}, ${m.c1});">
+                          <div class="huy-trong" style="color:${m.chu};">
+                            <div class="sd">${x.tong}</div><div class="nd">ĐIỂM</div>
+                          </div>
                         </div>
-                        <div class="ky">
+                        <div class="ky" style="color:${m.chu};">
                           <div class="ngay">${ngayThang}</div>
                           <div class="chuc">GIÁO VIÊN BỘ MÔN</div>
                           <div class="trong"></div>
@@ -2949,68 +3021,80 @@
             const w = window.open('', '_blank');
             if(!w) return alert("Trình duyệt chặn cửa sổ mới. Thầy cho phép pop-up rồi thử lại.");
             w.document.write(`<html><head><meta charset="utf-8"><title>Giấy khen lớp ${lop}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
   @page { size: A4 landscape; margin: 0; }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:"Times New Roman",Georgia,serif;background:#e2e8f0;padding:18px;}
+  body{font-family:"Baloo 2","Segoe UI",system-ui,sans-serif;background:#1e1b4b;padding:18px;}
 
   .thanh{max-width:1000px;margin:0 auto 16px;text-align:center;}
-  .thanh button{padding:12px 26px;margin:0 5px;font-size:15px;font-weight:bold;border:none;
-                border-radius:10px;background:#1d4ed8;color:#fff;cursor:pointer;font-family:system-ui,sans-serif;}
-  .thanh .phu{background:#64748b;}
-  .thanh p{font-family:system-ui,sans-serif;font-size:13px;color:#475569;margin-top:9px;}
+  .thanh button{padding:13px 28px;margin:0 5px;font-size:15px;font-weight:800;border:none;
+                border-radius:12px;background:#fbbf24;color:#422006;cursor:pointer;}
+  .thanh p{font-size:13px;color:#c7d2fe;margin-top:10px;}
 
-  .to{width:297mm;height:210mm;margin:0 auto 18px;background:#fff;padding:9mm;
-      page-break-after:always;box-shadow:0 6px 18px rgba(0,0,0,0.18);}
-  .vien{height:100%;border:4px double;padding:5mm;}
-  .vien2{height:100%;border:1.5px solid;padding:9mm 14mm;display:flex;flex-direction:column;
-         align-items:center;text-align:center;}
+  .to{width:297mm;height:210mm;margin:0 auto 18px;page-break-after:always;}
+  .khung{height:100%;padding:5mm;border-radius:4mm;}
+  .giay{height:100%;border-radius:2.5mm;padding:7mm 16mm;position:relative;overflow:hidden;
+        display:flex;flex-direction:column;align-items:center;text-align:center;}
 
-  .dau{margin-bottom:3mm;}
-  .truong{font-size:15pt;font-weight:bold;letter-spacing:1.5px;color:#334155;}
-  .gach{width:46mm;height:2px;margin:2.5mm auto 0;}
+  /* Hoa góc */
+  .goc{position:absolute;width:27mm;height:27mm;opacity:.95;}
+  .goc-svg{width:100%;height:100%;}
+  .g1{top:3mm;left:3mm;} .g2{top:3mm;right:3mm;transform:scaleX(-1);}
+  .g3{bottom:2mm;left:2mm;transform:scaleY(-1);opacity:.55;}
+  .g4{bottom:2mm;right:2mm;transform:scale(-1,-1);opacity:.55;}
 
-  .tieude{font-size:44pt;font-weight:bold;letter-spacing:7px;margin:3mm 0 1mm;
-          text-shadow:1px 1px 0 rgba(0,0,0,0.07);}
+  /* Chấm tròn trang trí hai bên */
+  .cham{position:absolute;aspect-ratio:1;border-radius:50%;opacity:.55;}
 
-  .tang{font-size:13pt;color:#475569;font-style:italic;margin-top:3mm;}
-  .ten{font-size:30pt;font-weight:bold;color:#0f172a;margin:2mm 0 1mm;letter-spacing:0.5px;}
-  .lop{font-size:13pt;color:#475569;}
+  .bang{color:#fff;font-size:13.5pt;font-weight:800;letter-spacing:1.5px;
+        padding:2.6mm 16mm;border-radius:999px;box-shadow:0 2mm 4mm rgba(0,0,0,.12);z-index:2;}
 
-  .vi{font-size:13pt;color:#334155;margin-top:5mm;max-width:195mm;line-height:1.5;}
-  .giai{font-size:21pt;font-weight:bold;letter-spacing:3px;margin-top:3mm;
-        border:2px solid;border-radius:6px;padding:2mm 11mm;}
-  .dot{font-size:11.5pt;color:#64748b;font-style:italic;margin-top:2.5mm;}
+  .td-hang{display:flex;align-items:center;gap:6mm;margin-top:4mm;z-index:2;}
+  .sao{width:11mm;height:11mm;}
+  .tieude{font-size:46pt;font-weight:800;letter-spacing:5px;line-height:1.05;
+          text-shadow:0 2px 0 #fff, 0 4px 6px rgba(0,0,0,.14);}
+  .song{font-size:13pt;letter-spacing:4px;margin-top:1mm;}
 
-  .chan{margin-top:auto;width:100%;display:flex;align-items:flex-end;justify-content:space-between;}
-  .dau-tron{width:30mm;height:30mm;border:2.5px solid;border-radius:50%;
-            display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .so-diem{font-size:19pt;font-weight:bold;line-height:1;}
-  .nhan-diem{font-size:7.5pt;letter-spacing:2px;margin-top:1mm;}
-  .ky{text-align:center;min-width:72mm;}
-  .ngay{font-size:11pt;font-style:italic;color:#475569;}
-  .chuc{font-size:11.5pt;font-weight:bold;color:#334155;margin-top:2mm;letter-spacing:0.5px;}
-  .trong{height:17mm;}
-  .tengv{font-size:14pt;font-weight:bold;color:#0f172a;}
+  .tang{font-size:13pt;margin-top:3mm;font-weight:600;}
+  .ten{font-family:"Dancing Script","Brush Script MT",cursive;font-size:50pt;line-height:1.05;
+       margin-top:1mm;font-weight:700;}
+  .net{width:110mm;height:1.2mm;border-radius:999px;margin:1.5mm 0 2mm;}
+  .lop{font-size:13pt;font-weight:600;}
+
+  .vi{font-size:13pt;margin-top:4mm;max-width:200mm;line-height:1.45;font-weight:600;}
+
+  .ruybang{color:#fff;font-size:20pt;font-weight:800;letter-spacing:3px;border-radius:999px;
+           padding:2.8mm 18mm;margin-top:3.5mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);
+           border:2.5px solid #fff;}
+  .dot{font-size:11.5pt;margin-top:3mm;font-weight:600;}
+
+  .chan{margin-top:auto;width:100%;display:flex;align-items:flex-end;justify-content:space-between;z-index:2;}
+  .huy{width:31mm;height:31mm;border-radius:50%;padding:2.2mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);}
+  .huy-trong{width:100%;height:100%;border-radius:50%;background:#fff;
+             display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .sd{font-size:19pt;font-weight:800;line-height:1;}
+  .nd{font-size:7.5pt;letter-spacing:2px;font-weight:700;}
+  .ky{text-align:center;min-width:74mm;}
+  .ngay{font-size:11pt;font-style:italic;}
+  .chuc{font-size:11.5pt;font-weight:800;margin-top:2mm;letter-spacing:.5px;}
+  .trong{height:16mm;}
+  .tengv{font-family:"Dancing Script",cursive;font-size:20pt;font-weight:700;}
 
   @media print{
     body{background:#fff;padding:0;}
     .thanh{display:none;}
-    .to{margin:0;box-shadow:none;}
+    .to{margin:0;}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 </style></head><body>
   <div class="thanh">
     <button onclick="window.print()">🖨 IN ${top.length} GIẤY KHEN</button>
-    <button class="phu" onclick="doiTruong()">✏️ Đổi tên trường</button>
-    <p>Khổ A4 ngang — mỗi em một tờ. Khi in nhớ chọn <b>Khổ ngang (Landscape)</b> và bật <b>In màu nền</b>.</p>
+    <p>Khổ A4 ngang — mỗi em một tờ. Khi in chọn <b>Khổ ngang (Landscape)</b> và bật <b>In hình nền / Background graphics</b>.</p>
   </div>
   ${to}
-  <script>
-    function doiTruong(){
-      var t = prompt("Tên trường:", localStorage.getItem('tenTruong') || "");
-      if(t && t.trim()){ localStorage.setItem('tenTruong', t.trim()); location.reload(); }
-    }
-  <\/script>
 </body></html>`);
             w.document.close();
         };
