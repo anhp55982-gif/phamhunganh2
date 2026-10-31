@@ -1271,6 +1271,14 @@
                         <label style="font-size:13px; font-weight:bold; color:#a16207;">Tên phong trào:</label>
                         <input type="text" id="tdTenPhongTrao" oninput="luuTenTruong()" placeholder="thi đua học tập môn Toán" style="margin:5px 0 0 0; padding:11px;">
                     </div>
+                    <div style="flex:1; min-width:150px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">📅 Ngày in trên giấy:</label>
+                        <input type="date" id="tdNgayIn" oninput="luuTenTruong()" style="margin:5px 0 0 0; padding:11px;">
+                    </div>
+                    <div style="flex:1; min-width:130px;">
+                        <label style="font-size:13px; font-weight:bold; color:#a16207;">Năm học:</label>
+                        <input type="text" id="tdNamHoc" oninput="luuTenTruong()" placeholder="2026–2027" style="margin:5px 0 0 0; padding:11px;">
+                    </div>
                 </div>
 
                 <div id="tdKhungCong" style="display:none;"></div>
@@ -2614,15 +2622,30 @@
             try {
                 localStorage.setItem('tenTruong', document.getElementById("tdTenTruong").value.trim());
                 localStorage.setItem('tenPhongTrao', document.getElementById("tdTenPhongTrao").value.trim());
+                localStorage.setItem('ngayInGK', document.getElementById("tdNgayIn").value);
+                localStorage.setItem('namHocGK', document.getElementById("tdNamHoc").value.trim());
             } catch(e) {}
         };
+
+        // Năm học Việt Nam bắt đầu từ tháng 8
+        function namHocMacDinh(d) {
+            const n = d.getFullYear();
+            return (d.getMonth() + 1 >= 8) ? `${n}–${n + 1}` : `${n - 1}–${n}`;
+        }
 
         function napTenTruong() {
             try {
                 const a = document.getElementById("tdTenTruong");
                 const b = document.getElementById("tdTenPhongTrao");
+                const c = document.getElementById("tdNgayIn");
+                const e2 = document.getElementById("tdNamHoc");
                 if(a) a.value = localStorage.getItem('tenTruong') || "";
                 if(b) b.value = localStorage.getItem('tenPhongTrao') || "";
+                const hn = new Date();
+                const p2 = n => String(n).padStart(2, '0');
+                if(c) c.value = localStorage.getItem('ngayInGK') ||
+                    `${hn.getFullYear()}-${p2(hn.getMonth()+1)}-${p2(hn.getDate())}`;
+                if(e2) e2.value = localStorage.getItem('namHocGK') || namHocMacDinh(hn);
             } catch(e) {}
         }
 
@@ -2920,9 +2943,11 @@
             }
             const phongTrao = (document.getElementById("tdTenPhongTrao").value || "").trim() || "thi đua học tập môn Toán";
 
-            const d = new Date();
-            const thang = d.getMonth() + 1, nam = d.getFullYear();
-            const ngayThang = `Ngày ${d.getDate()} tháng ${thang} năm ${nam}`;
+            const raw = document.getElementById("tdNgayIn").value;
+            const d = raw ? new Date(raw + "T00:00:00") : new Date();
+            const thang = d.getMonth() + 1;
+            const ngayThang = `Ngày ${d.getDate()} tháng ${thang} năm ${d.getFullYear()}`;
+            const namHoc = (document.getElementById("tdNamHoc").value || "").trim() || namHocMacDinh(d);
             const dotThi = { tuan:'tuần', thang:`tháng ${thang}`, tatca:'học kì' }[khoang];
             const tenGiai = { 1:'GIẢI NHẤT', 2:'GIẢI NHÌ', 3:'GIẢI BA' };
 
@@ -2997,19 +3022,23 @@
                       <div class="vi" style="color:${m.chu};">Đã có thành tích xuất sắc trong phong trào ${phongTrao}</div>
 
                       <div class="ruybang" style="background:linear-gradient(90deg, ${m.c2}, ${m.c1});">${tenGiai[x.hang]}</div>
-                      <div class="dot" style="color:${m.chu};">Đợt thi đua ${dotThi} &nbsp;•&nbsp; Năm học ${nam - 1}–${nam}</div>
+                      <div class="dot" style="color:${m.chu};">Đợt thi đua ${dotThi} &nbsp;•&nbsp; Năm học ${namHoc}</div>
+                      <div class="chuc-mung" style="color:${m.c2}; border-color:${m.hoa};">
+                        Chúc em giữ vững tinh thần chăm chỉ và tiếp tục tiến bộ!
+                      </div>
 
                       <div class="chan">
                         <div class="huy" style="background:linear-gradient(145deg, ${m.c3}, ${m.c1});">
                           <div class="huy-trong" style="color:${m.chu};">
-                            <div class="sd">${x.tong}</div><div class="nd">ĐIỂM</div>
+                            <div class="sd">${x.cac.length}</div><div class="nd">LẦN</div>
                           </div>
                         </div>
                         <div class="ky" style="color:${m.chu};">
                           <div class="ngay">${ngayThang}</div>
-                          <div class="chuc">GIÁO VIÊN BỘ MÔN</div>
-                          <div class="trong"></div>
-                          <div class="tengv">Phạm Hùng Anh</div>
+                          <div class="gv-dong">
+                            <span class="gv-nhan">Giáo viên:</span>
+                            <span class="tengv">Phạm Hùng Anh</span>
+                          </div>
                         </div>
                       </div>
 
@@ -3036,7 +3065,7 @@
 
   .to{width:297mm;height:210mm;margin:0 auto 18px;page-break-after:always;}
   .khung{height:100%;padding:5mm;border-radius:4mm;}
-  .giay{height:100%;border-radius:2.5mm;padding:7mm 16mm;position:relative;overflow:hidden;
+  .giay{height:100%;border-radius:2.5mm;padding:6mm 15mm 5mm;position:relative;overflow:hidden;
         display:flex;flex-direction:column;align-items:center;text-align:center;}
 
   /* Hoa góc */
@@ -3049,39 +3078,41 @@
   /* Chấm tròn trang trí hai bên */
   .cham{position:absolute;aspect-ratio:1;border-radius:50%;opacity:.55;}
 
-  .bang{color:#fff;font-size:13.5pt;font-weight:800;letter-spacing:1.5px;
-        padding:2.6mm 16mm;border-radius:999px;box-shadow:0 2mm 4mm rgba(0,0,0,.12);z-index:2;}
+  .bang{color:#fff;font-size:15pt;font-weight:800;letter-spacing:1.8px;
+        padding:2.4mm 17mm;border-radius:999px;box-shadow:0 2mm 4mm rgba(0,0,0,.12);z-index:2;}
 
-  .td-hang{display:flex;align-items:center;gap:6mm;margin-top:4mm;z-index:2;}
-  .sao{width:11mm;height:11mm;}
-  .tieude{font-size:46pt;font-weight:800;letter-spacing:5px;line-height:1.05;
-          text-shadow:0 2px 0 #fff, 0 4px 6px rgba(0,0,0,.14);}
-  .song{font-size:13pt;letter-spacing:4px;margin-top:1mm;}
+  .td-hang{display:flex;align-items:center;gap:6mm;margin-top:3mm;z-index:2;}
+  .sao{width:12.5mm;height:12.5mm;}
+  .tieude{font-size:50pt;font-weight:800;letter-spacing:6px;line-height:1.05;
+          text-shadow:0 2px 0 #fff, 0 5px 8px rgba(0,0,0,.15);}
+  .song{font-size:14pt;letter-spacing:5px;margin-top:0.5mm;}
 
-  .tang{font-size:13pt;margin-top:3mm;font-weight:600;}
-  .ten{font-family:"Dancing Script","Brush Script MT",cursive;font-size:50pt;line-height:1.05;
-       margin-top:1mm;font-weight:700;}
-  .net{width:110mm;height:1.2mm;border-radius:999px;margin:1.5mm 0 2mm;}
-  .lop{font-size:13pt;font-weight:600;}
+  .tang{font-size:15pt;margin-top:2.5mm;font-weight:600;}
+  .ten{font-family:"Dancing Script","Brush Script MT",cursive;font-size:58pt;line-height:1.04;
+       margin-top:0;font-weight:700;}
+  .net{width:120mm;height:1.3mm;border-radius:999px;margin:1.2mm 0 1.8mm;}
+  .lop{font-size:15pt;font-weight:600;}
 
-  .vi{font-size:13pt;margin-top:4mm;max-width:200mm;line-height:1.45;font-weight:600;}
+  .vi{font-size:15.5pt;margin-top:4mm;max-width:215mm;line-height:1.4;font-weight:600;}
 
-  .ruybang{color:#fff;font-size:20pt;font-weight:800;letter-spacing:3px;border-radius:999px;
-           padding:2.8mm 18mm;margin-top:3.5mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);
-           border:2.5px solid #fff;}
-  .dot{font-size:11.5pt;margin-top:3mm;font-weight:600;}
+  .ruybang{color:#fff;font-size:25pt;font-weight:800;letter-spacing:4px;border-radius:999px;
+           padding:2.8mm 20mm;margin-top:3mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);
+           border:3px solid #fff;}
+  .dot{font-size:13pt;margin-top:2.5mm;font-weight:600;}
+  .chuc-mung{font-size:13.5pt;font-style:italic;font-weight:600;margin-top:4mm;
+             border-top:1.5px dashed;border-bottom:1.5px dashed;padding:1.8mm 10mm;}
 
-  .chan{margin-top:auto;width:100%;display:flex;align-items:flex-end;justify-content:space-between;z-index:2;}
-  .huy{width:31mm;height:31mm;border-radius:50%;padding:2.2mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);}
+  .chan{margin-top:auto;padding:2mm 7mm 2mm 2mm;width:100%;display:flex;align-items:flex-end;justify-content:space-between;z-index:2;}
+  .huy{width:33mm;height:33mm;border-radius:50%;padding:2.6mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);}
   .huy-trong{width:100%;height:100%;border-radius:50%;background:#fff;
              display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .sd{font-size:19pt;font-weight:800;line-height:1;}
-  .nd{font-size:7.5pt;letter-spacing:2px;font-weight:700;}
-  .ky{text-align:center;min-width:74mm;}
-  .ngay{font-size:11pt;font-style:italic;}
-  .chuc{font-size:11.5pt;font-weight:800;margin-top:2mm;letter-spacing:.5px;}
-  .trong{height:16mm;}
-  .tengv{font-family:"Dancing Script",cursive;font-size:20pt;font-weight:700;}
+  .sd{font-size:22pt;font-weight:800;line-height:1;}
+  .nd{font-size:9pt;letter-spacing:2px;font-weight:700;}
+  .ky{text-align:center;min-width:80mm;}
+  .ngay{font-size:12.5pt;font-style:italic;}
+  .gv-dong{display:flex;align-items:baseline;justify-content:center;gap:3mm;margin-top:2.5mm;}
+  .gv-nhan{font-size:13.5pt;font-weight:800;}
+  .tengv{font-family:"Dancing Script",cursive;font-size:24pt;font-weight:700;line-height:1.1;}
 
   @media print{
     body{background:#fff;padding:0;}
