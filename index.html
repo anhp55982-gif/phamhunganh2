@@ -1279,6 +1279,7 @@
                         <label style="font-size:13px; font-weight:bold; color:#a16207;">Năm học:</label>
                         <input type="text" id="tdNamHoc" oninput="luuTenTruong()" placeholder="2026–2027" style="margin:5px 0 0 0; padding:11px;">
                     </div>
+                    <span id="tdBaoLuu" style="font-size:13px; color:#16a34a; font-weight:bold; align-self:center; min-width:70px;"></span>
                 </div>
 
                 <div id="tdKhungCong" style="display:none;"></div>
@@ -2618,13 +2619,31 @@
             return d.getTime();
         }
 
+        // Cài đặt giấy khen lưu TRÊN FIREBASE để đổi máy vẫn còn
+        let cdGiayKhen = {};
+        let henLuuGK = null;
+
         window.luuTenTruong = () => {
-            try {
-                localStorage.setItem('tenTruong', document.getElementById("tdTenTruong").value.trim());
-                localStorage.setItem('tenPhongTrao', document.getElementById("tdTenPhongTrao").value.trim());
-                localStorage.setItem('ngayInGK', document.getElementById("tdNgayIn").value);
-                localStorage.setItem('namHocGK', document.getElementById("tdNamHoc").value.trim());
-            } catch(e) {}
+            cdGiayKhen = {
+                tenTruong:   document.getElementById("tdTenTruong").value.trim(),
+                tenPhongTrao: document.getElementById("tdTenPhongTrao").value.trim(),
+                ngayIn:      document.getElementById("tdNgayIn").value,
+                namHoc:      document.getElementById("tdNamHoc").value.trim()
+            };
+            try { localStorage.setItem('caiDatGK', JSON.stringify(cdGiayKhen)); } catch(e) {}
+
+            // Chờ ngừng gõ 800ms mới ghi lên Firebase, tránh ghi liên tục từng ký tự
+            clearTimeout(henLuuGK);
+            henLuuGK = setTimeout(async () => {
+                try {
+                    await set(ref(db, 'caidat/giaykhen'), cdGiayKhen);
+                    const bc = document.getElementById("tdBaoLuu");
+                    if(bc) { bc.innerText = "✅ Đã lưu"; setTimeout(() => { bc.innerText = ""; }, 2000); }
+                } catch(e) {
+                    const bc = document.getElementById("tdBaoLuu");
+                    if(bc) bc.innerText = "⚠️ Chưa lưu được lên máy chủ";
+                }
+            }, 800);
         };
 
         // Năm học Việt Nam bắt đầu từ tháng 8
@@ -2633,24 +2652,32 @@
             return (d.getMonth() + 1 >= 8) ? `${n}–${n + 1}` : `${n - 1}–${n}`;
         }
 
-        function napTenTruong() {
+        async function napTenTruong() {
+            // Lấy từ Firebase trước; chưa có mạng thì dùng bản lưu tạm trong máy
+            let cd = {};
             try {
-                const a = document.getElementById("tdTenTruong");
-                const b = document.getElementById("tdTenPhongTrao");
-                const c = document.getElementById("tdNgayIn");
-                const e2 = document.getElementById("tdNamHoc");
-                if(a) a.value = localStorage.getItem('tenTruong') || "";
-                if(b) b.value = localStorage.getItem('tenPhongTrao') || "";
-                const hn = new Date();
-                const p2 = n => String(n).padStart(2, '0');
-                if(c) c.value = localStorage.getItem('ngayInGK') ||
-                    `${hn.getFullYear()}-${p2(hn.getMonth()+1)}-${p2(hn.getDate())}`;
-                if(e2) e2.value = localStorage.getItem('namHocGK') || namHocMacDinh(hn);
+                const snap = await get(ref(db, 'caidat/giaykhen'));
+                if(snap.exists()) cd = snap.val();
             } catch(e) {}
+            if(!cd || Object.keys(cd).length === 0) {
+                try { cd = JSON.parse(localStorage.getItem('caiDatGK') || '{}'); } catch(e) { cd = {}; }
+            }
+            cdGiayKhen = cd;
+
+            const hn = new Date();
+            const p2 = n => String(n).padStart(2, '0');
+            const a = document.getElementById("tdTenTruong");
+            const b = document.getElementById("tdTenPhongTrao");
+            const c = document.getElementById("tdNgayIn");
+            const e2 = document.getElementById("tdNamHoc");
+            if(a) a.value = cd.tenTruong || "";
+            if(b) b.value = cd.tenPhongTrao || "";
+            if(c) c.value = cd.ngayIn || `${hn.getFullYear()}-${p2(hn.getMonth()+1)}-${p2(hn.getDate())}`;
+            if(e2) e2.value = cd.namHoc || namHocMacDinh(hn);
         }
 
         window.taiThiDua = async () => {
-            napTenTruong();
+            await napTenTruong();
             if(Object.keys(dbTaiKhoan).length === 0) await taiTaiKhoan();
             const sel = document.getElementById("tdLopXem");
             const lop = dsLopHienCo();
@@ -2982,12 +3009,12 @@
             const to = top.map(x => {
                 const m = bo[x.hang];
                 const chamTron = [
-                    `left:5.5%;  top:30%; width:3.4mm; background:${m.c3}`,
-                    `left:7.5%;  top:38%; width:2.2mm; background:${m.c1}`,
-                    `right:5.5%; top:28%; width:3.4mm; background:${m.c2}`,
-                    `right:7.5%; top:36%; width:2.2mm; background:${m.c3}`,
-                    `left:6.5%;  top:70%; width:2.6mm; background:${m.hoa}`,
-                    `right:6.5%; top:72%; width:2.6mm; background:${m.c1}`
+                    `left:5.5%;  top:30%; width:3.4mm; height:3.4mm; background:${m.c3}`,
+                    `left:7.5%;  top:38%; width:2.2mm; height:2.2mm; background:${m.c1}`,
+                    `right:5.5%; top:28%; width:3.4mm; height:3.4mm; background:${m.c2}`,
+                    `right:7.5%; top:36%; width:2.2mm; height:2.2mm; background:${m.c3}`,
+                    `left:6.5%;  top:70%; width:2.6mm; height:2.6mm; background:${m.hoa}`,
+                    `right:6.5%; top:72%; width:2.6mm; height:2.6mm; background:${m.c1}`
                 ].map(v => `<i class="cham" style="${v}"></i>`).join('');
                 const bongBay = chamTron;
 
@@ -3035,10 +3062,8 @@
                         </div>
                         <div class="ky" style="color:${m.chu};">
                           <div class="ngay">${ngayThang}</div>
-                          <div class="gv-dong">
-                            <span class="gv-nhan">Giáo viên:</span>
-                            <span class="tengv">Phạm Hùng Anh</span>
-                          </div>
+                          <div class="chuc">GIÁO VIÊN BỘ MÔN</div>
+                          <div class="tengv">Phạm Hùng Anh</div>
                         </div>
                       </div>
 
@@ -3061,6 +3086,8 @@
   .thanh{max-width:1000px;margin:0 auto 16px;text-align:center;}
   .thanh button{padding:13px 28px;margin:0 5px;font-size:15px;font-weight:800;border:none;
                 border-radius:12px;background:#fbbf24;color:#422006;cursor:pointer;}
+  .thanh button.phu{background:#64748b;color:#fff;}
+  .thanh button:disabled{opacity:.55;cursor:wait;}
   .thanh p{font-size:13px;color:#c7d2fe;margin-top:10px;}
 
   .to{width:297mm;height:210mm;margin:0 auto 18px;page-break-after:always;}
@@ -3076,30 +3103,30 @@
   .g4{bottom:2mm;right:2mm;transform:scale(-1,-1);opacity:.55;}
 
   /* Chấm tròn trang trí hai bên */
-  .cham{position:absolute;aspect-ratio:1;border-radius:50%;opacity:.55;}
+  .cham{position:absolute;border-radius:50%;opacity:.55;}
 
   .bang{color:#fff;font-size:15pt;font-weight:800;letter-spacing:1.8px;
         padding:2.4mm 17mm;border-radius:999px;box-shadow:0 2mm 4mm rgba(0,0,0,.12);z-index:2;}
 
-  .td-hang{display:flex;align-items:center;gap:6mm;margin-top:3mm;z-index:2;}
+  .td-hang{display:flex;align-items:center;gap:6mm;margin-top:7mm;z-index:2;}
   .sao{width:12.5mm;height:12.5mm;}
   .tieude{font-size:50pt;font-weight:800;letter-spacing:6px;line-height:1.05;
           text-shadow:0 2px 0 #fff, 0 5px 8px rgba(0,0,0,.15);}
   .song{font-size:14pt;letter-spacing:5px;margin-top:0.5mm;}
 
-  .tang{font-size:15pt;margin-top:2.5mm;font-weight:600;}
+  .tang{font-size:15pt;margin-top:2mm;font-weight:600;}
   .ten{font-family:"Dancing Script","Brush Script MT",cursive;font-size:58pt;line-height:1.04;
        margin-top:0;font-weight:700;}
   .net{width:120mm;height:1.3mm;border-radius:999px;margin:1.2mm 0 1.8mm;}
   .lop{font-size:15pt;font-weight:600;}
 
-  .vi{font-size:15.5pt;margin-top:4mm;max-width:215mm;line-height:1.4;font-weight:600;}
+  .vi{font-size:15.5pt;margin-top:3mm;max-width:215mm;line-height:1.4;font-weight:600;}
 
   .ruybang{color:#fff;font-size:25pt;font-weight:800;letter-spacing:4px;border-radius:999px;
            padding:2.8mm 20mm;margin-top:3mm;box-shadow:0 2mm 5mm rgba(0,0,0,.18);
            border:3px solid #fff;}
   .dot{font-size:13pt;margin-top:2.5mm;font-weight:600;}
-  .chuc-mung{font-size:13.5pt;font-style:italic;font-weight:600;margin-top:4mm;
+  .chuc-mung{font-size:13.5pt;font-style:italic;font-weight:600;margin-top:3mm;
              border-top:1.5px dashed;border-bottom:1.5px dashed;padding:1.8mm 10mm;}
 
   .chan{margin-top:auto;padding:2mm 7mm 2mm 2mm;width:100%;display:flex;align-items:flex-end;justify-content:space-between;z-index:2;}
@@ -3110,9 +3137,8 @@
   .nd{font-size:9pt;letter-spacing:2px;font-weight:700;}
   .ky{text-align:center;min-width:80mm;}
   .ngay{font-size:12.5pt;font-style:italic;}
-  .gv-dong{display:flex;align-items:baseline;justify-content:center;gap:3mm;margin-top:2.5mm;}
-  .gv-nhan{font-size:13.5pt;font-weight:800;}
-  .tengv{font-family:"Dancing Script",cursive;font-size:24pt;font-weight:700;line-height:1.1;}
+  .chuc{font-size:13.5pt;font-weight:800;margin-top:2mm;letter-spacing:.5px;}
+  .tengv{font-family:"Dancing Script",cursive;font-size:25pt;font-weight:700;line-height:1.15;margin-top:0.5mm;}
 
   @media print{
     body{background:#fff;padding:0;}
@@ -3122,10 +3148,43 @@
   }
 </style></head><body>
   <div class="thanh">
-    <button onclick="window.print()">🖨 IN ${top.length} GIẤY KHEN</button>
-    <p>Khổ A4 ngang — mỗi em một tờ. Khi in chọn <b>Khổ ngang (Landscape)</b> và bật <b>In hình nền / Background graphics</b>.</p>
+    <button id="nutPdf" onclick="taiPDF()">📄 TẢI VỀ FILE PDF</button>
+    <button class="phu" onclick="window.print()">🖨 In trực tiếp</button>
+    <p id="trangThaiPdf">File PDF giống y hệt những gì thầy thấy ở đây — khổ A4 ngang, mỗi em một trang.</p>
   </div>
   ${to}
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"><\/script>
+  <script>
+    async function taiPDF(){
+      var nut = document.getElementById('nutPdf');
+      var bao = document.getElementById('trangThaiPdf');
+      if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined'){
+        bao.innerHTML = '⚠️ Chưa tải được thư viện tạo PDF. Thầy kiểm tra mạng rồi tải lại trang, hoặc dùng nút <b>In trực tiếp</b> rồi chọn "Lưu thành PDF".';
+        return;
+      }
+      nut.disabled = true;
+      try{
+        await document.fonts.ready;           // chờ phông chữ viết tay tải xong
+        var to = document.querySelectorAll('.to');
+        var pdf = new window.jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+        for(var i = 0; i < to.length; i++){
+          bao.innerText = 'Đang tạo trang ' + (i+1) + '/' + to.length + '...';
+          var canvas = await html2canvas(to[i], {
+            scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false
+          });
+          var anh = canvas.toDataURL('image/jpeg', 0.95);
+          if(i > 0) pdf.addPage('a4', 'landscape');
+          pdf.addImage(anh, 'JPEG', 0, 0, 297, 210);
+        }
+        pdf.save('GiayKhen_${lop}_${(new Date()).getTime()}.pdf');
+        bao.innerText = '✅ Đã tải xong ' + to.length + ' giấy khen.';
+      } catch(e){
+        bao.innerHTML = '⚠️ Lỗi khi tạo PDF: ' + e.message + '. Thầy dùng nút <b>In trực tiếp</b> rồi chọn "Lưu thành PDF" thay thế.';
+      }
+      nut.disabled = false;
+    }
+  <\/script>
 </body></html>`);
             w.document.close();
         };
