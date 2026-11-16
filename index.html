@@ -2714,13 +2714,15 @@
         }
 
         // Gán thứ hạng, cùng điểm thì đồng hạng (1, 2, 2, 4 — không có hạng 3)
+        // Xếp hạng theo BẬC ĐIỂM: mức điểm cao nhất là hạng 1, mức kế tiếp là hạng 2...
+        // Hai em cùng nhất thì em sau vẫn là hạng NHÌ, không nhảy thẳng xuống hạng ba —
+        // hợp với cách trao giấy khen ở trường hơn kiểu xếp hạng thi đấu.
         function ganThuHang(ds) {
             let hang = 0, diemTruoc = null;
-            ds.forEach((x, i) => {
-                if(diemTruoc === null || x.tong !== diemTruoc) { hang = i + 1; diemTruoc = x.tong; }
+            ds.forEach(x => {
+                if(diemTruoc === null || x.tong !== diemTruoc) { hang++; diemTruoc = x.tong; }
                 x.hang = hang;
             });
-            // Đánh dấu em nào đang chia hạng với bạn khác
             const dem = {};
             ds.forEach(x => dem[x.hang] = (dem[x.hang] || 0) + 1);
             ds.forEach(x => x.dongHang = dem[x.hang] > 1);
@@ -2797,7 +2799,7 @@
                 h += `<div style="display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid #f8fafc; ${am ? 'background:#fef2f2;' : ''}">
                     <b style="color:${am ? '#b91c1c' : '#b45309'}; min-width:48px; font-size:16px;">${am ? '' : '+'}${v.diem}</b>
                     <div style="flex:1; text-align:left; font-size:14px;">${v.lyDo || ''}
-                        <div style="font-size:12px; color:#94a3b8;">${ng}${v.tuDong ? ' · tự động' : ''}${v.daSua ? ' · đã sửa' : ''}</div></div>
+                        <div style="font-size:12px; color:#94a3b8;">${ng}${v.tuDong ? ' · tự động' : ''}${v.buNgay ? ' · <b style="color:#b45309;">cộng bù</b>' : ''}${v.daSua ? ' · đã sửa' : ''}</div></div>
                     <button onclick="suaDiemCong('${u.replace(/'/g,"\\'")}','${v.id}')" title="Sửa lý do hoặc số điểm" style="padding:5px 10px; margin:0 3px; border:1px solid #bae6fd; border-radius:7px; background:#f0f9ff; color:#0369a1; cursor:pointer; font-size:12px; font-weight:bold;">✏️</button>
                     <button onclick="xoaDiemCong('${u.replace(/'/g,"\\'")}','${v.id}')" title="Xoá" style="padding:5px 10px; margin:0; border:none; border-radius:7px; background:#fee2e2; color:#dc2626; cursor:pointer; font-size:12px; font-weight:bold;">✕</button>
                 </div>`;
@@ -2820,16 +2822,33 @@
             const so = parseFloat(soMoi);
             if(isNaN(so) || so <= 0) return alert("Số điểm phải lớn hơn 0.");
 
+            // Cho sửa cả ngày ghi nhận, phòng khi chọn nhầm lúc cộng bù
+            const p2 = n => String(n).padStart(2, '0');
+            const dCu = new Date(v.ngay || Date.now());
+            const ngayCu = `${dCu.getFullYear()}-${p2(dCu.getMonth()+1)}-${p2(dCu.getDate())}`;
+            const ngayMoi = prompt("Ngày ghi nhận (dạng NĂM-THÁNG-NGÀY):", ngayCu);
+            if(ngayMoi === null) return;
+            let mocMoi = v.ngay;
+            if(ngayMoi.trim() && ngayMoi.trim() !== ngayCu) {
+                const t = new Date(ngayMoi.trim() + "T12:00:00").getTime();
+                if(isNaN(t)) return alert("Ngày không hợp lệ.");
+                if(t > Date.now()) return alert("Không chọn được ngày trong tương lai.");
+                mocMoi = t;
+            }
+
             try {
                 await update(ref(db, `diemcong/${u}/${id}`), {
                     lyDo: lyDoMoi.trim(),
                     diem: laTru ? -so : so,
+                    ngay: mocMoi,
+                    buNgay: mocMoi !== v.ngay ? true : (v.buNgay || false),
                     daSua: true
                 });
                 if(dbDiemCong[u] && dbDiemCong[u][id]) {
-                    dbDiemCong[u][id].lyDo = lyDoMoi.trim();
-                    dbDiemCong[u][id].diem = laTru ? -so : so;
-                    dbDiemCong[u][id].daSua = true;
+                    Object.assign(dbDiemCong[u][id], {
+                        lyDo: lyDoMoi.trim(), diem: laTru ? -so : so,
+                        ngay: mocMoi, daSua: true
+                    });
                 }
                 veBangThiDua();
                 xemLichSuCong(u);
@@ -2871,10 +2890,13 @@
                 <b style="color:${chu}; font-size:16px;">${tieuDe} — lớp ${lop}
                     <span style="font-weight:normal; color:#78716c; font-size:14px;">(${hs.length} em)</span></b>
 
-                <div style="display:grid; grid-template-columns:1fr 110px; gap:12px; margin:12px 0;">
+                <div style="display:grid; grid-template-columns:1fr 150px 110px; gap:12px; margin:12px 0;">
                     <div><label style="font-size:13px; font-weight:bold; color:${chu};">Lý do ${tru ? 'trừ' : 'cộng'} điểm:</label>
                         <input type="text" id="cdLyDo" list="ds-ly-do" placeholder="${tru ? 'VD: Không làm bài tập' : 'VD: Hăng hái phát biểu'}" style="margin:4px 0 0 0; padding:11px;">
                         <datalist id="ds-ly-do">${lyDoGoiY.map(x=>`<option value="${x}">`).join('')}</datalist></div>
+                    <div><label style="font-size:13px; font-weight:bold; color:${chu};">📅 Ngày ghi nhận:</label>
+                        <input type="date" id="cdNgay" max="${homNayISO()}" value="${homNayISO()}" onchange="xemNgayBu()" style="margin:4px 0 0 0; padding:11px;">
+                        <div id="cdNhanBu" style="font-size:12px; color:#b45309; font-weight:bold; margin-top:4px; min-height:16px;"></div></div>
                     <div><label style="font-size:13px; font-weight:bold; color:${chu};">Số điểm:</label>
                         <input type="number" id="cdDiem" value="0.5" step="0.5" min="0" max="10" style="margin:4px 0 0 0; padding:11px; text-align:center; font-weight:bold;"></div>
                 </div>
@@ -2916,6 +2938,30 @@
             if(kt) kt.style.display = hien === 0 ? 'block' : 'none';
         };
 
+        function homNayISO() {
+            const d = new Date(), p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+        }
+
+        // Báo cho thầy biết đang cộng bù về ngày nào, rơi vào tuần/tháng nào
+        window.xemNgayBu = () => {
+            const o = document.getElementById("cdNgay");
+            const nhan = document.getElementById("cdNhanBu");
+            if(!o || !nhan) return;
+            if(!o.value || o.value === homNayISO()) { nhan.innerText = ""; return; }
+
+            const d = new Date(o.value + "T12:00:00");
+            const soNgay = Math.round((Date.now() - d.getTime()) / 86400000);
+            const dauTuan = (() => { const t = new Date(); const thu = (t.getDay()+6)%7; t.setDate(t.getDate()-thu); t.setHours(0,0,0,0); return t.getTime(); })();
+            const dauThang = (() => { const t = new Date(); t.setDate(1); t.setHours(0,0,0,0); return t.getTime(); })();
+
+            let thuoc;
+            if(d.getTime() >= dauTuan) thuoc = "vẫn tính vào tuần này";
+            else if(d.getTime() >= dauThang) thuoc = "tính vào tháng này, không vào tuần này";
+            else thuoc = "tính vào tháng " + (d.getMonth()+1) + ", không vào tháng này";
+            nhan.innerText = `⏪ Cộng bù ${soNgay} ngày trước — ${thuoc}`;
+        };
+
         window.demCongDiem = () => {
             const n = document.querySelectorAll('.hs-cong:checked').length;
             const el = document.getElementById("cdDem");
@@ -2941,15 +2987,21 @@
             if(isNaN(diem) || diem <= 0) return alert("Số điểm phải lớn hơn 0.");
             if(tru) diem = -diem;
 
-            const ngay = Date.now();
+            // Ngày ghi nhận: mặc định hôm nay, cộng bù thì lấy ngày thầy chọn
+            const raw = (document.getElementById("cdNgay") || {}).value || "";
+            const laBu = raw && raw !== homNayISO();
+            const ngay = laBu ? new Date(raw + "T12:00:00").getTime() : Date.now();
+            if(laBu && ngay > Date.now()) return alert("Không chọn được ngày trong tương lai.");
+
             try {
                 await Promise.all(chon.map(u => push(ref(db, 'diemcong/' + u), {
-                    diem, lyDo, ngay, tuDong: false,
+                    diem, lyDo, ngay, tuDong: false, buNgay: !!laBu,
                     lop: (dbTaiKhoan[u] || {}).targetClass || '', ten: (dbTaiKhoan[u] || {}).fullName || u
                 })));
                 document.getElementById("tdKhungCong").style.display = 'none';
                 await taiThiDua();
-                alert(`✅ Đã ${tru ? 'trừ' : 'cộng'} ${Math.abs(diem)} điểm cho ${chon.length} em.\nLý do: ${lyDo}`);
+                const moTaNgay = laBu ? `\n📅 Ghi nhận vào ngày ${new Date(ngay).toLocaleDateString('vi-VN')} (cộng bù)` : "";
+                alert(`✅ Đã ${tru ? 'trừ' : 'cộng'} ${Math.abs(diem)} điểm cho ${chon.length} em.\nLý do: ${lyDo}${moTaNgay}`);
             } catch(e) { alert("Lỗi: " + e.message); }
         };
 
